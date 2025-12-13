@@ -222,4 +222,3 @@ class _EmptyVideosState extends StatelessWidget {
   }
 }
 
-

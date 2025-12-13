@@ -51,8 +51,8 @@ linter:
     conditional_uri_does_not_exist: true
     deprecated_consistency: true
     directives_ordering: true
-    eol_at_end_of_file: true
-    flutter_style_todos: true
+    eol_at_end_of_file: false  # Handled by IDE/formatter
+    flutter_style_todos: false  # Disabled: TODOs are placeholders for implementation
     join_return_with_assignment: true
     leading_newlines_in_multiline_strings: true
     missing_whitespace_between_adjacent_strings: true

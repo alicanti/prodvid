@@ -614,4 +614,3 @@ class _AspectRatioOption extends StatelessWidget {
   }
 }
 
-
