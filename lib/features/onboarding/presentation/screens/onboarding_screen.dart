@@ -17,19 +17,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int _currentPage = 0;
 
   final List<_OnboardingData> _pages = [
-    _OnboardingData(
+    const _OnboardingData(
       icon: Icons.photo_library_outlined,
       title: 'Upload Your Products',
       description: 'Add photos and descriptions of your products to get started.',
       gradient: AppColors.primaryGradient,
     ),
-    _OnboardingData(
+    const _OnboardingData(
       icon: Icons.auto_awesome_outlined,
       title: 'AI-Powered Videos',
       description: 'Our AI transforms your product photos into stunning marketing videos.',
       gradient: AppColors.accentGradient,
     ),
-    _OnboardingData(
+    const _OnboardingData(
       icon: Icons.share_outlined,
       title: 'Share Everywhere',
       description: 'Download and share your videos on social media and e-commerce platforms.',
@@ -207,4 +207,5 @@ class _OnboardingPage extends StatelessWidget {
     );
   }
 }
+
 

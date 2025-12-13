@@ -196,7 +196,7 @@ class _EmptyVideosState extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Icon(
+          const Icon(
             Icons.videocam_off_outlined,
             size: 64,
             color: AppColors.textTertiary,
@@ -221,4 +221,5 @@ class _EmptyVideosState extends StatelessWidget {
     );
   }
 }
+
 

@@ -38,7 +38,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                     // Header
                     Container(
                       padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         gradient: AppColors.premiumGradient,
                         shape: BoxShape.circle,
                       ),
@@ -441,4 +441,5 @@ class _CreditPackCard extends StatelessWidget {
     );
   }
 }
+
 

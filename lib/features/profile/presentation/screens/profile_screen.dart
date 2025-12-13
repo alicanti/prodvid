@@ -100,7 +100,7 @@ class _ProfileHeader extends StatelessWidget {
         Container(
           width: 100,
           height: 100,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: AppColors.primaryGradient,
             shape: BoxShape.circle,
           ),
@@ -311,7 +311,7 @@ class _MenuItem extends StatelessWidget {
       title: Text(title),
       subtitle: Text(
         subtitle,
-        style: TextStyle(color: AppColors.textTertiary),
+        style: const TextStyle(color: AppColors.textTertiary),
       ),
       trailing: const Icon(
         Icons.chevron_right,
@@ -320,4 +320,5 @@ class _MenuItem extends StatelessWidget {
     );
   }
 }
+
 

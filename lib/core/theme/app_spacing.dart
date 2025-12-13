@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 /// Consistent spacing values across the app
 abstract class AppSpacing {
   // Base unit
-  static const double unit = 4.0;
+  static const double unit = 4;
   
   // Spacing values
   static const double xxs = unit; // 4
@@ -56,13 +56,13 @@ abstract class AppSpacing {
   static const SizedBox horizontalXxl = SizedBox(width: xxl);
   
   // Border Radius
-  static const double radiusXs = 4.0;
-  static const double radiusSm = 8.0;
-  static const double radiusMd = 12.0;
-  static const double radiusLg = 16.0;
-  static const double radiusXl = 24.0;
-  static const double radiusXxl = 32.0;
-  static const double radiusFull = 999.0;
+  static const double radiusXs = 4;
+  static const double radiusSm = 8;
+  static const double radiusMd = 12;
+  static const double radiusLg = 16;
+  static const double radiusXl = 24;
+  static const double radiusXxl = 32;
+  static const double radiusFull = 999;
   
   // Common border radii
   static const BorderRadius borderRadiusXs = BorderRadius.all(Radius.circular(radiusXs));
@@ -72,4 +72,5 @@ abstract class AppSpacing {
   static const BorderRadius borderRadiusXl = BorderRadius.all(Radius.circular(radiusXl));
   static const BorderRadius borderRadiusXxl = BorderRadius.all(Radius.circular(radiusXxl));
 }
+
 

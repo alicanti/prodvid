@@ -177,13 +177,12 @@ class _PhotosStep extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: AppColors.border,
-                    style: BorderStyle.solid,
                   ),
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.add_photo_alternate_outlined,
                       size: 64,
                       color: AppColors.textTertiary,
@@ -276,7 +275,7 @@ class _DetailsStep extends StatelessWidget {
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
                       labelText: 'Price (Optional)',
-                      hintText: '\$99.99',
+                      hintText: r'$99.99',
                       prefixIcon: Icon(Icons.attach_money),
                     ),
                   ),
@@ -361,7 +360,7 @@ class _TemplateStepState extends State<_TemplateStep> {
                   onTap: () {
                     setState(() => _selectedTemplate = index);
                   },
-                  child: Container(
+                  child: DecoratedBox(
                     decoration: BoxDecoration(
                       color: AppColors.surface,
                       borderRadius: BorderRadius.circular(12),
@@ -376,7 +375,7 @@ class _TemplateStepState extends State<_TemplateStep> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.play_circle_outline,
                                 size: 48,
                                 color: AppColors.textTertiary,
@@ -614,4 +613,5 @@ class _AspectRatioOption extends StatelessWidget {
     );
   }
 }
+
 

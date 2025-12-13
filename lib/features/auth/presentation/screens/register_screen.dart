@@ -217,7 +217,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             TextSpan(
                               text: 'I agree to the ',
                               style: Theme.of(context).textTheme.bodySmall,
-                              children: [
+                              children: const [
                                 TextSpan(
                                   text: 'Terms of Service',
                                   style: TextStyle(
@@ -225,7 +225,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                const TextSpan(text: ' and '),
+                                TextSpan(text: ' and '),
                                 TextSpan(
                                   text: 'Privacy Policy',
                                   style: TextStyle(
@@ -287,4 +287,5 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
+
 

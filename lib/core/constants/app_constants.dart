@@ -52,3 +52,4 @@ abstract class AppConstants {
   static const Duration videoGenerationTimeout = Duration(minutes: 10);
 }
 
+

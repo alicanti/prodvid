@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/register_screen.dart';
 import '../features/home/presentation/screens/home_screen.dart';
 import '../features/onboarding/presentation/screens/onboarding_screen.dart';
-import '../features/video/presentation/screens/video_creation_screen.dart';
-import '../features/subscription/presentation/screens/paywall_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
+import '../features/subscription/presentation/screens/paywall_screen.dart';
+import '../features/video/presentation/screens/video_creation_screen.dart';
 
 /// Route names
 abstract class AppRoutes {
@@ -193,4 +193,5 @@ class _ErrorScreen extends StatelessWidget {
     );
   }
 }
+
 
