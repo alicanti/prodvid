@@ -87,14 +87,19 @@ class VideoExportScreen extends StatelessWidget {
                                       gradient: LinearGradient(
                                         begin: Alignment.topLeft,
                                         end: Alignment.bottomRight,
-                                        colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+                                        colors: [
+                                          Color(0xFF667eea),
+                                          Color(0xFF764ba2),
+                                        ],
                                       ),
                                     ),
                                     child: Center(
                                       child: Icon(
                                         Icons.play_circle_filled,
                                         size: 80,
-                                        color: Colors.white.withValues(alpha: 0.7),
+                                        color: Colors.white.withValues(
+                                          alpha: 0.7,
+                                        ),
                                       ),
                                     ),
                                   ),

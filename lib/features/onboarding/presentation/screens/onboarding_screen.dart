@@ -36,7 +36,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _completeOnboarding() {
-    context.go('/login');
+    context.go('/home');
   }
 
   @override
@@ -101,28 +101,36 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onPressed: _nextPage,
                   ),
 
-                  if (_currentPage == 2) ...[
-                    const SizedBox(height: 16),
-                    TextButton(
-                      onPressed: () => context.go('/login'),
-                      child: RichText(
-                        text: TextSpan(
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textSecondaryDark,
-                          ),
-                          children: [
-                            const TextSpan(text: 'Already have an account? '),
-                            TextSpan(
-                              text: 'Log in',
-                              style: TextStyle(color: AppColors.primary),
-                            ),
-                          ],
-                        ),
+                  const SizedBox(height: 16),
+                  
+                  // Terms and Privacy
+                  Text.rich(
+                    TextSpan(
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textTertiaryDark,
                       ),
+                      children: [
+                        const TextSpan(text: 'By continuing, you agree to our '),
+                        TextSpan(
+                          text: 'Terms of Service',
+                          style: TextStyle(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const TextSpan(text: ' and '),
+                        TextSpan(
+                          text: 'Privacy Policy',
+                          style: TextStyle(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                    textAlign: TextAlign.center,
+                  ),
                 ],
               ),
             ),
@@ -146,155 +154,175 @@ class _OnboardingPage1 extends StatelessWidget {
           // Hero image
           Expanded(
             flex: 3,
-            child: Container(
-              margin: const EdgeInsets.only(top: 8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.3),
-                    blurRadius: 30,
-                    offset: const Offset(0, 15),
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    // Gradient background
-                    Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-                        ),
-                      ),
-                      child: Center(
-                        child: Icon(
-                          Icons.auto_awesome,
-                          size: 80,
-                          color: Colors.white.withValues(alpha: 0.3),
-                        ),
-                      ),
-                    ),
-
-                    // Gradient overlay
-                    Container(
+            child:
+                Container(
+                      margin: const EdgeInsets.only(top: 8),
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            Colors.transparent,
-                            AppColors.backgroundDark.withValues(alpha: 0.9),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    // AI Badge
-                    Positioned(
-                      top: 16,
-                      right: 16,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.4),
-                          borderRadius: BorderRadius.circular(9999),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            blurRadius: 30,
+                            offset: const Offset(0, 15),
                           ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Stack(
+                          fit: StackFit.expand,
                           children: [
-                            Icon(
-                              Icons.auto_awesome,
-                              color: AppColors.primary,
-                              size: 18,
-                            ),
-                            const SizedBox(width: 6),
-                            const Text(
-                              'AI MAGIC',
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                                letterSpacing: 1,
+                            // Gradient background
+                            Container(
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    Color(0xFF667eea),
+                                    Color(0xFF764ba2),
+                                  ],
+                                ),
                               ),
+                              child: Center(
+                                child: Icon(
+                                  Icons.auto_awesome,
+                                  size: 80,
+                                  color: Colors.white.withValues(alpha: 0.3),
+                                ),
+                              ),
+                            ),
+
+                            // Gradient overlay
+                            Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.transparent,
+                                    Colors.transparent,
+                                    AppColors.backgroundDark.withValues(
+                                      alpha: 0.9,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            // AI Badge
+                            Positioned(
+                              top: 16,
+                              right: 16,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.4),
+                                  borderRadius: BorderRadius.circular(9999),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.1),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.auto_awesome,
+                                      color: AppColors.primary,
+                                      size: 18,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    const Text(
+                                      'AI MAGIC',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white,
+                                        letterSpacing: 1,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            // Processing card
+                            Positioned(
+                              left: 16,
+                              right: 16,
+                              bottom: 24,
+                              child:
+                                  _GlassCard(
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              width: 48,
+                                              height: 48,
+                                              decoration: BoxDecoration(
+                                                color: AppColors.primary
+                                                    .withValues(alpha: 0.2),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: Icon(
+                                                Icons.videocam,
+                                                color: AppColors.primary,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 16),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        'PROCESSING',
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          color:
+                                                              AppColors.primary,
+                                                          letterSpacing: 0.5,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        '98%',
+                                                        style: TextStyle(
+                                                          fontSize: 10,
+                                                          color: AppColors
+                                                              .textSecondaryDark,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(height: 8),
+                                                  _ProgressBar(progress: 0.98),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                      .animate()
+                                      .fadeIn(delay: 500.ms)
+                                      .slideY(begin: 0.3),
                             ),
                           ],
                         ),
                       ),
-                    ),
-
-                    // Processing card
-                    Positioned(
-                      left: 16,
-                      right: 16,
-                      bottom: 24,
-                      child: _GlassCard(
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 48,
-                              height: 48,
-                              decoration: BoxDecoration(
-                                color: AppColors.primary.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Icon(
-                                Icons.videocam,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        'PROCESSING',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                          color: AppColors.primary,
-                                          letterSpacing: 0.5,
-                                        ),
-                                      ),
-                                      Text(
-                                        '98%',
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          color: AppColors.textSecondaryDark,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  _ProgressBar(progress: 0.98),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.3),
-                    ),
-                  ],
-                ),
-              ),
-            ).animate().fadeIn(duration: 600.ms).scale(begin: const Offset(0.95, 0.95)),
+                    )
+                    .animate()
+                    .fadeIn(duration: 600.ms)
+                    .scale(begin: const Offset(0.95, 0.95)),
           ),
 
           const SizedBox(height: 32),

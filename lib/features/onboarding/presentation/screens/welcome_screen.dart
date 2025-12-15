@@ -44,36 +44,51 @@ class WelcomeScreen extends StatelessWidget {
                   // Card carousel
                   SizedBox(
                     height: 280,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      children: [
-                        const _StepCard(
-                          index: 0,
-                          title: '1. Upload Image',
-                          icon: Icons.add_photo_alternate_rounded,
-                          gradientColors: [Color(0xFF667eea), Color(0xFF764ba2)],
-                          showUploadBadge: true,
-                        ),
-                        const SizedBox(width: 16),
-                        const _StepCard(
-                          index: 1,
-                          title: '2. Select AI Effect',
-                          icon: Icons.auto_awesome,
-                          gradientColors: [Color(0xFF4facfe), Color(0xFF00f2fe)],
-                          isHighlighted: true,
-                          showMagicIcon: true,
-                        ),
-                        const SizedBox(width: 16),
-                        const _StepCard(
-                          index: 2,
-                          title: '3. Get Video Ad',
-                          icon: Icons.play_circle_filled_rounded,
-                          gradientColors: [Color(0xFFfa709a), Color(0xFFfee140)],
-                          showPlayButton: true,
-                        ),
-                      ],
-                    ).animate().fadeIn(delay: 200.ms, duration: 500.ms).slideX(begin: 0.1),
+                    child:
+                        ListView(
+                              scrollDirection: Axis.horizontal,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              children: [
+                                const _StepCard(
+                                  index: 0,
+                                  title: '1. Upload Image',
+                                  icon: Icons.add_photo_alternate_rounded,
+                                  gradientColors: [
+                                    Color(0xFF667eea),
+                                    Color(0xFF764ba2),
+                                  ],
+                                  showUploadBadge: true,
+                                ),
+                                const SizedBox(width: 16),
+                                const _StepCard(
+                                  index: 1,
+                                  title: '2. Select AI Effect',
+                                  icon: Icons.auto_awesome,
+                                  gradientColors: [
+                                    Color(0xFF4facfe),
+                                    Color(0xFF00f2fe),
+                                  ],
+                                  isHighlighted: true,
+                                  showMagicIcon: true,
+                                ),
+                                const SizedBox(width: 16),
+                                const _StepCard(
+                                  index: 2,
+                                  title: '3. Get Video Ad',
+                                  icon: Icons.play_circle_filled_rounded,
+                                  gradientColors: [
+                                    Color(0xFFfa709a),
+                                    Color(0xFFfee140),
+                                  ],
+                                  showPlayButton: true,
+                                ),
+                              ],
+                            )
+                            .animate()
+                            .fadeIn(delay: 200.ms, duration: 500.ms)
+                            .slideX(begin: 0.1),
                   ),
 
                   const SizedBox(height: 32),
@@ -246,13 +261,10 @@ class _StepCard extends StatelessWidget {
                 Positioned(
                   top: 16,
                   right: 16,
-                  child: Icon(
-                        Icons.auto_awesome,
-                        color: Colors.white,
-                        size: 24,
-                      )
+                  child: Icon(Icons.auto_awesome, color: Colors.white, size: 24)
                       .animate(
-                        onPlay: (controller) => controller.repeat(reverse: true),
+                        onPlay: (controller) =>
+                            controller.repeat(reverse: true),
                       )
                       .scale(
                         begin: const Offset(1, 1),
