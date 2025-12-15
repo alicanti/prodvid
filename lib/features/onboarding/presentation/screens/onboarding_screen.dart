@@ -102,7 +102,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
 
                   const SizedBox(height: 16),
-                  
+
                   // Terms and Privacy
                   Text.rich(
                     TextSpan(
@@ -111,7 +111,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         color: AppColors.textTertiaryDark,
                       ),
                       children: [
-                        const TextSpan(text: 'By continuing, you agree to our '),
+                        const TextSpan(
+                          text: 'By continuing, you agree to our ',
+                        ),
                         TextSpan(
                           text: 'Terms of Service',
                           style: TextStyle(

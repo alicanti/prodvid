@@ -43,11 +43,9 @@ ProdVid, kullanıcıların sadece ürün fotoğrafları ve açıklama metni gire
 ### 2.1 Temel Özellikler (MVP)
 
 #### 2.1.1 Kullanıcı Yönetimi
-- Email/şifre ile kayıt ve giriş
-- Google Sign-In
-- Apple Sign-In
-- Şifre sıfırlama
+- Anonymous authentication (anonim giriş)
 - Profil yönetimi
+- Hesap verilerini silme
 
 #### 2.1.2 Ürün Ekleme
 - Birden fazla ürün fotoğrafı yükleme (galeri/kamera)
@@ -482,23 +480,130 @@ Paywall Trigger (Insufficient credits, premium feature, etc.)
 
 ## 8. wiro.ai Entegrasyonu
 
-> **Not:** wiro.ai API detayları ve template bilgileri sonra eklenecektir.
+### 8.1 Model Bilgisi
 
-### 8.1 Beklenen Entegrasyon Noktaları
+- **Model:** wiro/Product Ads
+- **Açıklama:** Ürün fotoğraflarını 100+ yaratıcı preset ile animasyonlu video reklamlarına dönüştürür
+- **Kategoriler:** tool, image-to-video, product-ads, fast-inference
 
-- Template listesi çekme
-- Video oluşturma isteği gönderme
-- Video durumu sorgulama
-- Tamamlanan video URL'si alma
+### 8.2 API Endpoints
 
-### 8.2 Placeholder API Endpoints
+| Endpoint | Method | Açıklama |
+|----------|--------|----------|
+| `https://api.wiro.ai/v1/Run/wiro/product-ads` | POST | Video oluşturma başlat |
+| `https://api.wiro.ai/v1/Task/Detail` | POST | Task durumu sorgula |
+| `https://api.wiro.ai/v1/Task/Kill` | POST | Çalışan task'ı durdur |
+| `https://api.wiro.ai/v1/Task/Cancel` | POST | Kuyruktaki task'ı iptal et |
 
+### 8.3 Authentication
+
+```bash
+# HMAC-SHA256 imza oluşturma
+NONCE=$(date +%s)
+SIGNATURE=$(echo -n "${API_SECRET}${NONCE}" | openssl dgst -sha256 -hmac "${API_KEY}")
 ```
-GET  /templates          - Template listesi
-POST /videos/create      - Video oluşturma başlat
-GET  /videos/{id}/status - Video durumu
-GET  /videos/{id}        - Video detayları
+
+Headers:
+- `x-api-key`: API Key
+- `x-nonce`: Unix timestamp
+- `x-signature`: HMAC-SHA256 imza
+
+### 8.4 Video Modları
+
+| Mod | Değer | Açıklama |
+|-----|-------|----------|
+| Standard | `std` | Standart kalite |
+| Pro | `pro` | Yüksek kalite |
+
+### 8.5 Effect Kategorileri
+
+| Kategori | Açıklama | Örnek Efektler |
+|----------|----------|----------------|
+| Animate Products | Ürün animasyonları | Smoky Pedestal, Water Petals, Snow, Glitter Silver |
+| Scene Morphs | Sahne geçişleri | Studio To Cafe, Fire And Ice, Desert To Jungle |
+| Surreal Staging | Sürreal sunumlar | Claw Machine, 3D Billboard, Make It Big |
+| Product on Model | Model ile ürün | Model Wearing Product, Editorial Portrait |
+| Christmas | Noel temalı | Snow Globe, Christmas Train, Winter Chariot |
+
+### 8.6 Toplam Efekt Sayısı: 100+
+
+**Animate Products (35 efekt):**
+- Smoky Pedestal, Water Petals, Water Dark Electric Hues, Snow, Glitter Silver
+- Roses Smoke, Car Warehouse, Water Splashes Light, Falling Petals, Liquid Gold
+- Oil Bubbles, Golden Fireworks, Led Strips, Water Fruits Splash, Smoke Reveal
+- Rose Petals, Led Strips Colorful, Water Cinematic, Roses Candles, Car Road Seaside
+- Car Road City Night, Bar People, Car Road Forest, Car Road Snow, Rustic Table Fireplace
+- Heat Fumes Countertop, Water Rain, Ink Clouds, Beach Palm, Sea Platform
+- Mist Ribbons Petals, Confetti, Waterfall, Satin Fabric, Pink Ribbons
+
+**Scene Morphs (14 efekt):**
+- Studio To Cafe, Product Jumps Billboards, Luminous Studio, Bubble To Flower Field
+- Helicopter To City, Fire And Ice, Factory To Delivery, Winter To Summer In Grass Field
+- Desert To Jungle Morph, Sky To Eiffel Tower, Product Crystals, Waiter Hand To Bar Counter
+- Underwater To Sky, Rocket To Space
+
+**Surreal Staging (32 efekt):**
+- Claw Machine, 3D Waterfall Billboard, Truck Spring Product, Product Simple Clouds
+- Helicopter City Product, Dome Product, Make It Big, Object On Wheels Fair
+- Oversized Billboard, Toy Packaging Luxury Product, Parachute Clouds Product
+- Commercial With Splash, Tiny Product Held, Object Carousel, Balloon Landscape Product
+- Rock Floating Product, Golden Waterfall, Paraglider Jungle Product, Product Crystals
+- Product In A Bottle, Floating Items, Toy Packaging Product, Product In Calm
+- Receipt To Floating, Product In Flower Blooming, Cupcake Balloons Plane
+- Magic Portal Dispelled, Balloons Product, Donut On Ice, Airplane Window Clouds, Venice Boat
+
+**Product on Model (10 efekt):**
+- Object Studio Held Model, Oversized Object With Model, Model Wearing Product Beach
+- Model Wearing Product Jungle, Product Heels On Feet, Product Wore By Model In Studio
+- Product Wore By Model In Mirror, Model Product Editorial Portrait
+- Object Held By Model In Studio, Product Wore By Model In Paris
+
+**Christmas Presets (9 efekt):**
+- Christmas Snow Globe, Product As Ornaments, Cable Car Miniature
+- Christmas Santa Chimney, Christmas Train, Christmas Snowman Skating
+- Merry Go Round To Elves, Merry Go Round Christmas, Winter Chariot
+
+### 8.7 Task Status Değerleri
+
+**Tamamlanmış (Polling durmalı):**
+- `task_postprocess_end`: Başarılı tamamlandı
+- `task_cancel`: İptal edildi
+
+**Devam eden (Polling devam etmeli):**
+- `task_queue`: Kuyrukta bekliyor
+- `task_accept`: Kabul edildi
+- `task_assign`: Worker'a atanıyor
+- `task_preprocess_start`: Ön işleme başladı
+- `task_preprocess_end`: Ön işleme bitti
+- `task_start`: Çalışmaya başladı
+- `task_output`: Çıktı üretiliyor
+
+### 8.8 Cloud Functions Entegrasyonu
+
+Tüm Wiro API çağrıları güvenlik için Cloud Functions üzerinden yapılır:
+
+```typescript
+// functions/src/wiro/functions.ts
+export const runWiroTask = functions.https.onCall(async (data, context) => {
+  // 1. Auth kontrolü
+  // 2. Kredi kontrolü
+  // 3. API çağrısı (HMAC imza ile)
+  // 4. Kredi düşme
+  // 5. Response döndürme
+});
 ```
+
+### 8.9 Callback URL (Opsiyonel)
+
+Video tamamlandığında webhook almak için `callbackUrl` parametresi gönderilebilir:
+
+```json
+{
+  "inputImage": "https://...",
+  "effectType": "animate-products-smoky-pedestal",
+  "videoMode": "std",
+  "callbackUrl": "https://your-project.cloudfunctions.net/wiroCallback"
+}
 
 ---
 
@@ -588,13 +693,14 @@ GET  /videos/{id}        - Video detayları
 
 ## 13. Açık Sorular
 
-- [ ] wiro.ai pricing ve API limitleri
-- [ ] wiro.ai template detayları ve kategorileri
+- [x] ~~wiro.ai pricing ve API limitleri~~ ✓ (API entegre edildi)
+- [x] ~~wiro.ai template detayları ve kategorileri~~ ✓ (100+ efekt dokümante edildi)
 - [x] ~~Haftalık/yıllık subscription kredi miktarları~~ ✓
 - [x] ~~Kredi paketleri fiyatlandırma~~ ✓
-- [ ] Template başına kredi maliyeti
+- [ ] Efekt başına kredi maliyeti (std vs pro mod)
 - [ ] Video saklama süresi (retention policy)
 - [ ] Desteklenecek diller
+- [ ] RevenueCat entegrasyon planı
 
 ---
 
