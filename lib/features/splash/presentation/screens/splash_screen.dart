@@ -24,7 +24,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _startLoading() async {
     // Simulate loading progress
     for (int i = 0; i <= 100; i += 5) {
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
       if (mounted) {
         setState(() {
           _progress = i / 100;

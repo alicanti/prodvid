@@ -30,7 +30,10 @@ class _VideoCreationScreenState extends State<VideoCreationScreen> {
                 children: [
                   IconButton(
                     onPressed: () => context.pop(),
-                    icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new,
+                      color: Colors.white,
+                    ),
                   ),
                   Expanded(
                     child: Text(
@@ -60,7 +63,7 @@ class _VideoCreationScreenState extends State<VideoCreationScreen> {
               ),
             ),
           ),
-          
+
           // Content
           Expanded(
             child: SingleChildScrollView(
@@ -69,7 +72,10 @@ class _VideoCreationScreenState extends State<VideoCreationScreen> {
                 children: [
                   // Description
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 16,
+                    ),
                     child: Text(
                       'Select a high-quality photo of your product. This will be used as the input for AI generation.',
                       textAlign: TextAlign.center,
@@ -80,102 +86,112 @@ class _VideoCreationScreenState extends State<VideoCreationScreen> {
                       ),
                     ),
                   ).animate().fadeIn(duration: 400.ms),
-                  
+
                   const SizedBox(height: 8),
-                  
+
                   // Image preview area
                   Container(
-                    width: double.infinity,
-                    constraints: const BoxConstraints(maxWidth: 340),
-                    child: AspectRatio(
-                      aspectRatio: 3 / 4,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceCard,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: AppColors.borderDark),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.2),
-                              blurRadius: 20,
-                              offset: const Offset(0, 8),
+                        width: double.infinity,
+                        constraints: const BoxConstraints(maxWidth: 340),
+                        child: AspectRatio(
+                          aspectRatio: 3 / 4,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceCard,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: AppColors.borderDark),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.2),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(19),
+                              child: _selectedImage != null
+                                  ? _ImagePreview(
+                                      imageUrl: _selectedImage!,
+                                      onRemove: () {
+                                        setState(() {
+                                          _selectedImage = null;
+                                        });
+                                      },
+                                    )
+                                  : _EmptyState(
+                                      onSelectImage: () {
+                                        // Simulate image selection
+                                        setState(() {
+                                          _selectedImage =
+                                              'https://lh3.googleusercontent.com/aida-public/AB6AXuD4gWelxJZFwLfKIgFO2q6BZOeuaL2g5BC42X31aKI2JgnBrkLLxDXEmiyA6P96bjWVz7aZTkUOsgbFZVBwRSkckxIprSzTNi4mhGnqcU-WzXwmQXUYRIicK87vkRWurPKKqf4rVzfy55d7LopHEycftPkAGaXSdL_DdDQydEwJxCPlvLOCzT6FetpSOglGE9BZFdhrxzmwV_UbW8pu4oQYcf-rvbBWrV1lZAmXBnTu2UmI4M6YD5WtKYt80I54zxTM83Xjoi97i5E';
+                                        });
+                                      },
+                                    ),
+                            ),
+                          ),
+                        ),
+                      )
+                      .animate()
+                      .fadeIn(delay: 200.ms, duration: 500.ms)
+                      .scale(begin: const Offset(0.95, 0.95)),
+
+                  const SizedBox(height: 32),
+
+                  // Action buttons
+                  ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 340),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: _ActionButton(
+                                icon: Icons.photo_library,
+                                label: 'Gallery',
+                                iconColor: AppColors.purple,
+                                iconBgColor: AppColors.purple.withValues(
+                                  alpha: 0.1,
+                                ),
+                                onTap: () {
+                                  // Simulate selecting from gallery
+                                  setState(() {
+                                    _selectedImage =
+                                        'https://lh3.googleusercontent.com/aida-public/AB6AXuD4gWelxJZFwLfKIgFO2q6BZOeuaL2g5BC42X31aKI2JgnBrkLLxDXEmiyA6P96bjWVz7aZTkUOsgbFZVBwRSkckxIprSzTNi4mhGnqcU-WzXwmQXUYRIicK87vkRWurPKKqf4rVzfy55d7LopHEycftPkAGaXSdL_DdDQydEwJxCPlvLOCzT6FetpSOglGE9BZFdhrxzmwV_UbW8pu4oQYcf-rvbBWrV1lZAmXBnTu2UmI4M6YD5WtKYt80I54zxTM83Xjoi97i5E';
+                                  });
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: _ActionButton(
+                                icon: Icons.photo_camera,
+                                label: 'Camera',
+                                iconColor: AppColors.primary,
+                                iconBgColor: AppColors.primary.withValues(
+                                  alpha: 0.1,
+                                ),
+                                onTap: () {
+                                  // Open camera
+                                },
+                              ),
                             ),
                           ],
                         ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(19),
-                          child: _selectedImage != null
-                              ? _ImagePreview(
-                                  imageUrl: _selectedImage!,
-                                  onRemove: () {
-                                    setState(() {
-                                      _selectedImage = null;
-                                    });
-                                  },
-                                )
-                              : _EmptyState(
-                                  onSelectImage: () {
-                                    // Simulate image selection
-                                    setState(() {
-                                      _selectedImage = 'https://lh3.googleusercontent.com/aida-public/AB6AXuD4gWelxJZFwLfKIgFO2q6BZOeuaL2g5BC42X31aKI2JgnBrkLLxDXEmiyA6P96bjWVz7aZTkUOsgbFZVBwRSkckxIprSzTNi4mhGnqcU-WzXwmQXUYRIicK87vkRWurPKKqf4rVzfy55d7LopHEycftPkAGaXSdL_DdDQydEwJxCPlvLOCzT6FetpSOglGE9BZFdhrxzmwV_UbW8pu4oQYcf-rvbBWrV1lZAmXBnTu2UmI4M6YD5WtKYt80I54zxTM83Xjoi97i5E';
-                                    });
-                                  },
-                                ),
-                        ),
-                      ),
-                    ),
-                  ).animate().fadeIn(delay: 200.ms, duration: 500.ms).scale(begin: const Offset(0.95, 0.95)),
-                  
-                  const SizedBox(height: 32),
-                  
-                  // Action buttons
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 340),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: _ActionButton(
-                            icon: Icons.photo_library,
-                            label: 'Gallery',
-                            iconColor: AppColors.purple,
-                            iconBgColor: AppColors.purple.withValues(alpha: 0.1),
-                            onTap: () {
-                              // Simulate selecting from gallery
-                              setState(() {
-                                _selectedImage = 'https://lh3.googleusercontent.com/aida-public/AB6AXuD4gWelxJZFwLfKIgFO2q6BZOeuaL2g5BC42X31aKI2JgnBrkLLxDXEmiyA6P96bjWVz7aZTkUOsgbFZVBwRSkckxIprSzTNi4mhGnqcU-WzXwmQXUYRIicK87vkRWurPKKqf4rVzfy55d7LopHEycftPkAGaXSdL_DdDQydEwJxCPlvLOCzT6FetpSOglGE9BZFdhrxzmwV_UbW8pu4oQYcf-rvbBWrV1lZAmXBnTu2UmI4M6YD5WtKYt80I54zxTM83Xjoi97i5E';
-                              });
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: _ActionButton(
-                            icon: Icons.photo_camera,
-                            label: 'Camera',
-                            iconColor: AppColors.primary,
-                            iconBgColor: AppColors.primary.withValues(alpha: 0.1),
-                            onTap: () {
-                              // Open camera
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ).animate().fadeIn(delay: 400.ms, duration: 400.ms).slideY(begin: 0.2),
+                      )
+                      .animate()
+                      .fadeIn(delay: 400.ms, duration: 400.ms)
+                      .slideY(begin: 0.2),
                 ],
               ),
             ),
           ),
         ],
       ),
-      
+
       // Bottom navigation
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: AppColors.surfaceDark,
-          border: Border(
-            top: BorderSide(color: AppColors.borderDark),
-          ),
+          border: Border(top: BorderSide(color: AppColors.borderDark)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.1),
@@ -220,10 +236,7 @@ class _VideoCreationScreenState extends State<VideoCreationScreen> {
 }
 
 class _ImagePreview extends StatelessWidget {
-  const _ImagePreview({
-    required this.imageUrl,
-    required this.onRemove,
-  });
+  const _ImagePreview({required this.imageUrl, required this.onRemove});
 
   final String imageUrl;
   final VoidCallback onRemove;
@@ -248,22 +261,19 @@ class _ImagePreview extends StatelessWidget {
             );
           },
         ),
-        
+
         // Gradient overlay
         Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Colors.transparent,
-                Colors.black.withValues(alpha: 0.4),
-              ],
+              colors: [Colors.transparent, Colors.black.withValues(alpha: 0.4)],
               stops: const [0.6, 1.0],
             ),
           ),
         ),
-        
+
         // Remove button
         Positioned(
           top: 12,
@@ -276,19 +286,13 @@ class _ImagePreview extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.black.withValues(alpha: 0.4),
                 borderRadius: BorderRadius.circular(9999),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.1),
-                ),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
               ),
-              child: const Icon(
-                Icons.close,
-                color: Colors.white,
-                size: 18,
-              ),
+              child: const Icon(Icons.close, color: Colors.white, size: 18),
             ),
           ),
         ),
-        
+
         // Selected badge
         Positioned(
           left: 16,
@@ -298,9 +302,7 @@ class _ImagePreview extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.black.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.1),
-              ),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
             ),
             child: const Text(
               'IMAGE SELECTED',
@@ -455,7 +457,9 @@ class _NavItem extends StatelessWidget {
               Icon(
                 icon,
                 size: 24,
-                color: isSelected ? AppColors.primary : AppColors.textSecondaryDark,
+                color: isSelected
+                    ? AppColors.primary
+                    : AppColors.textSecondaryDark,
               ),
               const SizedBox(height: 6),
               Text(
@@ -463,7 +467,9 @@ class _NavItem extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
-                  color: isSelected ? AppColors.primary : AppColors.textSecondaryDark,
+                  color: isSelected
+                      ? AppColors.primary
+                      : AppColors.textSecondaryDark,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -473,21 +479,22 @@ class _NavItem extends StatelessWidget {
             Positioned(
               top: -4,
               right: 8,
-              child: Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  shape: BoxShape.circle,
-                ),
-              )
-                  .animate(onPlay: (controller) => controller.repeat())
-                  .scale(
-                    begin: const Offset(1, 1),
-                    end: const Offset(1.5, 1.5),
-                    duration: 1000.ms,
-                  )
-                  .fadeOut(duration: 1000.ms),
+              child:
+                  Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          shape: BoxShape.circle,
+                        ),
+                      )
+                      .animate(onPlay: (controller) => controller.repeat())
+                      .scale(
+                        begin: const Offset(1, 1),
+                        end: const Offset(1.5, 1.5),
+                        duration: 1000.ms,
+                      )
+                      .fadeOut(duration: 1000.ms),
             ),
         ],
       ),
