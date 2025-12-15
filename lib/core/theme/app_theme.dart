@@ -4,44 +4,44 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'app_colors.dart';
 
-/// ProdVid Theme Configuration
+/// ProdVid Theme Configuration - Based on Stitch Design System
 class AppTheme {
   AppTheme._();
-  
-  /// Dark Theme (Primary)
+
+  /// Dark Theme (Primary - as per Stitch design)
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: AppColors.background,
+      scaffoldBackgroundColor: AppColors.backgroundDark,
       
       // Color Scheme
       colorScheme: const ColorScheme.dark(
         primary: AppColors.primary,
         primaryContainer: AppColors.primaryDark,
-        secondary: AppColors.secondary,
-        secondaryContainer: AppColors.secondaryDark,
-        tertiary: AppColors.accent,
-        surface: AppColors.surface,
+        secondary: AppColors.purple,
+        secondaryContainer: AppColors.surfaceCard,
+        tertiary: AppColors.cyan,
+        surface: AppColors.surfaceDark,
         error: AppColors.error,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
-        onSurface: AppColors.textPrimary,
+        onSurface: AppColors.textPrimaryDark,
         onError: Colors.white,
-        outline: AppColors.border,
+        outline: AppColors.borderDark,
       ),
       
       // App Bar Theme
       appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.background,
+        backgroundColor: AppColors.backgroundDark,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
         systemOverlayStyle: SystemUiOverlayStyle.light,
-        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        iconTheme: const IconThemeData(color: AppColors.textPrimaryDark),
         titleTextStyle: _textTheme.titleLarge?.copyWith(
-          color: AppColors.textPrimary,
-          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimaryDark,
+          fontWeight: FontWeight.w700,
         ),
       ),
       
@@ -51,18 +51,18 @@ class AppTheme {
       // Input Decoration
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.surfaceLight,
+        fillColor: AppColors.surfaceCard,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 16,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -76,8 +76,8 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.error, width: 2),
         ),
-        hintStyle: const TextStyle(color: AppColors.textTertiary),
-        labelStyle: const TextStyle(color: AppColors.textSecondary),
+        hintStyle: const TextStyle(color: AppColors.textSecondaryDark),
+        labelStyle: const TextStyle(color: AppColors.textSecondaryDark),
       ),
       
       // Elevated Button Theme
@@ -91,7 +91,7 @@ class AppTheme {
           ),
           elevation: 0,
           textStyle: _textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),
@@ -99,14 +99,14 @@ class AppTheme {
       // Outlined Button Theme
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primary,
+          foregroundColor: AppColors.textPrimaryDark,
           minimumSize: const Size(double.infinity, 56),
-          side: const BorderSide(color: AppColors.primary),
+          side: const BorderSide(color: AppColors.borderDark),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
           textStyle: _textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),
@@ -123,18 +123,29 @@ class AppTheme {
       
       // Card Theme
       cardTheme: CardThemeData(
-        color: AppColors.surface,
+        color: AppColors.surfaceDark,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: AppColors.border),
+          side: const BorderSide(color: AppColors.borderDark),
         ),
         margin: EdgeInsets.zero,
       ),
       
+      // Bottom Navigation Bar Theme
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: AppColors.backgroundDark,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.textSecondaryDark,
+        type: BottomNavigationBarType.fixed,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        elevation: 0,
+      ),
+      
       // Bottom Sheet Theme
       bottomSheetTheme: const BottomSheetThemeData(
-        backgroundColor: AppColors.surface,
+        backgroundColor: AppColors.surfaceDark,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
@@ -142,7 +153,7 @@ class AppTheme {
       
       // Dialog Theme
       dialogTheme: DialogThemeData(
-        backgroundColor: AppColors.surface,
+        backgroundColor: AppColors.surfaceDark,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
         ),
@@ -150,9 +161,9 @@ class AppTheme {
       
       // Snackbar Theme
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: AppColors.surfaceLighter,
+        backgroundColor: AppColors.surfaceCard,
         contentTextStyle: _textTheme.bodyMedium?.copyWith(
-          color: AppColors.textPrimary,
+          color: AppColors.textPrimaryDark,
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -162,32 +173,32 @@ class AppTheme {
       
       // Divider Theme
       dividerTheme: const DividerThemeData(
-        color: AppColors.border,
+        color: AppColors.borderDark,
         thickness: 1,
         space: 1,
       ),
       
       // Icon Theme
       iconTheme: const IconThemeData(
-        color: AppColors.textSecondary,
+        color: AppColors.textSecondaryDark,
         size: 24,
       ),
       
       // Chip Theme
       chipTheme: ChipThemeData(
-        backgroundColor: AppColors.surfaceLight,
+        backgroundColor: AppColors.surfaceCard,
         selectedColor: AppColors.primary,
         labelStyle: _textTheme.labelMedium,
-        side: const BorderSide(color: AppColors.border),
+        side: BorderSide.none,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(9999),
         ),
       ),
       
       // Progress Indicator Theme
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         color: AppColors.primary,
-        linearTrackColor: AppColors.surfaceLight,
+        linearTrackColor: AppColors.surfaceCard,
       ),
       
       // Switch Theme
@@ -196,118 +207,323 @@ class AppTheme {
           if (states.contains(WidgetState.selected)) {
             return AppColors.primary;
           }
-          return AppColors.textTertiary;
+          return AppColors.textTertiaryDark;
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return AppColors.primaryLight.withValues(alpha: 0.5);
           }
-          return AppColors.surfaceLight;
+          return AppColors.surfaceCard;
         }),
       ),
     );
   }
-  
-  /// Text Theme using Satoshi font
+
+  /// Light Theme
+  static ThemeData get lightTheme {
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.light,
+      scaffoldBackgroundColor: AppColors.backgroundLight,
+      
+      // Color Scheme
+      colorScheme: const ColorScheme.light(
+        primary: AppColors.primary,
+        primaryContainer: AppColors.primaryLight,
+        secondary: AppColors.purple,
+        secondaryContainer: AppColors.slate100,
+        tertiary: AppColors.cyan,
+        surface: AppColors.surfaceLight,
+        error: AppColors.error,
+        onPrimary: Colors.white,
+        onSecondary: Colors.white,
+        onSurface: AppColors.textPrimaryLight,
+        onError: Colors.white,
+        outline: AppColors.borderLight,
+      ),
+      
+      // App Bar Theme
+      appBarTheme: AppBarTheme(
+        backgroundColor: AppColors.backgroundLight,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: true,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
+        iconTheme: const IconThemeData(color: AppColors.textPrimaryLight),
+        titleTextStyle: _textTheme.titleLarge?.copyWith(
+          color: AppColors.textPrimaryLight,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      
+      // Text Theme
+      textTheme: _textThemeLight,
+      
+      // Input Decoration
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: AppColors.surfaceLight,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.borderLight),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.borderLight),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+        ),
+        hintStyle: const TextStyle(color: AppColors.textTertiaryLight),
+        labelStyle: const TextStyle(color: AppColors.textSecondaryLight),
+      ),
+      
+      // Elevated Button Theme
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          minimumSize: const Size(double.infinity, 56),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 0,
+          textStyle: _textThemeLight.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+      
+      // Card Theme
+      cardTheme: CardThemeData(
+        color: AppColors.surfaceLight,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: AppColors.borderLight),
+        ),
+        margin: EdgeInsets.zero,
+      ),
+      
+      // Bottom Navigation Bar Theme
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: AppColors.surfaceLight,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.textSecondaryLight,
+        type: BottomNavigationBarType.fixed,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        elevation: 0,
+      ),
+    );
+  }
+
+  /// Dark Text Theme using Manrope font
   static TextTheme get _textTheme {
-    // Fallback to system font if Satoshi is not available
-    return GoogleFonts.interTextTheme(
+    return GoogleFonts.manropeTextTheme(
       const TextTheme(
         // Display
         displayLarge: TextStyle(
           fontSize: 57,
-          fontWeight: FontWeight.w400,
+          fontWeight: FontWeight.w800,
           letterSpacing: -0.25,
-          color: AppColors.textPrimary,
+          color: AppColors.textPrimaryDark,
         ),
         displayMedium: TextStyle(
           fontSize: 45,
-          fontWeight: FontWeight.w400,
-          color: AppColors.textPrimary,
+          fontWeight: FontWeight.w800,
+          color: AppColors.textPrimaryDark,
         ),
         displaySmall: TextStyle(
           fontSize: 36,
-          fontWeight: FontWeight.w400,
-          color: AppColors.textPrimary,
+          fontWeight: FontWeight.w700,
+          color: AppColors.textPrimaryDark,
         ),
         
         // Headline
         headlineLarge: TextStyle(
           fontSize: 32,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          fontWeight: FontWeight.w800,
+          color: AppColors.textPrimaryDark,
+          letterSpacing: -0.5,
         ),
         headlineMedium: TextStyle(
           fontSize: 28,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          fontWeight: FontWeight.w700,
+          color: AppColors.textPrimaryDark,
         ),
         headlineSmall: TextStyle(
           fontSize: 24,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          fontWeight: FontWeight.w700,
+          color: AppColors.textPrimaryDark,
         ),
         
         // Title
         titleLarge: TextStyle(
           fontSize: 22,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          fontWeight: FontWeight.w700,
+          color: AppColors.textPrimaryDark,
         ),
         titleMedium: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.15,
-          color: AppColors.textPrimary,
+          color: AppColors.textPrimaryDark,
         ),
         titleSmall: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.1,
-          color: AppColors.textPrimary,
+          color: AppColors.textPrimaryDark,
         ),
         
         // Body
         bodyLarge: TextStyle(
           fontSize: 16,
-          fontWeight: FontWeight.w400,
+          fontWeight: FontWeight.w500,
           letterSpacing: 0.5,
-          color: AppColors.textPrimary,
+          color: AppColors.textPrimaryDark,
         ),
         bodyMedium: TextStyle(
           fontSize: 14,
-          fontWeight: FontWeight.w400,
+          fontWeight: FontWeight.w500,
           letterSpacing: 0.25,
-          color: AppColors.textPrimary,
+          color: AppColors.textPrimaryDark,
         ),
         bodySmall: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w400,
           letterSpacing: 0.4,
-          color: AppColors.textSecondary,
+          color: AppColors.textSecondaryDark,
         ),
         
         // Label
         labelLarge: TextStyle(
           fontSize: 14,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w700,
           letterSpacing: 0.1,
-          color: AppColors.textPrimary,
+          color: AppColors.textPrimaryDark,
         ),
         labelMedium: TextStyle(
           fontSize: 12,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w600,
           letterSpacing: 0.5,
-          color: AppColors.textPrimary,
+          color: AppColors.textPrimaryDark,
         ),
         labelSmall: TextStyle(
-          fontSize: 11,
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.5,
+          color: AppColors.textSecondaryDark,
+        ),
+      ),
+    );
+  }
+
+  /// Light Text Theme using Manrope font
+  static TextTheme get _textThemeLight {
+    return GoogleFonts.manropeTextTheme(
+      const TextTheme(
+        // Display
+        displayLarge: TextStyle(
+          fontSize: 57,
+          fontWeight: FontWeight.w800,
+          letterSpacing: -0.25,
+          color: AppColors.textPrimaryLight,
+        ),
+        displayMedium: TextStyle(
+          fontSize: 45,
+          fontWeight: FontWeight.w800,
+          color: AppColors.textPrimaryLight,
+        ),
+        displaySmall: TextStyle(
+          fontSize: 36,
+          fontWeight: FontWeight.w700,
+          color: AppColors.textPrimaryLight,
+        ),
+        
+        // Headline
+        headlineLarge: TextStyle(
+          fontSize: 32,
+          fontWeight: FontWeight.w800,
+          color: AppColors.textPrimaryLight,
+          letterSpacing: -0.5,
+        ),
+        headlineMedium: TextStyle(
+          fontSize: 28,
+          fontWeight: FontWeight.w700,
+          color: AppColors.textPrimaryLight,
+        ),
+        headlineSmall: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.w700,
+          color: AppColors.textPrimaryLight,
+        ),
+        
+        // Title
+        titleLarge: TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.w700,
+          color: AppColors.textPrimaryLight,
+        ),
+        titleMedium: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.15,
+          color: AppColors.textPrimaryLight,
+        ),
+        titleSmall: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.1,
+          color: AppColors.textPrimaryLight,
+        ),
+        
+        // Body
+        bodyLarge: TextStyle(
+          fontSize: 16,
           fontWeight: FontWeight.w500,
           letterSpacing: 0.5,
-          color: AppColors.textSecondary,
+          color: AppColors.textPrimaryLight,
+        ),
+        bodyMedium: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          letterSpacing: 0.25,
+          color: AppColors.textPrimaryLight,
+        ),
+        bodySmall: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w400,
+          letterSpacing: 0.4,
+          color: AppColors.textSecondaryLight,
+        ),
+        
+        // Label
+        labelLarge: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.1,
+          color: AppColors.textPrimaryLight,
+        ),
+        labelMedium: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.5,
+          color: AppColors.textPrimaryLight,
+        ),
+        labelSmall: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.5,
+          color: AppColors.textSecondaryLight,
         ),
       ),
     );
   }
 }
-

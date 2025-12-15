@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../router/app_router.dart';
+import '../../../../core/widgets/page_indicator.dart';
+import '../../../../core/widgets/primary_button.dart';
 
+/// Onboarding screen with 3 pages matching Stitch design
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -16,27 +18,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  final List<_OnboardingData> _pages = [
-    const _OnboardingData(
-      icon: Icons.photo_library_outlined,
-      title: 'Upload Your Products',
-      description: 'Add photos and descriptions of your products to get started.',
-      gradient: AppColors.primaryGradient,
-    ),
-    const _OnboardingData(
-      icon: Icons.auto_awesome_outlined,
-      title: 'AI-Powered Videos',
-      description: 'Our AI transforms your product photos into stunning marketing videos.',
-      gradient: AppColors.accentGradient,
-    ),
-    const _OnboardingData(
-      icon: Icons.share_outlined,
-      title: 'Share Everywhere',
-      description: 'Download and share your videos on social media and e-commerce platforms.',
-      gradient: AppColors.warmGradient,
-    ),
-  ];
-
   @override
   void dispose() {
     _pageController.dispose();
@@ -44,88 +25,107 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _nextPage() {
-    if (_currentPage < _pages.length - 1) {
+    if (_currentPage < 2) {
       _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 400),
         curve: Curves.easeInOut,
       );
     } else {
-      _finishOnboarding();
+      _completeOnboarding();
     }
   }
 
-  void _finishOnboarding() {
-    // TODO: Save onboarding completed flag
-    context.go(AppRoutes.login);
+  void _completeOnboarding() {
+    context.go('/login');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.backgroundDark,
       body: SafeArea(
         child: Column(
           children: [
             // Skip button
-            Align(
-              alignment: Alignment.topRight,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: TextButton(
-                  onPressed: _finishOnboarding,
-                  child: const Text('Skip'),
-                ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: _completeOnboarding,
+                    child: Text(
+                      'Skip',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textSecondaryDark,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             
             // Page content
             Expanded(
-              child: PageView.builder(
+              child: PageView(
                 controller: _pageController,
-                itemCount: _pages.length,
-                onPageChanged: (index) {
-                  setState(() => _currentPage = index);
+                onPageChanged: (page) {
+                  setState(() {
+                    _currentPage = page;
+                  });
                 },
-                itemBuilder: (context, index) {
-                  return _OnboardingPage(data: _pages[index]);
-                },
+                children: const [
+                  _OnboardingPage1(),
+                  _OnboardingPage2(),
+                  _OnboardingPage3(),
+                ],
               ),
             ),
             
-            // Page indicator
+            // Bottom section
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  _pages.length,
-                  (index) => AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    width: _currentPage == index ? 24 : 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: _currentPage == index
-                          ? AppColors.primary
-                          : AppColors.surfaceLight,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                children: [
+                  // Page indicators
+                  PageIndicator(count: 3, currentIndex: _currentPage),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Next/Start button
+                  PrimaryButton(
+                    text: _currentPage == 2 ? 'Start Creating' : 'Next',
+                    icon: _currentPage == 2 ? Icons.arrow_forward : null,
+                    onPressed: _nextPage,
                   ),
-                ),
+                  
+                  if (_currentPage == 2) ...[
+                    const SizedBox(height: 16),
+                    TextButton(
+                      onPressed: () => context.go('/login'),
+                      child: RichText(
+                        text: TextSpan(
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textSecondaryDark,
+                          ),
+                          children: [
+                            const TextSpan(text: 'Already have an account? '),
+                            TextSpan(
+                              text: 'Log in',
+                              style: TextStyle(color: AppColors.primary),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
-            
-            // Next/Get Started button
-            Padding(
-              padding: AppSpacing.pagePadding.copyWith(top: 0),
-              child: ElevatedButton(
-                onPressed: _nextPage,
-                child: Text(
-                  _currentPage == _pages.length - 1 ? 'Get Started' : 'Next',
-                ),
-              ),
-            ),
-            
-            AppSpacing.verticalMd,
           ],
         ),
       ),
@@ -133,74 +133,200 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 }
 
-class _OnboardingData {
-  const _OnboardingData({
-    required this.icon,
-    required this.title,
-    required this.description,
-    required this.gradient,
-  });
-
-  final IconData icon;
-  final String title;
-  final String description;
-  final LinearGradient gradient;
-}
-
-class _OnboardingPage extends StatelessWidget {
-  const _OnboardingPage({required this.data});
-
-  final _OnboardingData data;
+/// Page 1: Magic in Motion - onboarding:_welcome_&_ai_power
+class _OnboardingPage1 extends StatelessWidget {
+  const _OnboardingPage1();
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: AppSpacing.pagePadding,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Icon with gradient background
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              gradient: data.gradient,
-              borderRadius: BorderRadius.circular(32),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.3),
-                  blurRadius: 30,
-                  offset: const Offset(0, 15),
+          // Hero image
+          Expanded(
+            flex: 3,
+            child: Container(
+              margin: const EdgeInsets.only(top: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    blurRadius: 30,
+                    offset: const Offset(0, 15),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    // Background image
+                    Image.network(
+                      'https://lh3.googleusercontent.com/aida-public/AB6AXuD_TW1tG-qAHcYaY-VwzShceI3qPbasOfKYM2q_TTQPa94WGd7lwGrR4S23syDyf5zn9IN9R_QqHCUGCOvmcCtL3ALNmiVdUJF1iKWsu3JeMxhCs823zA5MIZfyHQtgJO4Uf1Bol6cgTXNHPBuaVekqe81xldYJI050PvgfVo3ChomGdF1RjAMiRwCWA2aoRg2ZikoM_2N8ykiE3b8p75ee_tiXphQspZGha_gLhH8DqXL9eNn_62Wt3PxmCSV8KpPAe0gfbTaTf1Y',
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: AppColors.surfaceCard,
+                          child: const Icon(
+                            Icons.image_outlined,
+                            size: 64,
+                            color: AppColors.textSecondaryDark,
+                          ),
+                        );
+                      },
+                    ),
+                    
+                    // Gradient overlay
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.transparent,
+                            AppColors.backgroundDark.withValues(alpha: 0.9),
+                          ],
+                        ),
+                      ),
+                    ),
+                    
+                    // AI Badge
+                    Positioned(
+                      top: 16,
+                      right: 16,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.4),
+                          borderRadius: BorderRadius.circular(9999),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.1),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.auto_awesome,
+                              color: AppColors.primary,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 6),
+                            const Text(
+                              'AI MAGIC',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                                letterSpacing: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    
+                    // Processing card
+                    Positioned(
+                      left: 16,
+                      right: 16,
+                      bottom: 24,
+                      child: _GlassCard(
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(
+                                Icons.videocam,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'PROCESSING',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.primary,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                      Text(
+                                        '98%',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: AppColors.textSecondaryDark,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  _ProgressBar(progress: 0.98),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.3),
+                    ),
+                  ],
                 ),
+              ),
+            ).animate().fadeIn(duration: 600.ms).scale(begin: const Offset(0.95, 0.95)),
+          ),
+          
+          const SizedBox(height: 32),
+          
+          // Text content
+          Expanded(
+            flex: 1,
+            child: Column(
+              children: [
+                RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      height: 1.1,
+                    ),
+                    children: [
+                      const TextSpan(text: 'Magic in '),
+                      TextSpan(
+                        text: 'Motion',
+                        style: TextStyle(color: AppColors.primary),
+                      ),
+                    ],
+                  ),
+                ).animate().fadeIn(delay: 300.ms),
+                
+                const SizedBox(height: 16),
+                
+                Text(
+                  'Upload your product photo and watch our AI turn it into a viral-ready video ad in seconds.',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: AppColors.textSecondaryDark,
+                    height: 1.5,
+                  ),
+                ).animate().fadeIn(delay: 400.ms),
               ],
             ),
-            child: Icon(
-              data.icon,
-              size: 56,
-              color: Colors.white,
-            ),
-          ),
-          
-          AppSpacing.verticalXxl,
-          
-          // Title
-          Text(
-            data.title,
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          
-          AppSpacing.verticalMd,
-          
-          // Description
-          Text(
-            data.description,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: AppColors.textSecondary,
-            ),
-            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -208,3 +334,294 @@ class _OnboardingPage extends StatelessWidget {
   }
 }
 
+/// Page 2: Simple Steps - onboarding:_simple_steps
+class _OnboardingPage2 extends StatelessWidget {
+  const _OnboardingPage2();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 16),
+          
+          // Title
+          Text(
+            'Create in Seconds',
+            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
+          ).animate().fadeIn(duration: 400.ms),
+          
+          const SizedBox(height: 8),
+          
+          Text(
+            'Turn static photos into viral videos in three simple steps.',
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: AppColors.slate400,
+              fontWeight: FontWeight.w500,
+            ),
+          ).animate().fadeIn(delay: 100.ms, duration: 400.ms),
+          
+          const SizedBox(height: 40),
+          
+          // Timeline steps
+          Expanded(
+            child: Column(
+              children: [
+                _TimelineStep(
+                  icon: Icons.cloud_upload_outlined,
+                  title: 'Upload Product',
+                  description: 'Select a high-quality photo of your product from your gallery.',
+                  showLine: true,
+                  delay: 200,
+                ),
+                _TimelineStep(
+                  icon: Icons.auto_awesome,
+                  title: 'Select AI Effect',
+                  description: 'Choose from trending templates and AI-powered styles.',
+                  showLine: true,
+                  delay: 400,
+                ),
+                _TimelineStep(
+                  icon: Icons.movie_creation_outlined,
+                  title: 'Generate Video',
+                  description: 'Watch as your static image transforms into a professional ad instantly.',
+                  showLine: false,
+                  delay: 600,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Page 3: Ready to Create - onboarding:_ready_to_create
+class _OnboardingPage3 extends StatelessWidget {
+  const _OnboardingPage3();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Hero image
+        Expanded(
+          flex: 2,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.network(
+                    'https://lh3.googleusercontent.com/aida-public/AB6AXuARBKwt6uEvWPJ2eApJSwTidE9wDep-tRY6znw3k2NPVz260OQR259BFX7KCXQ6_YDLmT51iIgy8uN3ui0C19kXxBNuHIsDVqMMVXaGZu1RUKIX0jIKeGGEq-Y3HTrofpCrt088__sMsEANPc2rfwK8WbVYj7OOTR-j9f_Wsm5cbIHo-vBMvB8J11TWcLmxl1sMzKL1bK1gT36dn5y8TYKuZiudTKLOqi_8kvodgRP9idByyONoB2_Por3_17zEwFCeknD1dAyBgBs',
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: AppColors.surfaceCard,
+                        child: const Icon(
+                          Icons.image_outlined,
+                          size: 64,
+                          color: AppColors.textSecondaryDark,
+                        ),
+                      );
+                    },
+                  ),
+                  // Gradient overlay
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          AppColors.backgroundDark.withValues(alpha: 0.8),
+                        ],
+                        stops: const [0.3, 1.0],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ).animate().fadeIn(duration: 600.ms),
+          ),
+        ),
+        
+        // Text content
+        Expanded(
+          flex: 1,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  'Your Studio,\nPowered by AI',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    height: 1.1,
+                  ),
+                ).animate().fadeIn(delay: 200.ms),
+                
+                const SizedBox(height: 16),
+                
+                Text(
+                  'Turn simple product photos into stunning video ads in seconds. No editing skills required.',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: AppColors.slate400,
+                    height: 1.5,
+                  ),
+                ).animate().fadeIn(delay: 300.ms),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TimelineStep extends StatelessWidget {
+  const _TimelineStep({
+    required this.icon,
+    required this.title,
+    required this.description,
+    required this.showLine,
+    required this.delay,
+  });
+
+  final IconData icon;
+  final String title;
+  final String description;
+  final bool showLine;
+  final int delay;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Icon column
+        Column(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: AppColors.surfaceDark,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.borderDark),
+              ),
+              child: Icon(
+                icon,
+                color: AppColors.primary,
+                size: 28,
+              ),
+            ),
+            if (showLine)
+              Container(
+                width: 2,
+                height: 40,
+                color: AppColors.borderDark,
+              ),
+          ],
+        ),
+        
+        const SizedBox(width: 16),
+        
+        // Text column
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  description,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textSecondaryDark,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ).animate().fadeIn(delay: Duration(milliseconds: delay), duration: 400.ms).slideX(begin: 0.1);
+  }
+}
+
+class _GlassCard extends StatelessWidget {
+  const _GlassCard({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.backgroundDark.withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.08),
+        ),
+      ),
+      child: child,
+    );
+  }
+}
+
+class _ProgressBar extends StatelessWidget {
+  const _ProgressBar({required this.progress});
+
+  final double progress;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 6,
+      decoration: BoxDecoration(
+        color: AppColors.slate700.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(9999),
+      ),
+      child: FractionallySizedBox(
+        alignment: Alignment.centerLeft,
+        widthFactor: progress,
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(9999),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withValues(alpha: 0.6),
+                blurRadius: 10,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

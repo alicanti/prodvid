@@ -79,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       Text(
                         'Sign in to continue creating videos',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: AppColors.textSecondaryDark,
                         ),
                       ),
                     ],
@@ -233,7 +233,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       Text(
                         "Don't have an account? ",
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: AppColors.textSecondaryDark,
                         ),
                       ),
                       TextButton(

@@ -63,7 +63,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                     Text(
                       'Create unlimited professional videos',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: AppColors.textSecondaryDark,
                       ),
                     ),
                     
@@ -121,7 +121,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                     Text(
                       'Or buy credits',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: AppColors.textSecondaryDark,
                       ),
                     ),
                     
@@ -185,7 +185,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                   Text(
                     'Cancel anytime. Terms apply.',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textTertiary,
+                      color: AppColors.textTertiaryDark,
                     ),
                   ),
                   
@@ -244,7 +244,7 @@ class _FeatureItem extends StatelessWidget {
                 Text(
                   description,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: AppColors.textSecondaryDark,
                   ),
                 ),
               ],
@@ -282,10 +282,10 @@ class _PlanCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : AppColors.surface,
+          color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : AppColors.surfaceDark,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.border,
+            color: isSelected ? AppColors.primary : AppColors.borderDark,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -297,7 +297,7 @@ class _PlanCard extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isSelected ? AppColors.primary : AppColors.textTertiary,
+                  color: isSelected ? AppColors.primary : AppColors.textTertiaryDark,
                   width: 2,
                 ),
                 color: isSelected ? AppColors.primary : Colors.transparent,
@@ -344,7 +344,7 @@ class _PlanCard extends StatelessWidget {
                   Text(
                     credits,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: AppColors.textSecondaryDark,
                     ),
                   ),
                 ],
@@ -362,7 +362,7 @@ class _PlanCard extends StatelessWidget {
                 Text(
                   period,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textTertiary,
+                    color: AppColors.textTertiaryDark,
                   ),
                 ),
               ],
@@ -394,9 +394,9 @@ class _CreditPackCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.surfaceDark,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: AppColors.borderDark),
         ),
         child: Column(
           children: [
@@ -432,7 +432,7 @@ class _CreditPackCard extends StatelessWidget {
             Text(
               price,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryDark,
               ),
             ),
           ],

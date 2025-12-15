@@ -6,25 +6,29 @@ import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/register_screen.dart';
 import '../features/home/presentation/screens/home_screen.dart';
 import '../features/onboarding/presentation/screens/onboarding_screen.dart';
+import '../features/onboarding/presentation/screens/welcome_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
+import '../features/splash/presentation/screens/splash_screen.dart';
 import '../features/subscription/presentation/screens/paywall_screen.dart';
+import '../features/video/presentation/screens/template_selection_screen.dart';
 import '../features/video/presentation/screens/video_creation_screen.dart';
+import '../features/video/presentation/screens/video_export_screen.dart';
 
 /// Route names
 abstract class AppRoutes {
   static const String splash = '/';
+  static const String welcome = '/welcome';
   static const String onboarding = '/onboarding';
   static const String login = '/login';
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
   static const String home = '/home';
-  static const String createVideo = '/create-video';
-  static const String videoDetail = '/video/:id';
+  static const String create = '/create';
   static const String templates = '/templates';
+  static const String videoExport = '/video-export';
   static const String paywall = '/paywall';
   static const String profile = '/profile';
   static const String settings = '/settings';
-  static const String credits = '/credits';
 }
 
 /// Router configuration provider
@@ -33,10 +37,16 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: AppRoutes.splash,
     debugLogDiagnostics: true,
     routes: [
-      // Splash - will redirect based on auth state
+      // Splash Screen
       GoRoute(
         path: AppRoutes.splash,
-        builder: (context, state) => const _SplashScreen(),
+        builder: (context, state) => const SplashScreen(),
+      ),
+      
+      // Welcome Screen
+      GoRoute(
+        path: AppRoutes.welcome,
+        builder: (context, state) => const WelcomeScreen(),
       ),
       
       // Onboarding
@@ -55,25 +65,34 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const RegisterScreen(),
       ),
       
-      // Main App (with shell for bottom nav)
-      ShellRoute(
-        builder: (context, state, child) => _MainShell(child: child),
-        routes: [
-          GoRoute(
-            path: AppRoutes.home,
-            builder: (context, state) => const HomeScreen(),
-          ),
-          GoRoute(
-            path: AppRoutes.profile,
-            builder: (context, state) => const ProfileScreen(),
-          ),
-        ],
+      // Home / Dashboard
+      GoRoute(
+        path: AppRoutes.home,
+        builder: (context, state) => const HomeScreen(),
+      ),
+      
+      // Profile
+      GoRoute(
+        path: AppRoutes.profile,
+        builder: (context, state) => const ProfileScreen(),
       ),
       
       // Video Creation Flow
       GoRoute(
-        path: AppRoutes.createVideo,
+        path: AppRoutes.create,
         builder: (context, state) => const VideoCreationScreen(),
+      ),
+      
+      // Template Selection
+      GoRoute(
+        path: AppRoutes.templates,
+        builder: (context, state) => const TemplateSelectionScreen(),
+      ),
+      
+      // Video Export
+      GoRoute(
+        path: AppRoutes.videoExport,
+        builder: (context, state) => const VideoExportScreen(),
       ),
       
       // Paywall
@@ -88,74 +107,11 @@ final routerProvider = Provider<GoRouter>((ref) {
     
     // Redirect logic
     redirect: (context, state) {
-      // TODO: Implement auth redirect logic
-      // final isLoggedIn = ref.read(authStateProvider).isLoggedIn;
-      // final isOnboarded = ref.read(onboardingProvider);
-      
+      // TODO: Implement auth redirect logic based on Firebase Auth state
       return null;
     },
   );
 });
-
-/// Temporary Splash Screen
-class _SplashScreen extends StatelessWidget {
-  const _SplashScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
-  }
-}
-
-/// Main Shell with bottom navigation
-class _MainShell extends StatelessWidget {
-  const _MainShell({required this.child});
-  
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: child,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _calculateSelectedIndex(context),
-        onDestinationSelected: (index) => _onItemTapped(index, context),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-      ),
-    );
-  }
-  
-  int _calculateSelectedIndex(BuildContext context) {
-    final location = GoRouterState.of(context).uri.path;
-    if (location.startsWith(AppRoutes.home)) return 0;
-    if (location.startsWith(AppRoutes.profile)) return 1;
-    return 0;
-  }
-  
-  void _onItemTapped(int index, BuildContext context) {
-    switch (index) {
-      case 0:
-        context.go(AppRoutes.home);
-      case 1:
-        context.go(AppRoutes.profile);
-    }
-  }
-}
 
 /// Error Screen
 class _ErrorScreen extends StatelessWidget {
@@ -193,4 +149,3 @@ class _ErrorScreen extends StatelessWidget {
     );
   }
 }
-

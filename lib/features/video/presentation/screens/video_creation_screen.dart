@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
 
+/// Product media upload screen matching Stitch design - product_media_upload
 class VideoCreationScreen extends StatefulWidget {
   const VideoCreationScreen({super.key});
 
@@ -12,271 +13,47 @@ class VideoCreationScreen extends StatefulWidget {
 }
 
 class _VideoCreationScreenState extends State<VideoCreationScreen> {
-  int _currentStep = 0;
-  final List<String> _steps = ['Photos', 'Details', 'Template', 'Create'];
+  String? _selectedImage;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => context.pop(),
-        ),
-        title: const Text('Create Video'),
-      ),
+      backgroundColor: AppColors.backgroundDark,
       body: Column(
         children: [
-          // Step Indicator
-          _StepIndicator(
-            steps: _steps,
-            currentStep: _currentStep,
-          ),
-          
-          // Step Content
-          Expanded(
-            child: IndexedStack(
-              index: _currentStep,
-              children: [
-                _PhotosStep(onNext: () => _goToStep(1)),
-                _DetailsStep(
-                  onNext: () => _goToStep(2),
-                  onBack: () => _goToStep(0),
-                ),
-                _TemplateStep(
-                  onNext: () => _goToStep(3),
-                  onBack: () => _goToStep(1),
-                ),
-                _CreateStep(onBack: () => _goToStep(2)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _goToStep(int step) {
-    setState(() => _currentStep = step);
-  }
-}
-
-class _StepIndicator extends StatelessWidget {
-  const _StepIndicator({
-    required this.steps,
-    required this.currentStep,
-  });
-
-  final List<String> steps;
-  final int currentStep;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        children: List.generate(steps.length * 2 - 1, (index) {
-          if (index.isOdd) {
-            // Connector line
-            final stepIndex = index ~/ 2;
-            return Expanded(
-              child: Container(
-                height: 2,
-                color: stepIndex < currentStep
-                    ? AppColors.primary
-                    : AppColors.surfaceLight,
-              ),
-            );
-          }
-          
-          // Step circle
-          final stepIndex = index ~/ 2;
-          final isActive = stepIndex == currentStep;
-          final isCompleted = stepIndex < currentStep;
-          
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: isCompleted || isActive
-                      ? AppColors.primary
-                      : AppColors.surfaceLight,
-                  shape: BoxShape.circle,
-                  border: isActive
-                      ? Border.all(color: AppColors.primaryLight, width: 2)
-                      : null,
-                ),
-                child: Center(
-                  child: isCompleted
-                      ? const Icon(Icons.check, size: 16, color: Colors.white)
-                      : Text(
-                          '${stepIndex + 1}',
-                          style: TextStyle(
-                            color: isActive ? Colors.white : AppColors.textTertiary,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        ),
-                ),
-              ),
-              AppSpacing.verticalXxs,
-              Text(
-                steps[stepIndex],
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: isActive ? AppColors.primary : AppColors.textTertiary,
-                ),
-              ),
-            ],
-          );
-        }),
-      ),
-    );
-  }
-}
-
-// Step 1: Photos
-class _PhotosStep extends StatelessWidget {
-  const _PhotosStep({required this.onNext});
-
-  final VoidCallback onNext;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: AppSpacing.pagePadding,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Add Product Photos',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          AppSpacing.verticalXs,
-          Text(
-            'Upload up to 10 photos of your product',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
-          
-          AppSpacing.verticalXl,
-          
-          // Photo upload area
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                // TODO: Open image picker
-              },
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: AppColors.border,
-                  ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.add_photo_alternate_outlined,
-                      size: 64,
-                      color: AppColors.textTertiary,
-                    ),
-                    AppSpacing.verticalMd,
-                    Text(
-                      'Tap to add photos',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    AppSpacing.verticalXs,
-                    Text(
-                      'or drag and drop',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textTertiary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          
-          AppSpacing.verticalLg,
-          
-          ElevatedButton(
-            onPressed: onNext,
-            child: const Text('Continue'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// Step 2: Details
-class _DetailsStep extends StatelessWidget {
-  const _DetailsStep({required this.onNext, required this.onBack});
-
-  final VoidCallback onNext;
-  final VoidCallback onBack;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: AppSpacing.pagePadding,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Product Details',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          AppSpacing.verticalXs,
-          Text(
-            'Tell us about your product',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
-          
-          AppSpacing.verticalXl,
-          
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
+          // Header
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: Row(
                 children: [
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: 'Product Title',
-                      hintText: 'e.g., Premium Wireless Headphones',
+                  IconButton(
+                    onPressed: () => context.pop(),
+                    icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+                  ),
+                  Expanded(
+                    child: Text(
+                      'Upload Product Image',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
-                  
-                  AppSpacing.verticalMd,
-                  
-                  TextFormField(
-                    maxLines: 4,
-                    decoration: const InputDecoration(
-                      labelText: 'Description',
-                      hintText: 'Describe your product features and benefits...',
-                      alignLabelWithHint: true,
-                    ),
-                  ),
-                  
-                  AppSpacing.verticalMd,
-                  
-                  TextFormField(
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Price (Optional)',
-                      hintText: r'$99.99',
-                      prefixIcon: Icon(Icons.attach_money),
+                  TextButton(
+                    onPressed: _selectedImage != null
+                        ? () => context.push('/templates')
+                        : null,
+                    child: Text(
+                      'Next',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: _selectedImage != null
+                            ? AppColors.primary
+                            : AppColors.textTertiaryDark,
+                      ),
                     ),
                   ),
                 ],
@@ -284,326 +61,361 @@ class _DetailsStep extends StatelessWidget {
             ),
           ),
           
-          AppSpacing.verticalLg,
-          
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: onBack,
-                  child: const Text('Back'),
-                ),
-              ),
-              AppSpacing.horizontalMd,
-              Expanded(
-                flex: 2,
-                child: ElevatedButton(
-                  onPressed: onNext,
-                  child: const Text('Continue'),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// Step 3: Template
-class _TemplateStep extends StatefulWidget {
-  const _TemplateStep({required this.onNext, required this.onBack});
-
-  final VoidCallback onNext;
-  final VoidCallback onBack;
-
-  @override
-  State<_TemplateStep> createState() => _TemplateStepState();
-}
-
-class _TemplateStepState extends State<_TemplateStep> {
-  int? _selectedTemplate;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: AppSpacing.pagePadding,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Choose Template',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          AppSpacing.verticalXs,
-          Text(
-            'Select a style for your video',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
-          
-          AppSpacing.verticalXl,
-          
+          // Content
           Expanded(
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 9 / 16,
-              ),
-              itemCount: 6,
-              itemBuilder: (context, index) {
-                final isSelected = _selectedTemplate == index;
-                return GestureDetector(
-                  onTap: () {
-                    setState(() => _selectedTemplate = index);
-                  },
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: isSelected ? AppColors.primary : AppColors.border,
-                        width: isSelected ? 2 : 1,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  // Description
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                    child: Text(
+                      'Select a high-quality photo of your product. This will be used as the input for AI generation.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.textSecondaryDark,
                       ),
                     ),
-                    child: Stack(
+                  ).animate().fadeIn(duration: 400.ms),
+                  
+                  const SizedBox(height: 8),
+                  
+                  // Image preview area
+                  Container(
+                    width: double.infinity,
+                    constraints: const BoxConstraints(maxWidth: 340),
+                    child: AspectRatio(
+                      aspectRatio: 3 / 4,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceCard,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: AppColors.borderDark),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.2),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(19),
+                          child: _selectedImage != null
+                              ? _ImagePreview(
+                                  imageUrl: _selectedImage!,
+                                  onRemove: () {
+                                    setState(() {
+                                      _selectedImage = null;
+                                    });
+                                  },
+                                )
+                              : _EmptyState(
+                                  onSelectImage: () {
+                                    // Simulate image selection
+                                    setState(() {
+                                      _selectedImage = 'https://lh3.googleusercontent.com/aida-public/AB6AXuD4gWelxJZFwLfKIgFO2q6BZOeuaL2g5BC42X31aKI2JgnBrkLLxDXEmiyA6P96bjWVz7aZTkUOsgbFZVBwRSkckxIprSzTNi4mhGnqcU-WzXwmQXUYRIicK87vkRWurPKKqf4rVzfy55d7LopHEycftPkAGaXSdL_DdDQydEwJxCPlvLOCzT6FetpSOglGE9BZFdhrxzmwV_UbW8pu4oQYcf-rvbBWrV1lZAmXBnTu2UmI4M6YD5WtKYt80I54zxTM83Xjoi97i5E';
+                                    });
+                                  },
+                                ),
+                        ),
+                      ),
+                    ),
+                  ).animate().fadeIn(delay: 200.ms, duration: 500.ms).scale(begin: const Offset(0.95, 0.95)),
+                  
+                  const SizedBox(height: 32),
+                  
+                  // Action buttons
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 340),
+                    child: Row(
                       children: [
-                        Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.play_circle_outline,
-                                size: 48,
-                                color: AppColors.textTertiary,
-                              ),
-                              AppSpacing.verticalSm,
-                              Text(
-                                'Template ${index + 1}',
-                                style: Theme.of(context).textTheme.labelMedium,
-                              ),
-                            ],
+                        Expanded(
+                          child: _ActionButton(
+                            icon: Icons.photo_library,
+                            label: 'Gallery',
+                            iconColor: AppColors.purple,
+                            iconBgColor: AppColors.purple.withValues(alpha: 0.1),
+                            onTap: () {
+                              // Simulate selecting from gallery
+                              setState(() {
+                                _selectedImage = 'https://lh3.googleusercontent.com/aida-public/AB6AXuD4gWelxJZFwLfKIgFO2q6BZOeuaL2g5BC42X31aKI2JgnBrkLLxDXEmiyA6P96bjWVz7aZTkUOsgbFZVBwRSkckxIprSzTNi4mhGnqcU-WzXwmQXUYRIicK87vkRWurPKKqf4rVzfy55d7LopHEycftPkAGaXSdL_DdDQydEwJxCPlvLOCzT6FetpSOglGE9BZFdhrxzmwV_UbW8pu4oQYcf-rvbBWrV1lZAmXBnTu2UmI4M6YD5WtKYt80I54zxTM83Xjoi97i5E';
+                              });
+                            },
                           ),
                         ),
-                        if (isSelected)
-                          Positioned(
-                            top: 8,
-                            right: 8,
-                            child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: const BoxDecoration(
-                                color: AppColors.primary,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.check,
-                                size: 16,
-                                color: Colors.white,
-                              ),
-                            ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _ActionButton(
+                            icon: Icons.photo_camera,
+                            label: 'Camera',
+                            iconColor: AppColors.primary,
+                            iconBgColor: AppColors.primary.withValues(alpha: 0.1),
+                            onTap: () {
+                              // Open camera
+                            },
                           ),
+                        ),
                       ],
                     ),
-                  ),
-                );
-              },
+                  ).animate().fadeIn(delay: 400.ms, duration: 400.ms).slideY(begin: 0.2),
+                ],
+              ),
             ),
-          ),
-          
-          AppSpacing.verticalLg,
-          
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: widget.onBack,
-                  child: const Text('Back'),
-                ),
-              ),
-              AppSpacing.horizontalMd,
-              Expanded(
-                flex: 2,
-                child: ElevatedButton(
-                  onPressed: _selectedTemplate != null ? widget.onNext : null,
-                  child: const Text('Continue'),
-                ),
-              ),
-            ],
           ),
         ],
       ),
-    );
-  }
-}
-
-// Step 4: Create
-class _CreateStep extends StatelessWidget {
-  const _CreateStep({required this.onBack});
-
-  final VoidCallback onBack;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: AppSpacing.pagePadding,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Video Settings',
-            style: Theme.of(context).textTheme.titleLarge,
+      
+      // Bottom navigation
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: AppColors.surfaceDark,
+          border: Border(
+            top: BorderSide(color: AppColors.borderDark),
           ),
-          AppSpacing.verticalXs,
-          Text(
-            'Choose aspect ratio and create your video',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppColors.textSecondary,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 20,
+              offset: const Offset(0, -5),
             ),
-          ),
-          
-          AppSpacing.verticalXl,
-          
-          // Aspect Ratio Selection
-          Text(
-            'Aspect Ratio',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          AppSpacing.verticalMd,
-          
-          Row(
-            children: [
-              _AspectRatioOption(
-                label: '9:16',
-                subtitle: 'Stories/Reels',
-                isSelected: true,
-                onTap: () {},
-              ),
-              AppSpacing.horizontalMd,
-              _AspectRatioOption(
-                label: '16:9',
-                subtitle: 'YouTube',
-                isSelected: false,
-                onTap: () {},
-              ),
-              AppSpacing.horizontalMd,
-              _AspectRatioOption(
-                label: '1:1',
-                subtitle: 'Feed',
-                isSelected: false,
-                onTap: () {},
-              ),
-            ],
-          ),
-          
-          AppSpacing.verticalXl,
-          
-          // Credit info
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
-            ),
+          ],
+        ),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                const Icon(Icons.bolt, color: AppColors.warning),
-                AppSpacing.horizontalMd,
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'This video will cost 50 credits',
-                        style: Theme.of(context).textTheme.titleSmall,
-                      ),
-                      Text(
-                        'You have 500 credits available',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
+                _NavItem(
+                  icon: Icons.folder_open,
+                  label: 'Projects',
+                  isSelected: false,
+                  onTap: () => context.go('/home'),
+                ),
+                _NavItem(
+                  icon: Icons.auto_fix_high,
+                  label: 'Effects',
+                  isSelected: true,
+                  showBadge: true,
+                  onTap: () {},
+                ),
+                _NavItem(
+                  icon: Icons.settings,
+                  label: 'Settings',
+                  isSelected: false,
+                  onTap: () {},
                 ),
               ],
             ),
           ),
-          
-          const Spacer(),
-          
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: onBack,
-                  child: const Text('Back'),
-                ),
-              ),
-              AppSpacing.horizontalMd,
-              Expanded(
-                flex: 2,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    // TODO: Start video creation
-                  },
-                  icon: const Icon(Icons.auto_awesome, color: Colors.white),
-                  label: const Text('Create Video'),
-                ),
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
-class _AspectRatioOption extends StatelessWidget {
-  const _AspectRatioOption({
+class _ImagePreview extends StatelessWidget {
+  const _ImagePreview({
+    required this.imageUrl,
+    required this.onRemove,
+  });
+
+  final String imageUrl;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // Image
+        Image.network(
+          imageUrl,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              color: AppColors.surfaceCard,
+              child: const Icon(
+                Icons.broken_image_outlined,
+                color: AppColors.textSecondaryDark,
+                size: 48,
+              ),
+            );
+          },
+        ),
+        
+        // Gradient overlay
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.transparent,
+                Colors.black.withValues(alpha: 0.4),
+              ],
+              stops: const [0.6, 1.0],
+            ),
+          ),
+        ),
+        
+        // Remove button
+        Positioned(
+          top: 12,
+          right: 12,
+          child: GestureDetector(
+            onTap: onRemove,
+            child: Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(9999),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.1),
+                ),
+              ),
+              child: const Icon(
+                Icons.close,
+                color: Colors.white,
+                size: 18,
+              ),
+            ),
+          ),
+        ),
+        
+        // Selected badge
+        Positioned(
+          left: 16,
+          bottom: 16,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.1),
+              ),
+            ),
+            child: const Text(
+              'IMAGE SELECTED',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  const _EmptyState({required this.onSelectImage});
+
+  final VoidCallback onSelectImage;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onSelectImage,
+      child: Container(
+        color: AppColors.surfaceCard,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(9999),
+              ),
+              child: Icon(
+                Icons.add_photo_alternate_outlined,
+                color: AppColors.primary,
+                size: 40,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Tap to select image',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'or use the buttons below',
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.textSecondaryDark,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  const _ActionButton({
+    required this.icon,
     required this.label,
-    required this.subtitle,
-    required this.isSelected,
+    required this.iconColor,
+    required this.iconBgColor,
     required this.onTap,
   });
 
+  final IconData icon;
   final String label;
-  final String subtitle;
-  final bool isSelected;
+  final Color iconColor;
+  final Color iconBgColor;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
         onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: const EdgeInsets.symmetric(vertical: 20),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : AppColors.surface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isSelected ? AppColors.primary : AppColors.border,
-              width: isSelected ? 2 : 1,
-            ),
+            color: AppColors.surfaceDark,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.borderDark),
           ),
           child: Column(
             children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: iconBgColor,
+                  borderRadius: BorderRadius.circular(9999),
+                ),
+                child: Icon(icon, color: iconColor, size: 26),
+              ),
+              const SizedBox(height: 12),
               Text(
                 label,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: isSelected ? AppColors.primary : null,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              AppSpacing.verticalXxs,
-              Text(
-                subtitle,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: AppColors.textTertiary,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
                 ),
               ),
             ],
@@ -614,3 +426,71 @@ class _AspectRatioOption extends StatelessWidget {
   }
 }
 
+class _NavItem extends StatelessWidget {
+  const _NavItem({
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+    this.showBadge = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final bool showBadge;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 24,
+                color: isSelected ? AppColors.primary : AppColors.textSecondaryDark,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: isSelected ? AppColors.primary : AppColors.textSecondaryDark,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
+          if (showBadge)
+            Positioned(
+              top: -4,
+              right: 8,
+              child: Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                ),
+              )
+                  .animate(onPlay: (controller) => controller.repeat())
+                  .scale(
+                    begin: const Offset(1, 1),
+                    end: const Offset(1.5, 1.5),
+                    duration: 1000.ms,
+                  )
+                  .fadeOut(duration: 1000.ms),
+            ),
+        ],
+      ),
+    );
+  }
+}

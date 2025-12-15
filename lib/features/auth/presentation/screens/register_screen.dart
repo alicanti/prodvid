@@ -80,7 +80,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 Text(
                   'Start creating amazing product videos',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: AppColors.textSecondaryDark,
                   ),
                 ),
                 
@@ -269,7 +269,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Text(
                         'Already have an account? ',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: AppColors.textSecondaryDark,
                         ),
                       ),
                       TextButton(
