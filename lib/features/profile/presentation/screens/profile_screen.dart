@@ -23,7 +23,10 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   IconButton(
                     onPressed: () => context.pop(),
-                    icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new,
+                      color: Colors.white,
+                    ),
                   ),
                   Expanded(
                     child: Text(
@@ -49,7 +52,7 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // Scrollable content
           Expanded(
             child: SingleChildScrollView(
@@ -63,76 +66,82 @@ class ProfileScreen extends StatelessWidget {
                       children: [
                         // Avatar
                         Stack(
-                          children: [
-                            Container(
-                              width: 112,
-                              height: 112,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: AppColors.surfaceDark,
-                                  width: 4,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.3),
-                                    blurRadius: 20,
-                                  ),
-                                ],
-                              ),
-                              child: ClipOval(
-                                child: Image.network(
-                                  'https://lh3.googleusercontent.com/aida-public/AB6AXuCpBLLwJKuQndaCAkz5FKVtldPUW_d0ZfbsWWjSti9enqXSCfcv8Jmg5yv94k_oJ3stU5SCv4NwPDOeXwliuugHjd82DaZ81VSftMvbyyRFMF-ycrxZJL4cI6sWB2pr-AtoKpvJEeLFw8C4GJL5EPcep1r5kon7md2P8vxn3wB7mSJqPRshwqwi3z4UZuLzIyVFzr3LlRJp7cRp93G9Tll--YrvkUJhhEjyZHTiMvS8VAsaXtVJ1-_30X72cVBV5flFCx7NSfx8kUk',
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Container(
-                                      color: AppColors.surfaceCard,
-                                      child: const Icon(
-                                        Icons.person,
-                                        size: 48,
-                                        color: AppColors.textSecondaryDark,
+                              children: [
+                                Container(
+                                  width: 112,
+                                  height: 112,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: AppColors.surfaceDark,
+                                      width: 4,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(
+                                          alpha: 0.3,
+                                        ),
+                                        blurRadius: 20,
                                       ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                            // Edit badge
-                            Positioned(
-                              right: 0,
-                              bottom: 0,
-                              child: Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: AppColors.backgroundDark,
-                                    width: 4,
+                                    ],
+                                  ),
+                                  child: ClipOval(
+                                    child: Image.network(
+                                      'https://lh3.googleusercontent.com/aida-public/AB6AXuCpBLLwJKuQndaCAkz5FKVtldPUW_d0ZfbsWWjSti9enqXSCfcv8Jmg5yv94k_oJ3stU5SCv4NwPDOeXwliuugHjd82DaZ81VSftMvbyyRFMF-ycrxZJL4cI6sWB2pr-AtoKpvJEeLFw8C4GJL5EPcep1r5kon7md2P8vxn3wB7mSJqPRshwqwi3z4UZuLzIyVFzr3LlRJp7cRp93G9Tll--YrvkUJhhEjyZHTiMvS8VAsaXtVJ1-_30X72cVBV5flFCx7NSfx8kUk',
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                            return Container(
+                                              color: AppColors.surfaceCard,
+                                              child: const Icon(
+                                                Icons.person,
+                                                size: 48,
+                                                color:
+                                                    AppColors.textSecondaryDark,
+                                              ),
+                                            );
+                                          },
+                                    ),
                                   ),
                                 ),
-                                child: const Icon(
-                                  Icons.edit,
-                                  size: 14,
-                                  color: Colors.white,
+                                // Edit badge
+                                Positioned(
+                                  right: 0,
+                                  bottom: 0,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: AppColors.backgroundDark,
+                                        width: 4,
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.edit,
+                                      size: 14,
+                                      color: Colors.white,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ],
-                        ).animate().fadeIn(duration: 400.ms).scale(begin: const Offset(0.9, 0.9)),
-                        
+                              ],
+                            )
+                            .animate()
+                            .fadeIn(duration: 400.ms)
+                            .scale(begin: const Offset(0.9, 0.9)),
+
                         const SizedBox(height: 16),
-                        
+
                         // Name
                         Text(
                           'Alex Johnson',
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(fontWeight: FontWeight.w800),
                         ).animate().fadeIn(delay: 100.ms),
-                        
+
                         const SizedBox(height: 4),
-                        
+
                         // Email
                         Text(
                           'alex.j@example.com',
@@ -142,12 +151,15 @@ class ProfileScreen extends StatelessWidget {
                             color: AppColors.textSecondaryDark,
                           ),
                         ).animate().fadeIn(delay: 150.ms),
-                        
+
                         const SizedBox(height: 8),
-                        
+
                         // Pro badge
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: AppColors.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(9999),
@@ -165,9 +177,9 @@ class ProfileScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Usage Statistics
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -176,13 +188,12 @@ class ProfileScreen extends StatelessWidget {
                       children: [
                         Text(
                           'Usage Statistics',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.w700),
                         ),
-                        
+
                         const SizedBox(height: 12),
-                        
+
                         // Credits card
                         Container(
                           decoration: BoxDecoration(
@@ -209,45 +220,57 @@ class ProfileScreen extends StatelessWidget {
                                     const SizedBox(height: 4),
                                     Text(
                                       'Monthly Credits',
-                                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                        fontWeight: FontWeight.w700,
-                                      ),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w700,
+                                          ),
                                     ),
                                     const SizedBox(height: 16),
-                                    
+
                                     // Progress
                                     Row(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
                                       children: [
                                         Text(
                                           '85',
-                                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                            fontWeight: FontWeight.w700,
-                                          ),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w700,
+                                              ),
                                         ),
                                         const SizedBox(width: 8),
                                         Padding(
-                                          padding: const EdgeInsets.only(bottom: 4),
+                                          padding: const EdgeInsets.only(
+                                            bottom: 4,
+                                          ),
                                           child: Text(
                                             '/ 100 Used',
                                             style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500,
-                                              color: AppColors.textSecondaryDark,
+                                              color:
+                                                  AppColors.textSecondaryDark,
                                             ),
                                           ),
                                         ),
                                       ],
                                     ),
-                                    
+
                                     const SizedBox(height: 12),
-                                    
+
                                     // Progress bar
                                     Container(
                                       height: 10,
                                       decoration: BoxDecoration(
                                         color: AppColors.surfaceCard,
-                                        borderRadius: BorderRadius.circular(9999),
+                                        borderRadius: BorderRadius.circular(
+                                          9999,
+                                        ),
                                       ),
                                       child: FractionallySizedBox(
                                         alignment: Alignment.centerLeft,
@@ -255,10 +278,13 @@ class ProfileScreen extends StatelessWidget {
                                         child: Container(
                                           decoration: BoxDecoration(
                                             color: AppColors.primary,
-                                            borderRadius: BorderRadius.circular(9999),
+                                            borderRadius: BorderRadius.circular(
+                                              9999,
+                                            ),
                                             boxShadow: [
                                               BoxShadow(
-                                                color: AppColors.primary.withValues(alpha: 0.5),
+                                                color: AppColors.primary
+                                                    .withValues(alpha: 0.5),
                                                 blurRadius: 10,
                                               ),
                                             ],
@@ -266,9 +292,9 @@ class ProfileScreen extends StatelessWidget {
                                         ),
                                       ),
                                     ),
-                                    
+
                                     const SizedBox(height: 8),
-                                    
+
                                     Text(
                                       'Resets in 5 days',
                                       style: TextStyle(
@@ -279,19 +305,29 @@ class ProfileScreen extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              
+
                               // Upgrade banner
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 12,
+                                ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primary.withValues(alpha: 0.05),
-                                  border: Border(
-                                    top: BorderSide(color: AppColors.borderDark),
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.05,
                                   ),
-                                  borderRadius: const BorderRadius.vertical(bottom: Radius.circular(15)),
+                                  border: Border(
+                                    top: BorderSide(
+                                      color: AppColors.borderDark,
+                                    ),
+                                  ),
+                                  borderRadius: const BorderRadius.vertical(
+                                    bottom: Radius.circular(15),
+                                  ),
                                 ),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       'Need more credits?',
@@ -302,7 +338,9 @@ class ProfileScreen extends StatelessWidget {
                                       ),
                                     ),
                                     TextButton(
-                                      onPressed: () => context.push('/paywall'),
+                                      onPressed: () {
+                                        // TODO: Navigate to paywall when designed
+                                      },
                                       child: Text(
                                         'Upgrade Plan',
                                         style: TextStyle(
@@ -321,9 +359,9 @@ class ProfileScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Account settings
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -332,13 +370,12 @@ class ProfileScreen extends StatelessWidget {
                       children: [
                         Text(
                           'Account',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.w700),
                         ),
-                        
+
                         const SizedBox(height: 12),
-                        
+
                         Container(
                           decoration: BoxDecoration(
                             color: AppColors.surfaceDark,
@@ -353,7 +390,9 @@ class ProfileScreen extends StatelessWidget {
                                 iconBgColor: const Color(0xFF222B3D),
                                 title: 'Subscription',
                                 subtitle: 'Manage plan & billing',
-                                onTap: () => context.push('/paywall'),
+                                onTap: () {
+                                  // TODO: Navigate to paywall when designed
+                                },
                               ),
                               _SettingsItem(
                                 icon: Icons.movie_filter,
@@ -386,9 +425,9 @@ class ProfileScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 32),
-                  
+
                   // Logout button
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -411,10 +450,7 @@ class ProfileScreen extends StatelessWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
-                                Icons.logout,
-                                color: AppColors.error,
-                              ),
+                              Icon(Icons.logout, color: AppColors.error),
                               const SizedBox(width: 8),
                               Text(
                                 'Log Out',
@@ -430,16 +466,13 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ).animate().fadeIn(delay: 500.ms),
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Version
                   Text(
                     'ProdVid v2.4.0',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.slate600,
-                    ),
+                    style: TextStyle(fontSize: 12, color: AppColors.slate600),
                   ),
                 ],
               ),
@@ -447,14 +480,12 @@ class ProfileScreen extends StatelessWidget {
           ),
         ],
       ),
-      
+
       // Bottom navigation
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: AppColors.surfaceLight,
-          border: Border(
-            top: BorderSide(color: AppColors.borderDark),
-          ),
+          border: Border(top: BorderSide(color: AppColors.borderDark)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.1),
@@ -493,11 +524,7 @@ class ProfileScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: const Icon(
-                      Icons.add,
-                      color: Colors.white,
-                      size: 30,
-                    ),
+                    child: const Icon(Icons.add, color: Colors.white, size: 30),
                   ),
                 ),
                 _NavItem(
@@ -576,10 +603,7 @@ class _SettingsItem extends StatelessWidget {
                     ],
                   ),
                 ),
-                Icon(
-                  Icons.chevron_right,
-                  color: AppColors.slate400,
-                ),
+                Icon(Icons.chevron_right, color: AppColors.slate400),
               ],
             ),
           ),

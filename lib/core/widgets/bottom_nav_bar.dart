@@ -18,10 +18,7 @@ class AppBottomNavBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.backgroundDark.withValues(alpha: 0.95),
         border: const Border(
-          top: BorderSide(
-            color: AppColors.borderDark,
-            width: 1,
-          ),
+          top: BorderSide(color: AppColors.borderDark, width: 1),
         ),
       ),
       child: SafeArea(
@@ -89,7 +86,9 @@ class _NavItem extends StatelessWidget {
             style: TextStyle(
               fontSize: 10,
               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              color: isSelected ? AppColors.primary : AppColors.textSecondaryDark,
+              color: isSelected
+                  ? AppColors.primary
+                  : AppColors.textSecondaryDark,
             ),
           ),
         ],
@@ -97,4 +96,3 @@ class _NavItem extends StatelessWidget {
     );
   }
 }
-

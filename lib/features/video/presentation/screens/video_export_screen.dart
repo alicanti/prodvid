@@ -50,7 +50,7 @@ class VideoExportScreen extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // Content
           Expanded(
             child: SingleChildScrollView(
@@ -59,126 +59,143 @@ class VideoExportScreen extends StatelessWidget {
                 children: [
                   // Video preview
                   Container(
-                    width: double.infinity,
-                    constraints: BoxConstraints(
-                      maxHeight: MediaQuery.of(context).size.height * 0.45,
-                    ),
-                    child: AspectRatio(
-                      aspectRatio: 9 / 16,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.3),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
+                        width: double.infinity,
+                        constraints: BoxConstraints(
+                          maxHeight: MediaQuery.of(context).size.height * 0.45,
                         ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              // Video thumbnail
-                              Image.network(
-                                'https://lh3.googleusercontent.com/aida-public/AB6AXuCUCGvuK67NjAT4ItJzG260O5oOXD6N78cSj0EZTybuFtM5hXOS3WalwpVGOVOUtIOeWL4MSSRT6Qe2SACQ9Jhjerz6A3uc4ERPZqwXRMZZYg1ZeN1gkRUw3g1VPvaQeCpWLOn7JyoNOCu7_XR0OVmNgQpzR1ga_VR4TVbiXhkPsFoB1A4S54JAlyrtTyYQh4_JI0I5pGzB-_eX0uYgCqjvBvy4GQN9-U7pvZzeZVv1SIUCgkFxnOdL8cqS0EbYBGWp3PBFphRFQ3M',
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    color: AppColors.surfaceCard,
-                                    child: const Icon(
-                                      Icons.video_library,
-                                      size: 64,
-                                      color: AppColors.textSecondaryDark,
-                                    ),
-                                  );
-                                },
-                              ),
-                              
-                              // Overlay
-                              Container(
-                                color: Colors.black.withValues(alpha: 0.2),
-                              ),
-                              
-                              // Play button
-                              Center(
-                                child: Container(
-                                  width: 64,
-                                  height: 64,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.2),
-                                    borderRadius: BorderRadius.circular(9999),
-                                  ),
-                                  child: const Icon(
-                                    Icons.play_arrow,
-                                    color: Colors.white,
-                                    size: 32,
-                                  ),
+                        child: AspectRatio(
+                          aspectRatio: 9 / 16,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.3),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 10),
                                 ),
-                              ),
-                              
-                              // Progress bar
-                              Positioned(
-                                left: 16,
-                                right: 16,
-                                bottom: 16,
-                                child: Column(
-                                  children: [
-                                    // Seekbar
-                                    Container(
-                                      height: 4,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withValues(alpha: 0.3),
-                                        borderRadius: BorderRadius.circular(9999),
-                                      ),
-                                      child: FractionallySizedBox(
-                                        alignment: Alignment.centerLeft,
-                                        widthFactor: 0.33,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            color: AppColors.primary,
-                                            borderRadius: BorderRadius.circular(9999),
-                                          ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  // Video thumbnail
+                                  Image.network(
+                                    'https://lh3.googleusercontent.com/aida-public/AB6AXuCUCGvuK67NjAT4ItJzG260O5oOXD6N78cSj0EZTybuFtM5hXOS3WalwpVGOVOUtIOeWL4MSSRT6Qe2SACQ9Jhjerz6A3uc4ERPZqwXRMZZYg1ZeN1gkRUw3g1VPvaQeCpWLOn7JyoNOCu7_XR0OVmNgQpzR1ga_VR4TVbiXhkPsFoB1A4S54JAlyrtTyYQh4_JI0I5pGzB-_eX0uYgCqjvBvy4GQN9-U7pvZzeZVv1SIUCgkFxnOdL8cqS0EbYBGWp3PBFphRFQ3M',
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        color: AppColors.surfaceCard,
+                                        child: const Icon(
+                                          Icons.video_library,
+                                          size: 64,
+                                          color: AppColors.textSecondaryDark,
                                         ),
+                                      );
+                                    },
+                                  ),
+
+                                  // Overlay
+                                  Container(
+                                    color: Colors.black.withValues(alpha: 0.2),
+                                  ),
+
+                                  // Play button
+                                  Center(
+                                    child: Container(
+                                      width: 64,
+                                      height: 64,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.2,
+                                        ),
+                                        borderRadius: BorderRadius.circular(
+                                          9999,
+                                        ),
+                                      ),
+                                      child: const Icon(
+                                        Icons.play_arrow,
+                                        color: Colors.white,
+                                        size: 32,
                                       ),
                                     ),
-                                    const SizedBox(height: 8),
-                                    // Time
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  ),
+
+                                  // Progress bar
+                                  Positioned(
+                                    left: 16,
+                                    right: 16,
+                                    bottom: 16,
+                                    child: Column(
                                       children: [
-                                        Text(
-                                          '0:05',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.white.withValues(alpha: 0.9),
+                                        // Seekbar
+                                        Container(
+                                          height: 4,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withValues(
+                                              alpha: 0.3,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              9999,
+                                            ),
+                                          ),
+                                          child: FractionallySizedBox(
+                                            alignment: Alignment.centerLeft,
+                                            widthFactor: 0.33,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: AppColors.primary,
+                                                borderRadius:
+                                                    BorderRadius.circular(9999),
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                        Text(
-                                          '0:15',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.white.withValues(alpha: 0.9),
-                                          ),
+                                        const SizedBox(height: 8),
+                                        // Time
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              '0:05',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.white.withValues(
+                                                  alpha: 0.9,
+                                                ),
+                                              ),
+                                            ),
+                                            Text(
+                                              '0:15',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.white.withValues(
+                                                  alpha: 0.9,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  ).animate().fadeIn(duration: 500.ms).scale(begin: const Offset(0.95, 0.95)),
-                  
+                      )
+                      .animate()
+                      .fadeIn(duration: 500.ms)
+                      .scale(begin: const Offset(0.95, 0.95)),
+
                   const SizedBox(height: 24),
-                  
+
                   // Success text
                   Text(
                     'Video generated!',
@@ -186,9 +203,9 @@ class VideoExportScreen extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ).animate().fadeIn(delay: 200.ms),
-                  
+
                   const SizedBox(height: 4),
-                  
+
                   Text(
                     'Your product video is ready to be shared with the world.',
                     textAlign: TextAlign.center,
@@ -197,18 +214,18 @@ class VideoExportScreen extends StatelessWidget {
                       color: AppColors.textSecondaryDark,
                     ),
                   ).animate().fadeIn(delay: 250.ms),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Action buttons
                   PrimaryButton(
                     text: 'Save to Gallery',
                     icon: Icons.download,
                     onPressed: () {},
                   ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.2),
-                  
+
                   const SizedBox(height: 12),
-                  
+
                   // Re-generate button
                   OutlinedButton(
                     onPressed: () {},
@@ -235,9 +252,9 @@ class VideoExportScreen extends StatelessWidget {
                       ],
                     ),
                   ).animate().fadeIn(delay: 350.ms).slideY(begin: 0.2),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Export settings card
                   Container(
                     padding: const EdgeInsets.all(16),
@@ -298,9 +315,9 @@ class VideoExportScreen extends StatelessWidget {
                       ],
                     ),
                   ).animate().fadeIn(delay: 400.ms),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Share section
                   Align(
                     alignment: Alignment.centerLeft,
@@ -316,9 +333,9 @@ class VideoExportScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Social share buttons
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -361,9 +378,9 @@ class VideoExportScreen extends StatelessWidget {
                       ],
                     ),
                   ).animate().fadeIn(delay: 500.ms),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Copy link
                   Container(
                     padding: const EdgeInsets.all(12),
@@ -413,7 +430,7 @@ class VideoExportScreen extends StatelessWidget {
                       ],
                     ),
                   ).animate().fadeIn(delay: 600.ms),
-                  
+
                   const SizedBox(height: 100), // Space for nav bar
                 ],
               ),
@@ -421,14 +438,12 @@ class VideoExportScreen extends StatelessWidget {
           ),
         ],
       ),
-      
+
       // Bottom navigation
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: AppColors.surfaceDark,
-          border: Border(
-            top: BorderSide(color: AppColors.borderDark),
-          ),
+          border: Border(top: BorderSide(color: AppColors.borderDark)),
         ),
         child: SafeArea(
           top: false,
@@ -566,4 +581,3 @@ class _NavItem extends StatelessWidget {
     );
   }
 }
-

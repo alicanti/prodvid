@@ -14,7 +14,7 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       scaffoldBackgroundColor: AppColors.backgroundDark,
-      
+
       // Color Scheme
       colorScheme: const ColorScheme.dark(
         primary: AppColors.primary,
@@ -30,7 +30,7 @@ class AppTheme {
         onError: Colors.white,
         outline: AppColors.borderDark,
       ),
-      
+
       // App Bar Theme
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.backgroundDark,
@@ -44,10 +44,10 @@ class AppTheme {
           fontWeight: FontWeight.w700,
         ),
       ),
-      
+
       // Text Theme
       textTheme: _textTheme,
-      
+
       // Input Decoration
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -79,7 +79,7 @@ class AppTheme {
         hintStyle: const TextStyle(color: AppColors.textSecondaryDark),
         labelStyle: const TextStyle(color: AppColors.textSecondaryDark),
       ),
-      
+
       // Elevated Button Theme
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -95,7 +95,7 @@ class AppTheme {
           ),
         ),
       ),
-      
+
       // Outlined Button Theme
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
@@ -110,7 +110,7 @@ class AppTheme {
           ),
         ),
       ),
-      
+
       // Text Button Theme
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
@@ -120,7 +120,7 @@ class AppTheme {
           ),
         ),
       ),
-      
+
       // Card Theme
       cardTheme: CardThemeData(
         color: AppColors.surfaceDark,
@@ -131,7 +131,7 @@ class AppTheme {
         ),
         margin: EdgeInsets.zero,
       ),
-      
+
       // Bottom Navigation Bar Theme
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: AppColors.backgroundDark,
@@ -142,7 +142,7 @@ class AppTheme {
         showUnselectedLabels: true,
         elevation: 0,
       ),
-      
+
       // Bottom Sheet Theme
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: AppColors.surfaceDark,
@@ -150,40 +150,36 @@ class AppTheme {
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
       ),
-      
+
       // Dialog Theme
       dialogTheme: DialogThemeData(
         backgroundColor: AppColors.surfaceDark,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       ),
-      
+
       // Snackbar Theme
       snackBarTheme: SnackBarThemeData(
         backgroundColor: AppColors.surfaceCard,
         contentTextStyle: _textTheme.bodyMedium?.copyWith(
           color: AppColors.textPrimaryDark,
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         behavior: SnackBarBehavior.floating,
       ),
-      
+
       // Divider Theme
       dividerTheme: const DividerThemeData(
         color: AppColors.borderDark,
         thickness: 1,
         space: 1,
       ),
-      
+
       // Icon Theme
       iconTheme: const IconThemeData(
         color: AppColors.textSecondaryDark,
         size: 24,
       ),
-      
+
       // Chip Theme
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.surfaceCard,
@@ -194,13 +190,13 @@ class AppTheme {
           borderRadius: BorderRadius.circular(9999),
         ),
       ),
-      
+
       // Progress Indicator Theme
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         color: AppColors.primary,
         linearTrackColor: AppColors.surfaceCard,
       ),
-      
+
       // Switch Theme
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
@@ -225,7 +221,7 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.light,
       scaffoldBackgroundColor: AppColors.backgroundLight,
-      
+
       // Color Scheme
       colorScheme: const ColorScheme.light(
         primary: AppColors.primary,
@@ -241,7 +237,7 @@ class AppTheme {
         onError: Colors.white,
         outline: AppColors.borderLight,
       ),
-      
+
       // App Bar Theme
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.backgroundLight,
@@ -255,10 +251,10 @@ class AppTheme {
           fontWeight: FontWeight.w700,
         ),
       ),
-      
+
       // Text Theme
       textTheme: _textThemeLight,
-      
+
       // Input Decoration
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -282,7 +278,7 @@ class AppTheme {
         hintStyle: const TextStyle(color: AppColors.textTertiaryLight),
         labelStyle: const TextStyle(color: AppColors.textSecondaryLight),
       ),
-      
+
       // Elevated Button Theme
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -298,7 +294,7 @@ class AppTheme {
           ),
         ),
       ),
-      
+
       // Card Theme
       cardTheme: CardThemeData(
         color: AppColors.surfaceLight,
@@ -309,7 +305,7 @@ class AppTheme {
         ),
         margin: EdgeInsets.zero,
       ),
-      
+
       // Bottom Navigation Bar Theme
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: AppColors.surfaceLight,
@@ -344,7 +340,7 @@ class AppTheme {
           fontWeight: FontWeight.w700,
           color: AppColors.textPrimaryDark,
         ),
-        
+
         // Headline
         headlineLarge: TextStyle(
           fontSize: 32,
@@ -362,7 +358,7 @@ class AppTheme {
           fontWeight: FontWeight.w700,
           color: AppColors.textPrimaryDark,
         ),
-        
+
         // Title
         titleLarge: TextStyle(
           fontSize: 22,
@@ -381,7 +377,7 @@ class AppTheme {
           letterSpacing: 0.1,
           color: AppColors.textPrimaryDark,
         ),
-        
+
         // Body
         bodyLarge: TextStyle(
           fontSize: 16,
@@ -401,7 +397,7 @@ class AppTheme {
           letterSpacing: 0.4,
           color: AppColors.textSecondaryDark,
         ),
-        
+
         // Label
         labelLarge: TextStyle(
           fontSize: 14,
@@ -446,7 +442,7 @@ class AppTheme {
           fontWeight: FontWeight.w700,
           color: AppColors.textPrimaryLight,
         ),
-        
+
         // Headline
         headlineLarge: TextStyle(
           fontSize: 32,
@@ -464,7 +460,7 @@ class AppTheme {
           fontWeight: FontWeight.w700,
           color: AppColors.textPrimaryLight,
         ),
-        
+
         // Title
         titleLarge: TextStyle(
           fontSize: 22,
@@ -483,7 +479,7 @@ class AppTheme {
           letterSpacing: 0.1,
           color: AppColors.textPrimaryLight,
         ),
-        
+
         // Body
         bodyLarge: TextStyle(
           fontSize: 16,
@@ -503,7 +499,7 @@ class AppTheme {
           letterSpacing: 0.4,
           color: AppColors.textSecondaryLight,
         ),
-        
+
         // Label
         labelLarge: TextStyle(
           fontSize: 14,

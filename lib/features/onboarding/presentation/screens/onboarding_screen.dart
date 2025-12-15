@@ -66,7 +66,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ],
               ),
             ),
-            
+
             // Page content
             Expanded(
               child: PageView(
@@ -83,7 +83,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ],
               ),
             ),
-            
+
             // Bottom section
             Padding(
               padding: const EdgeInsets.all(24),
@@ -91,16 +91,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 children: [
                   // Page indicators
                   PageIndicator(count: 3, currentIndex: _currentPage),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Next/Start button
                   PrimaryButton(
                     text: _currentPage == 2 ? 'Start Creating' : 'Next',
                     icon: _currentPage == 2 ? Icons.arrow_forward : null,
                     onPressed: _nextPage,
                   ),
-                  
+
                   if (_currentPage == 2) ...[
                     const SizedBox(height: 16),
                     TextButton(
@@ -178,7 +178,7 @@ class _OnboardingPage1 extends StatelessWidget {
                         );
                       },
                     ),
-                    
+
                     // Gradient overlay
                     Container(
                       decoration: BoxDecoration(
@@ -193,13 +193,16 @@ class _OnboardingPage1 extends StatelessWidget {
                         ),
                       ),
                     ),
-                    
+
                     // AI Badge
                     Positioned(
                       top: 16,
                       right: 16,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.4),
                           borderRadius: BorderRadius.circular(9999),
@@ -229,7 +232,7 @@ class _OnboardingPage1 extends StatelessWidget {
                         ),
                       ),
                     ),
-                    
+
                     // Processing card
                     Positioned(
                       left: 16,
@@ -256,7 +259,8 @@ class _OnboardingPage1 extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         'PROCESSING',
@@ -290,9 +294,9 @@ class _OnboardingPage1 extends StatelessWidget {
               ),
             ).animate().fadeIn(duration: 600.ms).scale(begin: const Offset(0.95, 0.95)),
           ),
-          
+
           const SizedBox(height: 32),
-          
+
           // Text content
           Expanded(
             flex: 1,
@@ -314,9 +318,9 @@ class _OnboardingPage1 extends StatelessWidget {
                     ],
                   ),
                 ).animate().fadeIn(delay: 300.ms),
-                
+
                 const SizedBox(height: 16),
-                
+
                 Text(
                   'Upload your product photo and watch our AI turn it into a viral-ready video ad in seconds.',
                   textAlign: TextAlign.center,
@@ -346,17 +350,17 @@ class _OnboardingPage2 extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 16),
-          
+
           // Title
           Text(
             'Create in Seconds',
-            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-              fontWeight: FontWeight.w800,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.w800),
           ).animate().fadeIn(duration: 400.ms),
-          
+
           const SizedBox(height: 8),
-          
+
           Text(
             'Turn static photos into viral videos in three simple steps.',
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -364,9 +368,9 @@ class _OnboardingPage2 extends StatelessWidget {
               fontWeight: FontWeight.w500,
             ),
           ).animate().fadeIn(delay: 100.ms, duration: 400.ms),
-          
+
           const SizedBox(height: 40),
-          
+
           // Timeline steps
           Expanded(
             child: Column(
@@ -374,21 +378,24 @@ class _OnboardingPage2 extends StatelessWidget {
                 _TimelineStep(
                   icon: Icons.cloud_upload_outlined,
                   title: 'Upload Product',
-                  description: 'Select a high-quality photo of your product from your gallery.',
+                  description:
+                      'Select a high-quality photo of your product from your gallery.',
                   showLine: true,
                   delay: 200,
                 ),
                 _TimelineStep(
                   icon: Icons.auto_awesome,
                   title: 'Select AI Effect',
-                  description: 'Choose from trending templates and AI-powered styles.',
+                  description:
+                      'Choose from trending templates and AI-powered styles.',
                   showLine: true,
                   delay: 400,
                 ),
                 _TimelineStep(
                   icon: Icons.movie_creation_outlined,
                   title: 'Generate Video',
-                  description: 'Watch as your static image transforms into a professional ad instantly.',
+                  description:
+                      'Watch as your static image transforms into a professional ad instantly.',
                   showLine: false,
                   delay: 600,
                 ),
@@ -452,7 +459,7 @@ class _OnboardingPage3 extends StatelessWidget {
             ).animate().fadeIn(duration: 600.ms),
           ),
         ),
-        
+
         // Text content
         Expanded(
           flex: 1,
@@ -469,9 +476,9 @@ class _OnboardingPage3 extends StatelessWidget {
                     height: 1.1,
                   ),
                 ).animate().fadeIn(delay: 200.ms),
-                
+
                 const SizedBox(height: 16),
-                
+
                 Text(
                   'Turn simple product photos into stunning video ads in seconds. No editing skills required.',
                   textAlign: TextAlign.center,
@@ -507,68 +514,66 @@ class _TimelineStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Icon column
-        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: AppColors.surfaceDark,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.borderDark),
-              ),
-              child: Icon(
-                icon,
-                color: AppColors.primary,
-                size: 28,
-              ),
-            ),
-            if (showLine)
-              Container(
-                width: 2,
-                height: 40,
-                color: AppColors.borderDark,
-              ),
-          ],
-        ),
-        
-        const SizedBox(width: 16),
-        
-        // Text column
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            // Icon column
+            Column(
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceDark,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.borderDark),
                   ),
+                  child: Icon(icon, color: AppColors.primary, size: 28),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  description,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textSecondaryDark,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 24),
+                if (showLine)
+                  Container(width: 2, height: 40, color: AppColors.borderDark),
               ],
             ),
-          ),
-        ),
-      ],
-    ).animate().fadeIn(delay: Duration(milliseconds: delay), duration: 400.ms).slideX(begin: 0.1);
+
+            const SizedBox(width: 16),
+
+            // Text column
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      description,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.textSecondaryDark,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        )
+        .animate()
+        .fadeIn(
+          delay: Duration(milliseconds: delay),
+          duration: 400.ms,
+        )
+        .slideX(begin: 0.1);
   }
 }
 
@@ -584,9 +589,7 @@ class _GlassCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.backgroundDark.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.08),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       ),
       child: child,
     );

@@ -2,14 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../features/auth/presentation/screens/login_screen.dart';
-import '../features/auth/presentation/screens/register_screen.dart';
 import '../features/home/presentation/screens/home_screen.dart';
 import '../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../features/onboarding/presentation/screens/welcome_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
 import '../features/splash/presentation/screens/splash_screen.dart';
-import '../features/subscription/presentation/screens/paywall_screen.dart';
 import '../features/video/presentation/screens/template_selection_screen.dart';
 import '../features/video/presentation/screens/video_creation_screen.dart';
 import '../features/video/presentation/screens/video_export_screen.dart';
@@ -19,14 +16,10 @@ abstract class AppRoutes {
   static const String splash = '/';
   static const String welcome = '/welcome';
   static const String onboarding = '/onboarding';
-  static const String login = '/login';
-  static const String register = '/register';
-  static const String forgotPassword = '/forgot-password';
   static const String home = '/home';
   static const String create = '/create';
   static const String templates = '/templates';
   static const String videoExport = '/video-export';
-  static const String paywall = '/paywall';
   static const String profile = '/profile';
   static const String settings = '/settings';
 }
@@ -42,72 +35,55 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.splash,
         builder: (context, state) => const SplashScreen(),
       ),
-      
+
       // Welcome Screen
       GoRoute(
         path: AppRoutes.welcome,
         builder: (context, state) => const WelcomeScreen(),
       ),
-      
+
       // Onboarding
       GoRoute(
         path: AppRoutes.onboarding,
         builder: (context, state) => const OnboardingScreen(),
       ),
-      
-      // Auth
-      GoRoute(
-        path: AppRoutes.login,
-        builder: (context, state) => const LoginScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.register,
-        builder: (context, state) => const RegisterScreen(),
-      ),
-      
+
       // Home / Dashboard
       GoRoute(
         path: AppRoutes.home,
         builder: (context, state) => const HomeScreen(),
       ),
-      
+
       // Profile
       GoRoute(
         path: AppRoutes.profile,
         builder: (context, state) => const ProfileScreen(),
       ),
-      
+
       // Video Creation Flow
       GoRoute(
         path: AppRoutes.create,
         builder: (context, state) => const VideoCreationScreen(),
       ),
-      
+
       // Template Selection
       GoRoute(
         path: AppRoutes.templates,
         builder: (context, state) => const TemplateSelectionScreen(),
       ),
-      
+
       // Video Export
       GoRoute(
         path: AppRoutes.videoExport,
         builder: (context, state) => const VideoExportScreen(),
       ),
-      
-      // Paywall
-      GoRoute(
-        path: AppRoutes.paywall,
-        builder: (context, state) => const PaywallScreen(),
-      ),
     ],
-    
+
     // Error handling
     errorBuilder: (context, state) => _ErrorScreen(error: state.error),
-    
-    // Redirect logic
+
+    // Redirect logic - anonymous auth handled in splash
     redirect: (context, state) {
-      // TODO: Implement auth redirect logic based on Firebase Auth state
       return null;
     },
   );
@@ -116,7 +92,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 /// Error Screen
 class _ErrorScreen extends StatelessWidget {
   const _ErrorScreen({this.error});
-  
+
   final Exception? error;
 
   @override

@@ -31,7 +31,7 @@ class _SplashScreenState extends State<SplashScreen> {
         });
       }
     }
-    
+
     // Navigate to welcome/onboarding
     if (mounted) {
       context.go('/welcome');
@@ -60,13 +60,13 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
           ),
-          
+
           // Main content
           SafeArea(
             child: Column(
               children: [
                 const Spacer(),
-                
+
                 // Logo & Title
                 Expanded(
                   flex: 3,
@@ -75,68 +75,73 @@ class _SplashScreenState extends State<SplashScreen> {
                     children: [
                       // Logo container
                       Container(
-                        width: 128,
-                        height: 128,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.primary.withValues(alpha: 0.2),
-                              blurRadius: 32,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(24),
-                          child: Stack(
-                            children: [
-                              // Gradient background
-                              Container(
-                                decoration: const BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [
-                                      Color(0xFF1a237e),
-                                      Color(0xFF311b92),
-                                    ],
+                            width: 128,
+                            height: 128,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.2,
                                   ),
+                                  blurRadius: 32,
+                                  spreadRadius: 0,
                                 ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(24),
+                              child: Stack(
+                                children: [
+                                  // Gradient background
+                                  Container(
+                                    decoration: const BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [
+                                          Color(0xFF1a237e),
+                                          Color(0xFF311b92),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  // Overlay
+                                  Container(
+                                    color: AppColors.primary.withValues(
+                                      alpha: 0.2,
+                                    ),
+                                  ),
+                                  // Icon
+                                  const Center(
+                                    child: Icon(
+                                      Icons.smart_display_rounded,
+                                      size: 64,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              // Overlay
-                              Container(
-                                color: AppColors.primary.withValues(alpha: 0.2),
-                              ),
-                              // Icon
-                              const Center(
-                                child: Icon(
-                                  Icons.smart_display_rounded,
-                                  size: 64,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
+                            ),
+                          )
                           .animate()
                           .fadeIn(duration: 600.ms)
                           .scale(begin: const Offset(0.8, 0.8)),
-                      
+
                       const SizedBox(height: 24),
-                      
+
                       // App name
                       Text(
                         'ProdVid',
-                        style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -0.5,
-                        ),
+                        style: Theme.of(context).textTheme.headlineLarge
+                            ?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.5,
+                            ),
                       ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
-                      
+
                       const SizedBox(height: 4),
-                      
+
                       // Tagline
                       Text(
                         'AI Video Generation',
@@ -149,7 +154,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     ],
                   ),
                 ),
-                
+
                 // Bottom progress section
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 68),
@@ -165,9 +170,9 @@ class _SplashScreenState extends State<SplashScreen> {
                           letterSpacing: 2,
                         ),
                       ),
-                      
+
                       const SizedBox(height: 12),
-                      
+
                       // Progress bar
                       Container(
                         height: 6,
@@ -196,41 +201,49 @@ class _SplashScreenState extends State<SplashScreen> {
                                   child: FractionallySizedBox(
                                     alignment: Alignment.centerLeft,
                                     widthFactor: _progress,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Colors.transparent,
-                                            Colors.white.withValues(alpha: 0.2),
-                                            Colors.transparent,
-                                          ],
-                                        ),
-                                      ),
-                                    )
-                                        .animate(onPlay: (controller) => controller.repeat())
-                                        .shimmer(duration: 1500.ms),
+                                    child:
+                                        Container(
+                                              decoration: BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  colors: [
+                                                    Colors.transparent,
+                                                    Colors.white.withValues(
+                                                      alpha: 0.2,
+                                                    ),
+                                                    Colors.transparent,
+                                                  ],
+                                                ),
+                                              ),
+                                            )
+                                            .animate(
+                                              onPlay: (controller) =>
+                                                  controller.repeat(),
+                                            )
+                                            .shimmer(duration: 1500.ms),
                                   ),
                                 ),
                               ),
                           ],
                         ),
                       ),
-                      
+
                       const SizedBox(height: 24),
-                      
+
                       // Version
                       Text(
                         'v1.0.0',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.textTertiaryDark.withValues(alpha: 0.6),
+                          color: AppColors.textTertiaryDark.withValues(
+                            alpha: 0.6,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ).animate().fadeIn(delay: 600.ms, duration: 400.ms),
-                
+
                 const SizedBox(height: 48),
               ],
             ),
@@ -240,4 +253,3 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 }
-

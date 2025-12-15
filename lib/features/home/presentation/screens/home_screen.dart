@@ -83,9 +83,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(width: 12),
-                  
+
                   // Title
                   Text(
                     'AI Video Projects',
@@ -93,9 +93,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  
+
                   const Spacer(),
-                  
+
                   // Search button
                   IconButton(
                     onPressed: () {},
@@ -108,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          
+
           // Filter chips
           Container(
             padding: const EdgeInsets.symmetric(vertical: 8),
@@ -134,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          
+
           // Projects list
           Expanded(
             child: ListView(
@@ -145,51 +145,64 @@ class _HomeScreenState extends State<HomeScreen> {
                   title: 'Smart Watch Ad',
                   status: ProjectStatus.generating,
                   progress: 0.45,
-                  imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDEzuVykiStzWh3JAXa71PjAo8FrszXQA6czP_gUWmGSQScAVfNDuIaXshS-YmPL53TD0Z4FragQj_zMZYu1qngu7mWQID5opdz6M8ucQ57WrPJcXX4feYHE7tMh_6F8h7h_qwYxcAq_C3ZqK7AeQN0DC520FAiH7tJ9mHlkNW70D7qdhAvUHclEdmLuzuz_ULurhN2yStwFsx29WFa39thGZ-TAB5_aJ2vVMYZ-eqW8-rf77l3Jjjn8Vu-5aXFh3LTWDy5eh9Lais',
+                  imageUrl:
+                      'https://lh3.googleusercontent.com/aida-public/AB6AXuDEzuVykiStzWh3JAXa71PjAo8FrszXQA6czP_gUWmGSQScAVfNDuIaXshS-YmPL53TD0Z4FragQj_zMZYu1qngu7mWQID5opdz6M8ucQ57WrPJcXX4feYHE7tMh_6F8h7h_qwYxcAq_C3ZqK7AeQN0DC520FAiH7tJ9mHlkNW70D7qdhAvUHclEdmLuzuz_ULurhN2yStwFsx29WFa39thGZ-TAB5_aJ2vVMYZ-eqW8-rf77l3Jjjn8Vu-5aXFh3LTWDy5eh9Lais',
                   statusText: 'Applying effect...',
                 ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Draft project
                 _ProjectCard(
-                  title: 'Summer Shoe Promo',
-                  status: ProjectStatus.draft,
-                  duration: '00:15',
-                  imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD6yFff5XhGmkpew-PrN_B_S3EwmPTKrleFTFJWhxdN2gh_a1N9k9z9bI9zKucZs-hsLc5K-UEe1iifkXjzCNY7A1pS6zwsxhlYeDh5aDpcXfFNoSykK0UZV4k2BW9qbfsBmu9qC5n5el08xOTyFqz5DjGUODvKXUlH7AuIvr_Ifeg0WGfT8LjKBY41h1P_6iwv_boy66y0SxnzXhwyzzlE0dpIkPs_uau-IRiY1NCtSfNnwEq6GBEEsHROWu-w6D0XuwHTpaZmMTM',
-                  statusText: 'Edited 2h ago',
-                ).animate().fadeIn(delay: 100.ms, duration: 400.ms).slideY(begin: 0.1),
-                
+                      title: 'Summer Shoe Promo',
+                      status: ProjectStatus.draft,
+                      duration: '00:15',
+                      imageUrl:
+                          'https://lh3.googleusercontent.com/aida-public/AB6AXuD6yFff5XhGmkpew-PrN_B_S3EwmPTKrleFTFJWhxdN2gh_a1N9k9z9bI9zKucZs-hsLc5K-UEe1iifkXjzCNY7A1pS6zwsxhlYeDh5aDpcXfFNoSykK0UZV4k2BW9qbfsBmu9qC5n5el08xOTyFqz5DjGUODvKXUlH7AuIvr_Ifeg0WGfT8LjKBY41h1P_6iwv_boy66y0SxnzXhwyzzlE0dpIkPs_uau-IRiY1NCtSfNnwEq6GBEEsHROWu-w6D0XuwHTpaZmMTM',
+                      statusText: 'Edited 2h ago',
+                    )
+                    .animate()
+                    .fadeIn(delay: 100.ms, duration: 400.ms)
+                    .slideY(begin: 0.1),
+
                 const SizedBox(height: 16),
-                
+
                 // Completed project
                 _ProjectCard(
-                  title: 'Gym Wear Campaign',
-                  status: ProjectStatus.completed,
-                  duration: '01:30',
-                  imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCS7XnHudi2oqIuObAf5MWdXZ0ezMICLHHzbxpW4yEhEwqgq7ZZyL6w4TdXoJFsi5OJCGbh-HcmQU1Na8ioy6aDdRcx6LNWdqwP4XQ39xNXAXv4tDjkMgpUtT5t_8YFwEGYl60dsL7LQ2pG2XAZH0jYvW-bqYXghhmoCqcUJYAiKrlORvNybkAvypqiKwvJ_WsAA69YWBNo6w3aM8prJv99pG-GSUwg6GhZjoDvf44dSN2IpEEtnFg2X41Rf_tNUOfUNNi_jmPMkOo',
-                  statusText: '3 days ago',
-                  showShareButton: true,
-                ).animate().fadeIn(delay: 200.ms, duration: 400.ms).slideY(begin: 0.1),
-                
+                      title: 'Gym Wear Campaign',
+                      status: ProjectStatus.completed,
+                      duration: '01:30',
+                      imageUrl:
+                          'https://lh3.googleusercontent.com/aida-public/AB6AXuCS7XnHudi2oqIuObAf5MWdXZ0ezMICLHHzbxpW4yEhEwqgq7ZZyL6w4TdXoJFsi5OJCGbh-HcmQU1Na8ioy6aDdRcx6LNWdqwP4XQ39xNXAXv4tDjkMgpUtT5t_8YFwEGYl60dsL7LQ2pG2XAZH0jYvW-bqYXghhmoCqcUJYAiKrlORvNybkAvypqiKwvJ_WsAA69YWBNo6w3aM8prJv99pG-GSUwg6GhZjoDvf44dSN2IpEEtnFg2X41Rf_tNUOfUNNi_jmPMkOo',
+                      statusText: '3 days ago',
+                      showShareButton: true,
+                    )
+                    .animate()
+                    .fadeIn(delay: 200.ms, duration: 400.ms)
+                    .slideY(begin: 0.1),
+
                 const SizedBox(height: 16),
-                
+
                 // Another draft
                 _ProjectCard(
-                  title: 'Abstract Art Reel',
-                  status: ProjectStatus.draft,
-                  duration: '00:45',
-                  imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBssbbLdRbW9jWUUtapKtvVSO5tLxnZE6RFx2z7bRpToB69CsZfY3HblNdGWN120IzDWzU-aDuYqAMqF9_aw4wyJPRwRvuebrhWvDEafq-nIkaz8qf_0D08fgQP2CY-gVAwntbtQFhqNSq7MApU32-3yzf8HA5SEamS7KWXAk9LgB44Vlm6L-qJXjWcbYV4J1aYHksJB9-GN3AfH0k7mnGjs-kwPt0te-ClQC24qygHC0kbaOzNTqm5mKkSPQjvGZgxGHaAzfs',
-                  statusText: 'Edited 1 week ago',
-                ).animate().fadeIn(delay: 300.ms, duration: 400.ms).slideY(begin: 0.1),
-                
+                      title: 'Abstract Art Reel',
+                      status: ProjectStatus.draft,
+                      duration: '00:45',
+                      imageUrl:
+                          'https://lh3.googleusercontent.com/aida-public/AB6AXuBssbbLdRbW9jWUUtapKtvVSO5tLxnZE6RFx2z7bRpToB69CsZfY3HblNdGWN120IzDWzU-aDuYqAMqF9_aw4wyJPRwRvuebrhWvDEafq-nIkaz8qf_0D08fgQP2CY-gVAwntbtQFhqNSq7MApU32-3yzf8HA5SEamS7KWXAk9LgB44Vlm6L-qJXjWcbYV4J1aYHksJB9-GN3AfH0k7mnGjs-kwPt0te-ClQC24qygHC0kbaOzNTqm5mKkSPQjvGZgxGHaAzfs',
+                      statusText: 'Edited 1 week ago',
+                    )
+                    .animate()
+                    .fadeIn(delay: 300.ms, duration: 400.ms)
+                    .slideY(begin: 0.1),
+
                 const SizedBox(height: 100), // Space for FAB
               ],
             ),
           ),
         ],
       ),
-      
+
       // Floating action button
       floatingActionButton: Container(
         margin: const EdgeInsets.only(bottom: 80),
@@ -200,15 +213,12 @@ class _HomeScreenState extends State<HomeScreen> {
           icon: const Icon(Icons.add_circle, color: Colors.white),
           label: const Text(
             'Create New AI Video',
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-            ),
+            style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white),
           ),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      
+
       // Bottom navigation
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: _currentNavIndex,
@@ -308,7 +318,9 @@ class _ProjectCard extends StatelessWidget {
             width: 120,
             height: 120,
             child: ClipRRect(
-              borderRadius: const BorderRadius.horizontal(left: Radius.circular(15)),
+              borderRadius: const BorderRadius.horizontal(
+                left: Radius.circular(15),
+              ),
               child: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -325,7 +337,7 @@ class _ProjectCard extends StatelessWidget {
                       );
                     },
                   ),
-                  
+
                   // Overlay for generating status
                   if (status == ProjectStatus.generating)
                     Container(
@@ -336,13 +348,17 @@ class _ProjectCard extends StatelessWidget {
                           height: 40,
                           child: CircularProgressIndicator(
                             strokeWidth: 4,
-                            valueColor: AlwaysStoppedAnimation(AppColors.primary),
-                            backgroundColor: Colors.white.withValues(alpha: 0.2),
+                            valueColor: AlwaysStoppedAnimation(
+                              AppColors.primary,
+                            ),
+                            backgroundColor: Colors.white.withValues(
+                              alpha: 0.2,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  
+
                   // Play button for completed
                   if (status == ProjectStatus.completed)
                     Container(
@@ -362,14 +378,17 @@ class _ProjectCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                  
+
                   // Duration badge
                   if (duration != null)
                     Positioned(
                       right: 8,
                       bottom: 8,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.6),
                           borderRadius: BorderRadius.circular(4),
@@ -388,7 +407,7 @@ class _ProjectCard extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // Content
           Expanded(
             child: Padding(
@@ -408,9 +427,9 @@ class _ProjectCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 8),
-                  
+
                   // Title
                   Text(
                     title,
@@ -420,11 +439,12 @@ class _ProjectCard extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
-                  
+
                   const SizedBox(height: 8),
-                  
+
                   // Progress bar or status text
-                  if (status == ProjectStatus.generating && progress != null) ...[
+                  if (status == ProjectStatus.generating &&
+                      progress != null) ...[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -483,11 +503,7 @@ class _ProjectCard extends StatelessWidget {
                         ),
                         if (showShareButton) ...[
                           const Spacer(),
-                          Icon(
-                            Icons.share,
-                            size: 20,
-                            color: AppColors.primary,
-                          ),
+                          Icon(Icons.share, size: 20, color: AppColors.primary),
                         ],
                       ],
                     ),
@@ -539,10 +555,7 @@ class _StatusBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (showPulse) ...[
-            _PulseDot(),
-            const SizedBox(width: 6),
-          ],
+          if (showPulse) ...[_PulseDot(), const SizedBox(width: 6)],
           Text(
             text,
             style: TextStyle(
@@ -566,11 +579,11 @@ class _PulseDot extends StatelessWidget {
       child: Stack(
         children: [
           Container(
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              shape: BoxShape.circle,
-            ),
-          )
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                ),
+              )
               .animate(onPlay: (controller) => controller.repeat())
               .scale(
                 begin: const Offset(1, 1),
