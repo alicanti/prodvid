@@ -163,20 +163,22 @@ class _OnboardingPage1 extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    // Background image
-                    Image.network(
-                      'https://lh3.googleusercontent.com/aida-public/AB6AXuD_TW1tG-qAHcYaY-VwzShceI3qPbasOfKYM2q_TTQPa94WGd7lwGrR4S23syDyf5zn9IN9R_QqHCUGCOvmcCtL3ALNmiVdUJF1iKWsu3JeMxhCs823zA5MIZfyHQtgJO4Uf1Bol6cgTXNHPBuaVekqe81xldYJI050PvgfVo3ChomGdF1RjAMiRwCWA2aoRg2ZikoM_2N8ykiE3b8p75ee_tiXphQspZGha_gLhH8DqXL9eNn_62Wt3PxmCSV8KpPAe0gfbTaTf1Y',
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: AppColors.surfaceCard,
-                          child: const Icon(
-                            Icons.image_outlined,
-                            size: 64,
-                            color: AppColors.textSecondaryDark,
-                          ),
-                        );
-                      },
+                    // Gradient background
+                    Container(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+                        ),
+                      ),
+                      child: Center(
+                        child: Icon(
+                          Icons.auto_awesome,
+                          size: 80,
+                          color: Colors.white.withValues(alpha: 0.3),
+                        ),
+                      ),
                     ),
 
                     // Gradient overlay
@@ -426,19 +428,22 @@ class _OnboardingPage3 extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(
-                    'https://lh3.googleusercontent.com/aida-public/AB6AXuARBKwt6uEvWPJ2eApJSwTidE9wDep-tRY6znw3k2NPVz260OQR259BFX7KCXQ6_YDLmT51iIgy8uN3ui0C19kXxBNuHIsDVqMMVXaGZu1RUKIX0jIKeGGEq-Y3HTrofpCrt088__sMsEANPc2rfwK8WbVYj7OOTR-j9f_Wsm5cbIHo-vBMvB8J11TWcLmxl1sMzKL1bK1gT36dn5y8TYKuZiudTKLOqi_8kvodgRP9idByyONoB2_Por3_17zEwFCeknD1dAyBgBs',
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: AppColors.surfaceCard,
-                        child: const Icon(
-                          Icons.image_outlined,
-                          size: 64,
-                          color: AppColors.textSecondaryDark,
-                        ),
-                      );
-                    },
+                  // Gradient placeholder
+                  Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Color(0xFFfa709a), Color(0xFFfee140)],
+                      ),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Icons.rocket_launch,
+                        size: 80,
+                        color: Colors.white.withValues(alpha: 0.3),
+                      ),
+                    ),
                   ),
                   // Gradient overlay
                   Container(

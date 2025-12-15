@@ -123,8 +123,7 @@ class _VideoCreationScreenState extends State<VideoCreationScreen> {
                                       onSelectImage: () {
                                         // Simulate image selection
                                         setState(() {
-                                          _selectedImage =
-                                              'https://lh3.googleusercontent.com/aida-public/AB6AXuD4gWelxJZFwLfKIgFO2q6BZOeuaL2g5BC42X31aKI2JgnBrkLLxDXEmiyA6P96bjWVz7aZTkUOsgbFZVBwRSkckxIprSzTNi4mhGnqcU-WzXwmQXUYRIicK87vkRWurPKKqf4rVzfy55d7LopHEycftPkAGaXSdL_DdDQydEwJxCPlvLOCzT6FetpSOglGE9BZFdhrxzmwV_UbW8pu4oQYcf-rvbBWrV1lZAmXBnTu2UmI4M6YD5WtKYt80I54zxTM83Xjoi97i5E';
+                                          _selectedImage = 'selected_image';
                                         });
                                       },
                                     ),
@@ -154,8 +153,7 @@ class _VideoCreationScreenState extends State<VideoCreationScreen> {
                                 onTap: () {
                                   // Simulate selecting from gallery
                                   setState(() {
-                                    _selectedImage =
-                                        'https://lh3.googleusercontent.com/aida-public/AB6AXuD4gWelxJZFwLfKIgFO2q6BZOeuaL2g5BC42X31aKI2JgnBrkLLxDXEmiyA6P96bjWVz7aZTkUOsgbFZVBwRSkckxIprSzTNi4mhGnqcU-WzXwmQXUYRIicK87vkRWurPKKqf4rVzfy55d7LopHEycftPkAGaXSdL_DdDQydEwJxCPlvLOCzT6FetpSOglGE9BZFdhrxzmwV_UbW8pu4oQYcf-rvbBWrV1lZAmXBnTu2UmI4M6YD5WtKYt80I54zxTM83Xjoi97i5E';
+                                    _selectedImage = 'selected_image';
                                   });
                                 },
                               ),
@@ -246,20 +244,22 @@ class _ImagePreview extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Image
-        Image.network(
-          imageUrl,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            return Container(
-              color: AppColors.surfaceCard,
-              child: const Icon(
-                Icons.broken_image_outlined,
-                color: AppColors.textSecondaryDark,
-                size: 48,
-              ),
-            );
-          },
+        // Image placeholder (replace with actual image when available)
+        Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF4facfe), Color(0xFF00f2fe)],
+            ),
+          ),
+          child: Center(
+            child: Icon(
+              Icons.image,
+              size: 64,
+              color: Colors.white.withValues(alpha: 0.7),
+            ),
+          ),
         ),
 
         // Gradient overlay

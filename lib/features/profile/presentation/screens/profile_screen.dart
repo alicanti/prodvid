@@ -86,21 +86,19 @@ class ProfileScreen extends StatelessWidget {
                                     ],
                                   ),
                                   child: ClipOval(
-                                    child: Image.network(
-                                      'https://lh3.googleusercontent.com/aida-public/AB6AXuCpBLLwJKuQndaCAkz5FKVtldPUW_d0ZfbsWWjSti9enqXSCfcv8Jmg5yv94k_oJ3stU5SCv4NwPDOeXwliuugHjd82DaZ81VSftMvbyyRFMF-ycrxZJL4cI6sWB2pr-AtoKpvJEeLFw8C4GJL5EPcep1r5kon7md2P8vxn3wB7mSJqPRshwqwi3z4UZuLzIyVFzr3LlRJp7cRp93G9Tll--YrvkUJhhEjyZHTiMvS8VAsaXtVJ1-_30X72cVBV5flFCx7NSfx8kUk',
-                                      fit: BoxFit.cover,
-                                      errorBuilder:
-                                          (context, error, stackTrace) {
-                                            return Container(
-                                              color: AppColors.surfaceCard,
-                                              child: const Icon(
-                                                Icons.person,
-                                                size: 48,
-                                                color:
-                                                    AppColors.textSecondaryDark,
-                                              ),
-                                            );
-                                          },
+                                    child: Container(
+                                      decoration: const BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+                                        ),
+                                      ),
+                                      child: const Icon(
+                                        Icons.person,
+                                        size: 48,
+                                        color: Colors.white,
+                                      ),
                                     ),
                                   ),
                                 ),

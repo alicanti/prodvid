@@ -48,28 +48,28 @@ class WelcomeScreen extends StatelessWidget {
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       children: [
-                        _StepCard(
+                        const _StepCard(
                           index: 0,
                           title: '1. Upload Image',
-                          imageUrl:
-                              'https://lh3.googleusercontent.com/aida-public/AB6AXuDauY37YdFKworcYS5B2sSQQG1SB8u_xJBmZCQ5qm08_yTYEWAdR7vcgAo-rQKtSvHxNJfgk5udbI5tPoeCKwfUb9bVeoPC7ZHh7SxMEc-chfEUZYSz1CqyXa3l0BAE_9-N_MgcBbXIqcVi_L1a_otgPXimJF-RliLPakV65kWmfNqNYJIWQfqO3BiH9nq35CiupMaAt_S2YM8hrfxtycC4EktAo_mHzHl9McXkZyDS6ckqnuWlJ1ARmVCYhiPhjYgsKnxwCSTNfMA',
+                          icon: Icons.add_photo_alternate_rounded,
+                          gradientColors: [Color(0xFF667eea), Color(0xFF764ba2)],
                           showUploadBadge: true,
                         ),
                         const SizedBox(width: 16),
-                        _StepCard(
+                        const _StepCard(
                           index: 1,
                           title: '2. Select AI Effect',
-                          imageUrl:
-                              'https://lh3.googleusercontent.com/aida-public/AB6AXuAnfr-2sxocBfSzkK1D_LIe38c1Aco8S_K_tu5vrA00LmdN0IvGsxLVuuLQdXFt9Nfo4ZeorEAsrwJU1DkVdpAOykFF3Zc6snblNfc2DxMXMliu5S27ADl6iisyfzrDoNingCA53cYsgVomzWK6RYSNLgZ4OdAzei6t2JAI_MIqnVItsYgS6vt87th7UjAHHV6E4ECyJICZWC9EzG_aGTYTyeZF-0r5uvt_6xpXQ3Qqb7djfh5GUZfTm2DXLA9z2fhJ6meO_edL6PE',
+                          icon: Icons.auto_awesome,
+                          gradientColors: [Color(0xFF4facfe), Color(0xFF00f2fe)],
                           isHighlighted: true,
                           showMagicIcon: true,
                         ),
                         const SizedBox(width: 16),
-                        _StepCard(
+                        const _StepCard(
                           index: 2,
                           title: '3. Get Video Ad',
-                          imageUrl:
-                              'https://lh3.googleusercontent.com/aida-public/AB6AXuDq9LGp7LyHtLZqmCvTS540RhdQVd-UTqa3v0T3ZnMsmZfv7Rnck192mHG5DlBog7-yQGeo1ehd8p22ESFWzUQLqJuJ9jh46x_OLJ8UQEdyE8Eam3ONORzSEPuTFLqHzOMCrNMm_bDapT_LPa_mc8AydRNMQqkVWiClBz0gjWVtkrlH2P4bRlBbLTPKQCsQ8z9-76ZR-Q4b8MvdHICVvSQM0YGlr5zk5lDNBVHNn5HxgCgLZ-ottvyscN-tbHxlvhBr2djM7ltbyow',
+                          icon: Icons.play_circle_filled_rounded,
+                          gradientColors: [Color(0xFFfa709a), Color(0xFFfee140)],
                           showPlayButton: true,
                         ),
                       ],
@@ -163,7 +163,8 @@ class _StepCard extends StatelessWidget {
   const _StepCard({
     required this.index,
     required this.title,
-    required this.imageUrl,
+    required this.icon,
+    required this.gradientColors,
     this.isHighlighted = false,
     this.showUploadBadge = false,
     this.showMagicIcon = false,
@@ -172,7 +173,8 @@ class _StepCard extends StatelessWidget {
 
   final int index;
   final String title;
-  final String imageUrl;
+  final IconData icon;
+  final List<Color> gradientColors;
   final bool isHighlighted;
   final bool showUploadBadge;
   final bool showMagicIcon;
@@ -183,12 +185,17 @@ class _StepCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Card image
+        // Card with gradient
         Container(
           width: 160,
           height: 240,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: gradientColors,
+            ),
             border: isHighlighted
                 ? Border.all(
                     color: AppColors.primary.withValues(alpha: 0.5),
@@ -204,87 +211,75 @@ class _StepCard extends StatelessWidget {
                   ]
                 : null,
           ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(14),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                // Image
-                Image.network(
-                  imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: AppColors.surfaceCard,
-                      child: const Icon(
-                        Icons.image_outlined,
-                        color: AppColors.textSecondaryDark,
-                        size: 48,
-                      ),
-                    );
-                  },
+          child: Stack(
+            children: [
+              // Center icon
+              Center(
+                child: Icon(
+                  icon,
+                  size: 64,
+                  color: Colors.white.withValues(alpha: 0.9),
+                ),
+              ),
+
+              // Upload badge
+              if (showUploadBadge)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(9999),
+                    ),
+                    child: const Icon(
+                      Icons.upload_file,
+                      color: Colors.white,
+                      size: 14,
+                    ),
+                  ),
                 ),
 
-                // Upload badge
-                if (showUploadBadge)
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(9999),
-                      ),
-                      child: const Icon(
-                        Icons.upload_file,
-                        color: Colors.white,
-                        size: 14,
-                      ),
-                    ),
-                  ),
-
-                // Magic icon overlay
-                if (showMagicIcon)
-                  Container(
-                    color: Colors.black.withValues(alpha: 0.2),
-                    child: Center(
-                      child:
-                          Icon(
-                                Icons.auto_awesome,
-                                color: Colors.white,
-                                size: 40,
-                              )
-                              .animate(
-                                onPlay: (controller) =>
-                                    controller.repeat(reverse: true),
-                              )
-                              .scale(
-                                begin: const Offset(1, 1),
-                                end: const Offset(1.1, 1.1),
-                                duration: 1000.ms,
-                              ),
-                    ),
-                  ),
-
-                // Play button
-                if (showPlayButton)
-                  Center(
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(9999),
-                      ),
-                      child: const Icon(
-                        Icons.play_arrow,
+              // Magic sparkle overlay
+              if (showMagicIcon)
+                Positioned(
+                  top: 16,
+                  right: 16,
+                  child: Icon(
+                        Icons.auto_awesome,
                         color: Colors.white,
                         size: 24,
+                      )
+                      .animate(
+                        onPlay: (controller) => controller.repeat(reverse: true),
+                      )
+                      .scale(
+                        begin: const Offset(1, 1),
+                        end: const Offset(1.2, 1.2),
+                        duration: 1000.ms,
                       ),
+                ),
+
+              // Play button overlay
+              if (showPlayButton)
+                Positioned(
+                  bottom: 16,
+                  right: 16,
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(9999),
+                    ),
+                    child: const Icon(
+                      Icons.play_arrow,
+                      color: Colors.white,
+                      size: 20,
                     ),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
         ),
 

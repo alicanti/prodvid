@@ -170,6 +170,7 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
                 final template = _templates[index];
                 return _TemplateCard(
                       template: template,
+                      index: index,
                       onTap: () {
                         // Navigate to creation with selected template
                         context.push('/create', extra: template);
@@ -198,10 +199,41 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
 }
 
 class _TemplateCard extends StatelessWidget {
-  const _TemplateCard({required this.template, required this.onTap});
+  const _TemplateCard({
+    required this.template,
+    required this.index,
+    required this.onTap,
+  });
 
   final EffectTemplate template;
+  final int index;
   final VoidCallback onTap;
+
+  // Helper to get gradient colors for template
+  List<Color> _getTemplateGradient(int idx) {
+    const gradients = [
+      [Color(0xFFfa709a), Color(0xFFfee140)], // Pop Art Burst
+      [Color(0xFFf5f7fa), Color(0xFFc3cfe2)], // Clean Studio
+      [Color(0xFF667eea), Color(0xFF764ba2)], // Glitch Motion
+      [Color(0xFF2c3e50), Color(0xFF4ca1af)], // Moody Shadows
+      [Color(0xFF00f2fe), Color(0xFF4facfe)], // Neon Cyber
+      [Color(0xFFffecd2), Color(0xFFfcb69f)], // Sunlight Beam
+    ];
+    return gradients[idx % gradients.length];
+  }
+
+  // Helper to get icon for template
+  IconData _getTemplateIcon(int idx) {
+    const icons = [
+      Icons.palette, // Pop Art
+      Icons.light_mode, // Clean Studio
+      Icons.bolt, // Glitch
+      Icons.dark_mode, // Moody
+      Icons.blur_on, // Neon
+      Icons.wb_sunny, // Sunlight
+    ];
+    return icons[idx % icons.length];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -228,19 +260,22 @@ class _TemplateCard extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    Image.network(
-                      template.imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: AppColors.surfaceCard,
-                          child: const Icon(
-                            Icons.image_outlined,
-                            color: AppColors.textSecondaryDark,
-                            size: 48,
-                          ),
-                        );
-                      },
+                    // Gradient placeholder for template
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: _getTemplateGradient(index),
+                        ),
+                      ),
+                      child: Center(
+                        child: Icon(
+                          _getTemplateIcon(index),
+                          size: 48,
+                          color: Colors.white.withValues(alpha: 0.7),
+                        ),
+                      ),
                     ),
 
                     // Hover overlay

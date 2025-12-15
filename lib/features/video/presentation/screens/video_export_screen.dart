@@ -81,20 +81,22 @@ class VideoExportScreen extends StatelessWidget {
                               child: Stack(
                                 fit: StackFit.expand,
                                 children: [
-                                  // Video thumbnail
-                                  Image.network(
-                                    'https://lh3.googleusercontent.com/aida-public/AB6AXuCUCGvuK67NjAT4ItJzG260O5oOXD6N78cSj0EZTybuFtM5hXOS3WalwpVGOVOUtIOeWL4MSSRT6Qe2SACQ9Jhjerz6A3uc4ERPZqwXRMZZYg1ZeN1gkRUw3g1VPvaQeCpWLOn7JyoNOCu7_XR0OVmNgQpzR1ga_VR4TVbiXhkPsFoB1A4S54JAlyrtTyYQh4_JI0I5pGzB-_eX0uYgCqjvBvy4GQN9-U7pvZzeZVv1SIUCgkFxnOdL8cqS0EbYBGWp3PBFphRFQ3M',
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Container(
-                                        color: AppColors.surfaceCard,
-                                        child: const Icon(
-                                          Icons.video_library,
-                                          size: 64,
-                                          color: AppColors.textSecondaryDark,
-                                        ),
-                                      );
-                                    },
+                                  // Video thumbnail placeholder
+                                  Container(
+                                    decoration: const BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Icon(
+                                        Icons.play_circle_filled,
+                                        size: 80,
+                                        color: Colors.white.withValues(alpha: 0.7),
+                                      ),
+                                    ),
                                   ),
 
                                   // Overlay

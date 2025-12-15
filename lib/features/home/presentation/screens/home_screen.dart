@@ -48,18 +48,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                           child: ClipOval(
-                            child: Image.network(
-                              'https://lh3.googleusercontent.com/aida-public/AB6AXuCfGEXsVVWigx04nz0c9bGR1yOiVLK0GJA3ixDAmWS_eIvKkkFPOQOUxhI1QrU4tMmE8nVEIodRU55rACVOgeu52LlArNvppE1sDn6FkvKBJLFLsIKxRGhrQEdkoLzjXV26xZwukoRCABIJFjm3swh3nJgPGI6h0h24tIjPjTWa0YrS75zyC0mK_ZIOF12BzCHPisz5KE8pBUDecwLZksAXJrqyZVv6KObouuoZYJSq5UTNONhRMbJc2bQIYCexSKnRJlpw4iEPrfE',
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  color: AppColors.surfaceCard,
-                                  child: const Icon(
-                                    Icons.person,
-                                    color: AppColors.textSecondaryDark,
-                                  ),
-                                );
-                              },
+                            child: Container(
+                              color: AppColors.primary,
+                              child: const Icon(
+                                Icons.person,
+                                color: Colors.white,
+                                size: 24,
+                              ),
                             ),
                           ),
                         ),
@@ -303,6 +298,20 @@ class _ProjectCard extends StatelessWidget {
   final String? duration;
   final bool showShareButton;
 
+  // Generate consistent gradient colors based on string hash
+  List<Color> _getGradientColors(String seed) {
+    final hash = seed.hashCode;
+    final gradients = [
+      [const Color(0xFF667eea), const Color(0xFF764ba2)],
+      [const Color(0xFF4facfe), const Color(0xFF00f2fe)],
+      [const Color(0xFFfa709a), const Color(0xFFfee140)],
+      [const Color(0xFF43e97b), const Color(0xFF38f9d7)],
+      [const Color(0xFFf093fb), const Color(0xFFf5576c)],
+      [const Color(0xFF5ee7df), const Color(0xFFb490ca)],
+    ];
+    return gradients[hash.abs() % gradients.length];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -324,18 +333,22 @@ class _ProjectCard extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(
-                    imageUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: AppColors.surfaceCard,
-                        child: const Icon(
-                          Icons.image_outlined,
-                          color: AppColors.textSecondaryDark,
-                        ),
-                      );
-                    },
+                  // Gradient placeholder (replace with actual image when available)
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: _getGradientColors(imageUrl),
+                      ),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Icons.play_circle_outline,
+                        size: 40,
+                        color: Colors.white.withValues(alpha: 0.5),
+                      ),
+                    ),
                   ),
 
                   // Overlay for generating status
