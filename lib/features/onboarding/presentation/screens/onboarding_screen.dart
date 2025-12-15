@@ -1,22 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/services/auth_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/page_indicator.dart';
 import '../../../../core/widgets/primary_button.dart';
 
+/// Key for storing onboarding completion status
+const String _onboardingCompleteKey = 'onboarding_complete';
+
 /// Onboarding screen with 3 pages matching Stitch design
-class OnboardingScreen extends StatefulWidget {
+class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
   @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
+  ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
+class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -35,8 +42,38 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  void _completeOnboarding() {
-    context.go('/home');
+  Future<void> _completeOnboarding() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Save onboarding completion status
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_onboardingCompleteKey, true);
+
+      // Sign in anonymously
+      final authService = ref.read(authServiceProvider);
+      await authService.signInAnonymously();
+
+      // Navigate to home
+      if (mounted) {
+        context.go('/home');
+      }
+    } catch (e) {
+      // If auth fails, still navigate to home
+      if (mounted) {
+        context.go('/home');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override

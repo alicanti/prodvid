@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/services/auth_service.dart';
 import '../../../../core/theme/app_colors.dart';
 
+/// Key for storing onboarding completion status
+const String _onboardingCompleteKey = 'onboarding_complete';
+
 /// Splash screen matching Stitch design - prodvid_splash_screen
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends ConsumerState<SplashScreen> {
   double _progress = 0;
 
   @override
@@ -22,6 +28,10 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _startLoading() async {
+    // Check if onboarding has been completed
+    final prefs = await SharedPreferences.getInstance();
+    final hasCompletedOnboarding = prefs.getBool(_onboardingCompleteKey) ?? false;
+
     // Simulate loading progress
     for (int i = 0; i <= 100; i += 5) {
       await Future<void>.delayed(const Duration(milliseconds: 50));
@@ -32,9 +42,27 @@ class _SplashScreenState extends State<SplashScreen> {
       }
     }
 
-    // Navigate to welcome/onboarding
-    if (mounted) {
-      context.go('/welcome');
+    if (!mounted) return;
+
+    if (hasCompletedOnboarding) {
+      // User has seen onboarding, sign in anonymously and go to home
+      try {
+        final authService = ref.read(authServiceProvider);
+        await authService.signInAnonymously();
+        if (mounted) {
+          context.go('/home');
+        }
+      } catch (e) {
+        // If auth fails, still go to home (will retry later)
+        if (mounted) {
+          context.go('/home');
+        }
+      }
+    } else {
+      // First time user, show welcome/onboarding
+      if (mounted) {
+        context.go('/welcome');
+      }
     }
   }
 
