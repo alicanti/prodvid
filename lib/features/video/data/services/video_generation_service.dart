@@ -8,25 +8,19 @@ import 'wiro_service.dart';
 
 /// Video generation service provider
 final videoGenerationServiceProvider = Provider<VideoGenerationService>((ref) {
-  return VideoGenerationService(
-    wiroService: ref.watch(wiroServiceProvider),
-  );
+  return VideoGenerationService(wiroService: ref.watch(wiroServiceProvider));
 });
 
 /// High-level service for video generation workflow
 class VideoGenerationService {
-  VideoGenerationService({
-    required WiroService wiroService,
-  }) : _wiroService = wiroService;
+  VideoGenerationService({required WiroService wiroService})
+    : _wiroService = wiroService;
 
   final WiroService _wiroService;
   final _uuid = const Uuid();
 
   /// Create a new video project
-  VideoProject createProject({
-    required String userId,
-    String? title,
-  }) {
+  VideoProject createProject({required String userId, String? title}) {
     return VideoProject(
       id: _uuid.v4(),
       userId: userId,
@@ -160,9 +154,7 @@ class VideoGenerationService {
         );
       } else {
         // Still processing - emit progress update
-        yield project.copyWith(
-          updatedAt: DateTime.now(),
-        );
+        yield project.copyWith(updatedAt: DateTime.now());
       }
     }
   }
@@ -185,4 +177,3 @@ class VideoGenerationService {
     );
   }
 }
-

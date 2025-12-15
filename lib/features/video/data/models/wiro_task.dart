@@ -111,8 +111,7 @@ class WiroTaskOutput {
   final String url;
   final int size;
 
-  bool get isVideo =>
-      contentType.startsWith('video/') || name.endsWith('.mp4');
+  bool get isVideo => contentType.startsWith('video/') || name.endsWith('.mp4');
 
   bool get isImage =>
       contentType.startsWith('image/') ||
@@ -145,8 +144,7 @@ class WiroTaskDetail {
       outputs: outputsList
           .map((e) => WiroTaskOutput.fromJson(e as Map<String, dynamic>))
           .toList(),
-      elapsedSeconds:
-          double.tryParse(json['elapsedseconds']?.toString() ?? ''),
+      elapsedSeconds: double.tryParse(json['elapsedseconds']?.toString() ?? ''),
       startTime: _parseTimestamp(json['starttime']),
       endTime: _parseTimestamp(json['endtime']),
       debugError: json['debugerror'] as String?,
@@ -214,4 +212,3 @@ class WiroTaskDetailResponse {
 
   bool get hasError => errors.isNotEmpty || !result;
 }
-

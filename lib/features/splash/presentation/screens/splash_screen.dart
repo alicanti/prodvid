@@ -30,7 +30,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   Future<void> _startLoading() async {
     // Check if onboarding has been completed
     final prefs = await SharedPreferences.getInstance();
-    final hasCompletedOnboarding = prefs.getBool(_onboardingCompleteKey) ?? false;
+    final hasCompletedOnboarding =
+        prefs.getBool(_onboardingCompleteKey) ?? false;
 
     // Simulate loading progress
     for (int i = 0; i <= 100; i += 5) {
