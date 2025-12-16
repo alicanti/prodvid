@@ -20,12 +20,17 @@ class VideoGenerationService {
   final _uuid = const Uuid();
 
   /// Create a new video project
-  VideoProject createProject({required String userId, String? title}) {
+  VideoProject createProject({
+    required String userId,
+    required WiroModelType modelType,
+    String? title,
+  }) {
     return VideoProject(
       id: _uuid.v4(),
       userId: userId,
       title: title ?? 'Untitled Video',
       status: VideoProjectStatus.draft,
+      modelType: modelType,
       createdAt: DateTime.now(),
     );
   }
@@ -43,15 +48,27 @@ class VideoGenerationService {
     throw UnimplementedError('Firebase Storage upload not yet implemented');
   }
 
-  /// Start video generation
+  /// Upload logo image and update project (for Product Ads with Logo)
+  Future<VideoProject> uploadLogoImage({
+    required VideoProject project,
+    required File imageFile,
+  }) async {
+    // TODO: Upload image to Firebase Storage
+    // 1. Upload to gs://bucket/users/{userId}/projects/{projectId}/logo.jpg
+    // 2. Get download URL
+    // 3. Return updated project with logoImageUrl
+
+    throw UnimplementedError('Firebase Storage upload not yet implemented');
+  }
+
+  /// Start video generation based on model type
   Future<VideoProject> startVideoGeneration({
     required VideoProject project,
-    required WiroEffectType effectType,
+    required String effectType,
     WiroVideoMode videoMode = WiroVideoMode.standard,
   }) async {
-    if (project.inputImageUrl == null) {
-      throw Exception('No input image uploaded');
-    }
+    // Validate inputs based on model type
+    _validateProjectInputs(project);
 
     // Update project status
     var updatedProject = project.copyWith(
@@ -61,12 +78,47 @@ class VideoGenerationService {
       updatedAt: DateTime.now(),
     );
 
-    // Start Wiro task
-    final response = await _wiroService.runTask(
-      inputImageUrl: project.inputImageUrl!,
-      effectType: effectType,
-      videoMode: videoMode,
-    );
+    // Start appropriate Wiro task based on model type
+    WiroRunTaskResponse response;
+
+    switch (project.modelType) {
+      case WiroModelType.textAnimations:
+        response = await _wiroService.runTextAnimation(
+          caption: project.caption!,
+          effectType: effectType,
+          videoMode: videoMode,
+        );
+        break;
+
+      case WiroModelType.productAds:
+        response = await _wiroService.runProductAds(
+          inputImageUrl: project.inputImageUrl!,
+          effectType: effectType,
+          videoMode: videoMode,
+        );
+        break;
+
+      case WiroModelType.productAdsWithCaption:
+        response = await _wiroService.runProductAdsWithCaption(
+          inputImageUrl: project.inputImageUrl!,
+          caption: project.caption!,
+          effectType: effectType,
+          videoMode: videoMode,
+        );
+        break;
+
+      case WiroModelType.productAdsWithLogo:
+        response = await _wiroService.runProductAdsWithLogo(
+          productImageUrl: project.inputImageUrl!,
+          logoImageUrl: project.logoImageUrl!,
+          effectType: effectType,
+          videoMode: videoMode,
+        );
+        break;
+
+      case null:
+        throw Exception('Model type not specified');
+    }
 
     if (response.hasError) {
       return updatedProject.copyWith(
@@ -86,24 +138,56 @@ class VideoGenerationService {
     return updatedProject;
   }
 
+  /// Validate project inputs based on model type
+  void _validateProjectInputs(VideoProject project) {
+    switch (project.modelType) {
+      case WiroModelType.textAnimations:
+        if (project.caption == null || project.caption!.isEmpty) {
+          throw Exception('Caption is required for 3D Text Animations');
+        }
+        break;
+
+      case WiroModelType.productAds:
+        if (project.inputImageUrl == null) {
+          throw Exception('Product image is required for Product Ads');
+        }
+        break;
+
+      case WiroModelType.productAdsWithCaption:
+        if (project.inputImageUrl == null) {
+          throw Exception(
+              'Product image is required for Product Ads with Caption');
+        }
+        if (project.caption == null || project.caption!.isEmpty) {
+          throw Exception('Caption is required for Product Ads with Caption');
+        }
+        break;
+
+      case WiroModelType.productAdsWithLogo:
+        if (project.inputImageUrl == null) {
+          throw Exception(
+              'Product image is required for Product Ads with Logo');
+        }
+        if (project.logoImageUrl == null) {
+          throw Exception('Logo image is required for Product Ads with Logo');
+        }
+        break;
+
+      case null:
+        throw Exception('Model type not specified');
+    }
+  }
+
   /// Check and update video generation status
   Future<VideoProject> checkStatus(VideoProject project) async {
     if (project.wiroTaskId == null) {
       return project;
     }
 
-    final response = await _wiroService.getTaskDetail(
+    final task = await _wiroService.getTaskDetail(
       taskId: project.wiroTaskId,
     );
 
-    if (response.hasError) {
-      return project.copyWith(
-        status: VideoProjectStatus.failed,
-        errorMessage: response.errors.join(', '),
-      );
-    }
-
-    final task = response.firstTask;
     if (task == null) {
       return project.copyWith(
         status: VideoProjectStatus.failed,
@@ -116,6 +200,7 @@ class VideoGenerationService {
       return project.copyWith(
         status: VideoProjectStatus.completed,
         outputVideoUrl: task.videoUrl,
+        thumbnailUrl: task.thumbnailUrl,
         updatedAt: DateTime.now(),
       );
     } else if (task.status == WiroTaskStatus.cancel) {
@@ -144,6 +229,7 @@ class VideoGenerationService {
         yield project.copyWith(
           status: VideoProjectStatus.completed,
           outputVideoUrl: task.videoUrl,
+          thumbnailUrl: task.thumbnailUrl,
           updatedAt: DateTime.now(),
         );
       } else if (task.status == WiroTaskStatus.cancel) {
@@ -153,8 +239,11 @@ class VideoGenerationService {
           updatedAt: DateTime.now(),
         );
       } else {
-        // Still processing - emit progress update
-        yield project.copyWith(updatedAt: DateTime.now());
+        // Still processing - emit progress update with status message
+        yield project.copyWith(
+          statusMessage: task.status?.displayMessage,
+          updatedAt: DateTime.now(),
+        );
       }
     }
   }

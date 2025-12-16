@@ -1,6 +1,7 @@
 import * as functions from 'firebase-functions';
 import { defineSecret } from 'firebase-functions/params';
 import { WiroClient } from './client';
+import { WiroModelType, WIRO_MODEL_ENDPOINTS } from './types';
 
 // Define secrets for Wiro API credentials
 const wiroApiKey = defineSecret('WIRO_API_KEY');
@@ -24,7 +25,25 @@ function createWiroClient(): WiroClient {
 }
 
 /**
+ * Validate model type
+ */
+function validateModelType(modelType: string): WiroModelType {
+  if (!Object.keys(WIRO_MODEL_ENDPOINTS).includes(modelType)) {
+    throw new functions.https.HttpsError(
+      'invalid-argument',
+      `Invalid modelType: ${modelType}. Valid types: ${Object.keys(WIRO_MODEL_ENDPOINTS).join(', ')}`
+    );
+  }
+  return modelType as WiroModelType;
+}
+
+/**
  * Run a Wiro video generation task
+ * Supports all 4 model types:
+ * - wiro/3d-text-animations (caption only)
+ * - wiro/product-ads (image only)
+ * - wiro/product-ads-with-caption (image + caption)
+ * - wiro/product-ads-with-logo (image + logo)
  */
 export const runWiroTask = functions
   .runWith({
@@ -41,14 +60,56 @@ export const runWiroTask = functions
       );
     }
 
-    // Validate input
-    const { inputImage, effectType, videoMode } = data;
+    const { modelType, effectType, videoMode, inputImage, logoImage, caption } = data;
 
-    if (!inputImage || !effectType) {
+    // Validate model type
+    const validatedModelType = validateModelType(modelType);
+
+    // Validate effect type is provided
+    if (!effectType) {
       throw new functions.https.HttpsError(
         'invalid-argument',
-        'inputImage and effectType are required'
+        'effectType is required'
       );
+    }
+
+    // Validate inputs based on model type
+    switch (validatedModelType) {
+      case 'wiro/3d-text-animations':
+        if (!caption) {
+          throw new functions.https.HttpsError(
+            'invalid-argument',
+            'caption is required for 3D Text Animations'
+          );
+        }
+        break;
+
+      case 'wiro/product-ads':
+        if (!inputImage) {
+          throw new functions.https.HttpsError(
+            'invalid-argument',
+            'inputImage is required for Product Ads'
+          );
+        }
+        break;
+
+      case 'wiro/product-ads-with-caption':
+        if (!inputImage || !caption) {
+          throw new functions.https.HttpsError(
+            'invalid-argument',
+            'inputImage and caption are required for Product Ads with Caption'
+          );
+        }
+        break;
+
+      case 'wiro/product-ads-with-logo':
+        if (!inputImage || !logoImage) {
+          throw new functions.https.HttpsError(
+            'invalid-argument',
+            'inputImage and logoImage are required for Product Ads with Logo'
+          );
+        }
+        break;
     }
 
     // TODO: Check user credits before proceeding
@@ -63,14 +124,43 @@ export const runWiroTask = functions
 
     try {
       const client = createWiroClient();
+      let response;
 
-      const response = await client.runTask({
-        inputImage,
-        effectType,
-        videoMode: videoMode || 'std',
-        // Optional: Set callback URL for webhook notifications
-        // callbackUrl: `https://your-region-your-project.cloudfunctions.net/wiroCallback`,
-      });
+      switch (validatedModelType) {
+        case 'wiro/3d-text-animations':
+          response = await client.runTextAnimations(
+            caption,
+            effectType,
+            videoMode || 'std'
+          );
+          break;
+
+        case 'wiro/product-ads':
+          response = await client.runProductAds(
+            inputImage,
+            effectType,
+            videoMode || 'std'
+          );
+          break;
+
+        case 'wiro/product-ads-with-caption':
+          response = await client.runProductAdsWithCaption(
+            inputImage,
+            caption,
+            effectType,
+            videoMode || 'std'
+          );
+          break;
+
+        case 'wiro/product-ads-with-logo':
+          response = await client.runProductAdsWithLogo(
+            inputImage,
+            logoImage,
+            effectType,
+            videoMode || 'std'
+          );
+          break;
+      }
 
       if (!response.result) {
         throw new functions.https.HttpsError(
@@ -81,6 +171,16 @@ export const runWiroTask = functions
 
       // TODO: Deduct credits from user
       // await deductCredits(userId, calculateCredits(videoMode, effectType));
+
+      // TODO: Create task record in Firestore
+      // await admin.firestore().collection('tasks').doc(response.taskid).set({
+      //   userId: context.auth.uid,
+      //   modelType: validatedModelType,
+      //   effectType,
+      //   videoMode,
+      //   status: 'pending',
+      //   createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      // });
 
       return {
         taskId: response.taskid,
@@ -269,4 +369,3 @@ export const wiroCallback = functions.https.onRequest(async (req, res) => {
     res.status(500).send('Internal error');
   }
 });
-

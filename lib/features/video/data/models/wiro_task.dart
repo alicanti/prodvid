@@ -1,4 +1,5 @@
 import 'wiro_effect_type.dart';
+import 'wiro_model_type.dart';
 
 /// Wiro task status values
 enum WiroTaskStatus {
@@ -33,28 +34,133 @@ enum WiroTaskStatus {
   bool get isSuccess => this == WiroTaskStatus.postprocessEnd;
 
   bool get isRunning => !isCompleted;
+
+  /// Get a user-friendly status message
+  String get displayMessage {
+    switch (this) {
+      case WiroTaskStatus.queue:
+        return 'In queue...';
+      case WiroTaskStatus.accept:
+        return 'Task accepted';
+      case WiroTaskStatus.assign:
+        return 'Processing...';
+      case WiroTaskStatus.preprocessStart:
+        return 'Preparing...';
+      case WiroTaskStatus.preprocessEnd:
+        return 'Ready to generate';
+      case WiroTaskStatus.start:
+        return 'Generating video...';
+      case WiroTaskStatus.output:
+        return 'Finalizing...';
+      case WiroTaskStatus.postprocessEnd:
+        return 'Complete!';
+      case WiroTaskStatus.cancel:
+        return 'Cancelled';
+    }
+  }
 }
 
-/// Request model for running a Wiro task
-class WiroRunTaskRequest {
+/// Base request model for running a Wiro task
+abstract class WiroRunTaskRequest {
   WiroRunTaskRequest({
-    required this.inputImageUrl,
+    required this.modelType,
     required this.effectType,
     this.videoMode = WiroVideoMode.standard,
-    this.callbackUrl,
   });
 
-  final String inputImageUrl;
-  final WiroEffectType effectType;
+  final WiroModelType modelType;
+  final String effectType;
   final WiroVideoMode videoMode;
-  final String? callbackUrl;
 
+  Map<String, dynamic> toJson();
+}
+
+/// Request for 3D Text Animations (caption only)
+class WiroTextAnimationsRequest extends WiroRunTaskRequest {
+  WiroTextAnimationsRequest({
+    required this.caption,
+    required super.effectType,
+    super.videoMode,
+  }) : super(modelType: WiroModelType.textAnimations);
+
+  final String caption;
+
+  @override
   Map<String, dynamic> toJson() {
     return {
-      'inputImage': inputImageUrl,
-      'effectType': effectType.value,
+      'modelType': modelType.endpoint,
+      'caption': caption,
+      'effectType': effectType,
       'videoMode': videoMode.value,
-      if (callbackUrl != null) 'callbackUrl': callbackUrl,
+    };
+  }
+}
+
+/// Request for Product Ads (image only)
+class WiroProductAdsRequest extends WiroRunTaskRequest {
+  WiroProductAdsRequest({
+    required this.inputImageUrl,
+    required super.effectType,
+    super.videoMode,
+  }) : super(modelType: WiroModelType.productAds);
+
+  final String inputImageUrl;
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'modelType': modelType.endpoint,
+      'inputImage': inputImageUrl,
+      'effectType': effectType,
+      'videoMode': videoMode.value,
+    };
+  }
+}
+
+/// Request for Product Ads with Caption (image + caption)
+class WiroProductAdsCaptionRequest extends WiroRunTaskRequest {
+  WiroProductAdsCaptionRequest({
+    required this.inputImageUrl,
+    required this.caption,
+    required super.effectType,
+    super.videoMode,
+  }) : super(modelType: WiroModelType.productAdsWithCaption);
+
+  final String inputImageUrl;
+  final String caption;
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'modelType': modelType.endpoint,
+      'inputImage': inputImageUrl,
+      'caption': caption,
+      'effectType': effectType,
+      'videoMode': videoMode.value,
+    };
+  }
+}
+
+/// Request for Product Ads with Logo (image + logo)
+class WiroProductAdsLogoRequest extends WiroRunTaskRequest {
+  WiroProductAdsLogoRequest({
+    required this.productImageUrl,
+    required this.logoImageUrl,
+    required super.effectType,
+    super.videoMode,
+  }) : super(modelType: WiroModelType.productAdsWithLogo);
+
+  final String productImageUrl;
+  final String logoImageUrl;
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'modelType': modelType.endpoint,
+      'inputImage': productImageUrl,
+      'logoImage': logoImageUrl,
+      'effectType': effectType,
+      'videoMode': videoMode.value,
     };
   }
 }
@@ -70,8 +176,10 @@ class WiroRunTaskResponse {
 
   factory WiroRunTaskResponse.fromJson(Map<String, dynamic> json) {
     return WiroRunTaskResponse(
-      taskId: json['taskid'] as String? ?? '',
-      socketAccessToken: json['socketaccesstoken'] as String? ?? '',
+      taskId: json['taskId'] as String? ?? json['taskid'] as String? ?? '',
+      socketAccessToken: json['socketAccessToken'] as String? ??
+          json['socketaccesstoken'] as String? ??
+          '',
       result: json['result'] as bool? ?? false,
       errors: (json['errors'] as List<dynamic>?)?.cast<String>() ?? [],
     );
@@ -99,7 +207,9 @@ class WiroTaskOutput {
     return WiroTaskOutput(
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
-      contentType: json['contenttype'] as String? ?? '',
+      contentType: json['contentType'] as String? ??
+          json['contenttype'] as String? ??
+          '',
       url: json['url'] as String? ?? '',
       size: int.tryParse(json['size']?.toString() ?? '0') ?? 0,
     );
@@ -111,12 +221,16 @@ class WiroTaskOutput {
   final String url;
   final int size;
 
-  bool get isVideo => contentType.startsWith('video/') || name.endsWith('.mp4');
+  bool get isVideo =>
+      contentType.startsWith('video/') ||
+      name.endsWith('.mp4') ||
+      name.endsWith('.webm');
 
   bool get isImage =>
       contentType.startsWith('image/') ||
       name.endsWith('.png') ||
-      name.endsWith('.jpg');
+      name.endsWith('.jpg') ||
+      name.endsWith('.jpeg');
 }
 
 /// Task detail model
@@ -139,15 +253,19 @@ class WiroTaskDetail {
     return WiroTaskDetail(
       id: json['id'] as String? ?? '',
       uuid: json['uuid'] as String? ?? '',
-      socketAccessToken: json['socketaccesstoken'] as String? ?? '',
+      socketAccessToken: json['socketaccesstoken'] as String? ??
+          json['socketAccessToken'] as String? ??
+          '',
       status: WiroTaskStatus.fromValue(json['status'] as String? ?? ''),
       outputs: outputsList
           .map((e) => WiroTaskOutput.fromJson(e as Map<String, dynamic>))
           .toList(),
-      elapsedSeconds: double.tryParse(json['elapsedseconds']?.toString() ?? ''),
+      elapsedSeconds:
+          double.tryParse(json['elapsedSeconds']?.toString() ?? '') ??
+              double.tryParse(json['elapsedseconds']?.toString() ?? ''),
       startTime: _parseTimestamp(json['starttime']),
       endTime: _parseTimestamp(json['endtime']),
-      debugError: json['debugerror'] as String?,
+      debugError: json['debugerror'] as String? ?? json['debugError'] as String?,
     );
   }
 
@@ -173,6 +291,14 @@ class WiroTaskDetail {
     } catch (_) {
       // If no video, try to get any output URL
       return outputs.isNotEmpty ? outputs.first.url : null;
+    }
+  }
+
+  String? get thumbnailUrl {
+    try {
+      return outputs.firstWhere((o) => o.isImage).url;
+    } catch (_) {
+      return null;
     }
   }
 

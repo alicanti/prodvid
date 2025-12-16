@@ -1,4 +1,5 @@
 import 'wiro_effect_type.dart';
+import 'wiro_model_type.dart';
 
 /// Video project status
 enum VideoProjectStatus {
@@ -9,6 +10,21 @@ enum VideoProjectStatus {
   failed;
 
   bool get isTerminal => this == completed || this == failed;
+
+  String get displayName {
+    switch (this) {
+      case draft:
+        return 'Draft';
+      case uploading:
+        return 'Uploading';
+      case processing:
+        return 'Processing';
+      case completed:
+        return 'Completed';
+      case failed:
+        return 'Failed';
+    }
+  }
 }
 
 /// Video project model representing a user's video generation project
@@ -19,7 +35,10 @@ class VideoProject {
     required this.title,
     required this.status,
     required this.createdAt,
+    this.modelType,
     this.inputImageUrl,
+    this.logoImageUrl,
+    this.caption,
     this.effectType,
     this.videoMode,
     this.wiroTaskId,
@@ -30,6 +49,7 @@ class VideoProject {
     this.creditsUsed,
     this.updatedAt,
     this.errorMessage,
+    this.statusMessage,
   });
 
   factory VideoProject.fromJson(Map<String, dynamic> json) {
@@ -42,10 +62,13 @@ class VideoProject {
         orElse: () => VideoProjectStatus.draft,
       ),
       createdAt: DateTime.parse(json['createdAt'] as String),
-      inputImageUrl: json['inputImageUrl'] as String?,
-      effectType: json['effectType'] != null
-          ? WiroEffectType.fromValue(json['effectType'] as String)
+      modelType: json['modelType'] != null
+          ? WiroModelType.fromEndpoint(json['modelType'] as String)
           : null,
+      inputImageUrl: json['inputImageUrl'] as String?,
+      logoImageUrl: json['logoImageUrl'] as String?,
+      caption: json['caption'] as String?,
+      effectType: json['effectType'] as String?,
       videoMode: json['videoMode'] != null
           ? WiroVideoMode.values.firstWhere(
               (e) => e.value == json['videoMode'],
@@ -62,6 +85,7 @@ class VideoProject {
           ? DateTime.parse(json['updatedAt'] as String)
           : null,
       errorMessage: json['errorMessage'] as String?,
+      statusMessage: json['statusMessage'] as String?,
     );
   }
 
@@ -70,8 +94,11 @@ class VideoProject {
   final String title;
   final VideoProjectStatus status;
   final DateTime createdAt;
+  final WiroModelType? modelType;
   final String? inputImageUrl;
-  final WiroEffectType? effectType;
+  final String? logoImageUrl;
+  final String? caption;
+  final String? effectType;
   final WiroVideoMode? videoMode;
   final String? wiroTaskId;
   final String? wiroSocketToken;
@@ -81,6 +108,19 @@ class VideoProject {
   final int? creditsUsed;
   final DateTime? updatedAt;
   final String? errorMessage;
+  final String? statusMessage;
+
+  /// Get display-friendly model type name
+  String get modelTypeName => modelType?.label ?? 'Unknown';
+
+  /// Check if project requires an image
+  bool get requiresImage => modelType?.requiresImage ?? false;
+
+  /// Check if project requires a caption
+  bool get requiresCaption => modelType?.requiresCaption ?? false;
+
+  /// Check if project requires a logo
+  bool get requiresLogo => modelType?.requiresLogo ?? false;
 
   Map<String, dynamic> toJson() {
     return {
@@ -89,8 +129,11 @@ class VideoProject {
       'title': title,
       'status': status.name,
       'createdAt': createdAt.toIso8601String(),
+      if (modelType != null) 'modelType': modelType!.endpoint,
       if (inputImageUrl != null) 'inputImageUrl': inputImageUrl,
-      if (effectType != null) 'effectType': effectType!.value,
+      if (logoImageUrl != null) 'logoImageUrl': logoImageUrl,
+      if (caption != null) 'caption': caption,
+      if (effectType != null) 'effectType': effectType,
       if (videoMode != null) 'videoMode': videoMode!.value,
       if (wiroTaskId != null) 'wiroTaskId': wiroTaskId,
       if (wiroSocketToken != null) 'wiroSocketToken': wiroSocketToken,
@@ -100,6 +143,7 @@ class VideoProject {
       if (creditsUsed != null) 'creditsUsed': creditsUsed,
       if (updatedAt != null) 'updatedAt': updatedAt!.toIso8601String(),
       if (errorMessage != null) 'errorMessage': errorMessage,
+      if (statusMessage != null) 'statusMessage': statusMessage,
     };
   }
 
@@ -109,8 +153,11 @@ class VideoProject {
     String? title,
     VideoProjectStatus? status,
     DateTime? createdAt,
+    WiroModelType? modelType,
     String? inputImageUrl,
-    WiroEffectType? effectType,
+    String? logoImageUrl,
+    String? caption,
+    String? effectType,
     WiroVideoMode? videoMode,
     String? wiroTaskId,
     String? wiroSocketToken,
@@ -120,6 +167,7 @@ class VideoProject {
     int? creditsUsed,
     DateTime? updatedAt,
     String? errorMessage,
+    String? statusMessage,
   }) {
     return VideoProject(
       id: id ?? this.id,
@@ -127,7 +175,10 @@ class VideoProject {
       title: title ?? this.title,
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
+      modelType: modelType ?? this.modelType,
       inputImageUrl: inputImageUrl ?? this.inputImageUrl,
+      logoImageUrl: logoImageUrl ?? this.logoImageUrl,
+      caption: caption ?? this.caption,
       effectType: effectType ?? this.effectType,
       videoMode: videoMode ?? this.videoMode,
       wiroTaskId: wiroTaskId ?? this.wiroTaskId,
@@ -138,7 +189,7 @@ class VideoProject {
       creditsUsed: creditsUsed ?? this.creditsUsed,
       updatedAt: updatedAt ?? this.updatedAt,
       errorMessage: errorMessage ?? this.errorMessage,
+      statusMessage: statusMessage ?? this.statusMessage,
     );
   }
 }
-

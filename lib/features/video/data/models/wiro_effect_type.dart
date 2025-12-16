@@ -1,533 +1,999 @@
+import 'wiro_model_type.dart';
+
+// =============================================================================
+// 3D TEXT ANIMATIONS EFFECTS
+// =============================================================================
+
+/// Effect types for 3D Text Animations model
+enum WiroTextAnimationEffect {
+  silverBalloonsParis(
+    'titles-silver-balloons-paris',
+    'Silver Balloons Paris',
+  ),
+  bubblegumLetters(
+    'titles-bubblegum-letters',
+    'Bubblegum Letters',
+  ),
+  rainyCityStreet(
+    'titles-rainy-city-street',
+    'Rainy City Street',
+  ),
+  inflatableLettersPool(
+    'titles-inflatable-letters-pool',
+    'Inflatable Letters Pool',
+  ),
+  shopWindowNeon(
+    'titles-shop-window-neon',
+    'Shop Window Neon',
+  ),
+  glossyHeliumBalloons(
+    'titles-glossy-helium-balloons',
+    'Glossy Helium Balloons',
+  ),
+  goldenBalloonsConfetti(
+    'titles-golden-balloons-confetti',
+    'Golden Balloons Confetti',
+  ),
+  giftBox(
+    'titles-gift-box',
+    'Gift Box',
+  ),
+  islandShapedText(
+    'titles-island-shaped-text',
+    'Island Shaped Text',
+  ),
+  enveloppeBloomingFlowers(
+    'titles-enveloppe-blooming-flowers',
+    'Enveloppe Blooming Flowers',
+  ),
+  colorfulToyBlocks(
+    'titles-colorful-toy-blocks',
+    'Colorful Toy Blocks',
+  ),
+  hangingTags(
+    'titles-hanging-tags',
+    'Hanging Tags',
+  ),
+  watermelonSplash(
+    'titles-watermelon-splash',
+    'Watermelon Splash',
+  ),
+  cookingIngredientsRusticTable(
+    'titles-cooking-ingredients-rustic-table',
+    'Cooking Ingredients Rustic Table',
+  ),
+  inflatedPastelLettersConfetti(
+    'titles-inflated-pastel-letters-confetti',
+    'Inflated Pastel Letters Confetti',
+  ),
+  birthdayCake(
+    'titles-birthday-cake',
+    'Birthday Cake',
+  ),
+  goldScript(
+    'titles-gold-script',
+    'Gold Script',
+  ),
+  pinkFurFloweredField(
+    'titles-pink-fur-flowered-field',
+    'Pink Fur Flowered Field',
+  ),
+  candyLand(
+    'titles-candy-land',
+    'Candy Land',
+  ),
+  rockLettersBeachWaves(
+    'titles-rock-letters-beach-waves',
+    'Rock Letters Beach Waves',
+  ),
+  dreamyCloudsGradientSky(
+    'titles-dreamy-clouds-gradient-sky',
+    'Dreamy Clouds Gradient Sky',
+  ),
+  redNeonStreetNight(
+    'titles-red-neon-street-night',
+    'Red Neon Street Night',
+  );
+
+  const WiroTextAnimationEffect(this.value, this.label);
+
+  final String value;
+  final String label;
+
+  static WiroTextAnimationEffect? fromValue(String value) {
+    try {
+      return WiroTextAnimationEffect.values.firstWhere((e) => e.value == value);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static List<WiroTextAnimationEffect> get all =>
+      WiroTextAnimationEffect.values.toList();
+}
+
+// =============================================================================
+// PRODUCT ADS EFFECTS (also used by Product Ads with Caption/Logo)
+// =============================================================================
+
 /// All available Wiro Product Ads effect types
-enum WiroEffectType {
+enum WiroProductAdsEffect {
   // Animate Products
   smokyPedestal(
     'animate-products-smoky-pedestal',
     'Smoky Pedestal',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   waterPetals(
     'animate-products-water-petals',
     'Water Petals',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   waterDarkElectricHues(
     'animate-products-water-dark-electric-hues',
     'Water Dark Electric Hues',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
-  snow('animate-products-snow', 'Snow', WiroEffectCategory.animateProducts),
+  snow(
+    'animate-products-snow',
+    'Snow',
+    WiroProductAdsCategory.animateProducts,
+  ),
   glitterSilver(
     'animate-products-glitter-silver',
     'Glitter Silver',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   rosesSmoke(
     'animate-products-roses-smoke',
     'Roses Smoke',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   carWarehouse(
     'animate-products-car-warehouse',
     'Car Warehouse',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   waterSplashesLight(
     'animate-products-water-splashes-light',
     'Water Splashes Light',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   fallingPetals(
     'animate-products-falling-petals',
     'Falling Petals',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   liquidGold(
     'animate-products-liquid-gold',
     'Liquid Gold',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   oilBubbles(
     'animate-products-oil-bubbles',
     'Oil Bubbles',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   goldenFireworks(
     'animate-products-golden-fireworks',
     'Golden Fireworks',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   ledStrips(
     'animate-products-led-strips',
     'Led Strips',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   waterFruitsSplash(
     'animate-products-water-fruits-splash',
     'Water Fruits Splash',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   smokeReveal(
     'animate-products-smoke-reveal',
     'Smoke Reveal',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   rosePetals(
     'animate-products-rose-petals',
     'Rose Petals',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   ledStripsColorful(
     'animate-products-led-strips-colorful',
     'Led Strips Colorful',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   waterCinematic(
     'animate-products-water-cinematic',
     'Water Cinematic',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   rosesCandles(
     'animate-products-roses-candles',
     'Roses Candles',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   carRoadSeaside(
     'animate-products-car-road-seaside',
     'Car Road Seaside',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   carRoadCityNight(
     'animate-products-car-road-city-night',
     'Car Road City Night',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   barPeople(
     'animate-products-bar-people',
     'Bar People',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   carRoadForest(
     'animate-products-car-road-forest',
     'Car Road Forest',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   carRoadSnow(
     'animate-products-car-road-snow',
     'Car Road Snow',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   rusticTableFireplace(
     'animate-products-rustic-table-fireplace',
     'Rustic Table Fireplace',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   heatFumesCountertop(
     'animate-products-heat-fumes-countertop',
     'Heat Fumes Countertop',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   waterRain(
     'animate-products-water-rain',
     'Water Rain',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   inkClouds(
     'animate-products-ink-clouds',
     'Ink Clouds',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   beachPalm(
     'animate-products-beach-palm',
     'Beach Palm',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   seaPlatform(
     'animate-products-sea-platform',
     'Sea Platform',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   mistRibbonsPetals(
     'animate-products-mist-ribbons-petals',
     'Mist Ribbons Petals',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   confetti(
     'animate-products-confetti',
     'Confetti',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   waterfall(
     'animate-products-waterfall',
     'Waterfall',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   satinFabric(
     'animate-products-satin-fabric',
     'Satin Fabric',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
   pinkRibbons(
     'animate-products-pink-ribbons',
     'Pink Ribbons',
-    WiroEffectCategory.animateProducts,
+    WiroProductAdsCategory.animateProducts,
   ),
 
   // Scene Morphs
   studioToCafe(
     'scene-morphs-studio-to-cafe',
     'Studio To Cafe',
-    WiroEffectCategory.sceneMorphs,
+    WiroProductAdsCategory.sceneMorphs,
   ),
   productJumpsBillboards(
     'scene-morphs-product-jumps-billboards',
     'Product Jumps Billboards',
-    WiroEffectCategory.sceneMorphs,
+    WiroProductAdsCategory.sceneMorphs,
   ),
   luminousStudio(
     'scene-morphs-luminous-studio',
     'Luminous Studio',
-    WiroEffectCategory.sceneMorphs,
+    WiroProductAdsCategory.sceneMorphs,
   ),
   bubbleToFlowerField(
     'scene-morphs-bubble-to-flower-field',
     'Bubble To Flower Field',
-    WiroEffectCategory.sceneMorphs,
+    WiroProductAdsCategory.sceneMorphs,
   ),
   helicopterToCity(
     'scene-morphs-helicopter-to-city',
     'Helicopter To City',
-    WiroEffectCategory.sceneMorphs,
+    WiroProductAdsCategory.sceneMorphs,
   ),
   fireAndIce(
     'scene-morphs-fire-and-ice',
     'Fire And Ice',
-    WiroEffectCategory.sceneMorphs,
+    WiroProductAdsCategory.sceneMorphs,
   ),
   factoryToDelivery(
     'scene-morphs-factory-to-delivery',
     'Factory To Delivery',
-    WiroEffectCategory.sceneMorphs,
+    WiroProductAdsCategory.sceneMorphs,
   ),
   winterToSummerInGrassField(
     'scene-morphs-winter-to-summer-in-grass-field',
     'Winter To Summer In Grass Field',
-    WiroEffectCategory.sceneMorphs,
+    WiroProductAdsCategory.sceneMorphs,
   ),
   desertToJungleMorph(
     'scene-morphs-desert-to-jungle-morph',
     'Desert To Jungle Morph',
-    WiroEffectCategory.sceneMorphs,
+    WiroProductAdsCategory.sceneMorphs,
   ),
   skyToEiffelTower(
     'scene-morphs-sky-to-eiffel-tower',
     'Sky To Eiffel Tower',
-    WiroEffectCategory.sceneMorphs,
+    WiroProductAdsCategory.sceneMorphs,
   ),
   productCrystals(
     'scene-morphs-product-crystals',
     'Product Crystals',
-    WiroEffectCategory.sceneMorphs,
+    WiroProductAdsCategory.sceneMorphs,
   ),
   waiterHandToBarCounter(
     'scene-morphs-waiter-hand-to-bar-counter',
     'Waiter Hand To Bar Counter',
-    WiroEffectCategory.sceneMorphs,
+    WiroProductAdsCategory.sceneMorphs,
   ),
   underwaterToSky(
     'scene-morphs-underwater-to-sky',
     'Underwater To Sky',
-    WiroEffectCategory.sceneMorphs,
+    WiroProductAdsCategory.sceneMorphs,
   ),
   rocketToSpace(
     'scene-morphs-rocket-to-space',
     'Rocket To Space',
-    WiroEffectCategory.sceneMorphs,
+    WiroProductAdsCategory.sceneMorphs,
   ),
 
   // Surreal Product Staging
   clawMachine(
     'surreal-product-staging-claw-machine',
     'Claw Machine',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   waterfall3dBillboard(
     'surreal-product-staging-3d-waterfall-billboard',
     '3D Waterfall Billboard',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   truckSpringProduct(
     'surreal-product-staging-truck-spring-product',
     'Truck Spring Product',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   productSimpleClouds(
     'surreal-product-staging-product-simple-clouds',
     'Product Simple Clouds',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   helicopterCityProduct(
     'surreal-product-staging-helicopter-city-product',
     'Helicopter City Product',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   domeProduct(
     'surreal-product-staging-dome-product',
     'Dome Product',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   makeItBig(
     'surreal-product-staging-make_it_big',
     'Make It Big',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   objectOnWheelsFair(
     'surreal-product-staging-object-on-wheels-fair',
     'Object On Wheels Fair',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   oversizedBillboard(
     'surreal-product-staging-oversized-billboard',
     'Oversized Billboard',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   toyPackagingLuxuryProduct(
     'surreal-product-staging-toy-packaging-luxury-product',
     'Toy Packaging Luxury Product',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   parachuteCloudsProduct(
     'surreal-product-staging-parachute-clouds-product',
     'Parachute Clouds Product',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   commercialWithSplash(
     'surreal-product-staging-commerial-with-splash',
     'Commercial With Splash',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   tinyProductHeld(
     'surreal-product-staging-tiny-product-held',
     'Tiny Product Held',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   objectCarousel(
     'surreal-product-staging-object-carousel',
     'Object Carousel',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   balloonLandscapeProduct(
     'surreal-product-staging-balloon-landscape-product',
     'Balloon Landscape Product',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   rockFloatingProduct(
     'surreal-product-staging-rock-floating-product',
     'Rock Floating Product',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   goldenWaterfall(
     'surreal-product-staging-golden-waterfall',
     'Golden Waterfall',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   paragliderJungleProduct(
     'surreal-product-staging-paraglider-jungle-product',
     'Paraglider Jungle Product',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   surrealProductCrystals(
     'surreal-product-staging-product-crystals',
     'Product Crystals',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   productInABottle(
     'surreal-product-staging-product-in-a-bottle',
     'Product In A Bottle',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   floatingItems(
     'surreal-product-staging-floating-items',
     'Floating Items',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   toyPackagingProduct(
     'surreal-product-staging-toy-packaging-product',
     'Toy Packaging Product',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   productInCalm(
     'surreal-product-staging-product-in-calm',
     'Product In Calm',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   receiptToFloating(
     'surreal-product-staging-receipt-to-floating',
     'Receipt To Floating',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   productInFlowerBlooming(
     'surreal-product-staging-product-in-flower-blooming',
     'Product In Flower Blooming',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   cupcakeBalloonPlane(
     'surreal-product-staging-cupcake-balloons-plane',
     'Cupcake Balloons Plane',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   magicPortalDispelled(
     'surreal-product-staging-magic-portal-dispelled',
     'Magic Portal Dispelled',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   balloonsProduct(
     'surreal-product-staging-balloons-product',
     'Balloons Product',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   donutOnIce(
     'surreal-product-staging-donut-on-ice',
     'Donut On Ice',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   airplaneWindowClouds(
     'surreal-product-staging-airplane-window-clouds',
     'Airplane Window Clouds',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
   veniceBoat(
     'surreal-product-staging-venice-boat',
     'Venice Boat',
-    WiroEffectCategory.surrealStaging,
+    WiroProductAdsCategory.surrealStaging,
   ),
 
   // Product on Model
   objectStudioHeldModel(
     'product-on-model-object-studio-held-model',
     'Object Studio Held Model',
-    WiroEffectCategory.productOnModel,
+    WiroProductAdsCategory.productOnModel,
   ),
   oversizedObjectWithModel(
     'product-on-model-oversized-object-with-model',
     'Oversized Object With Model',
-    WiroEffectCategory.productOnModel,
+    WiroProductAdsCategory.productOnModel,
   ),
   modelWearingProductBeach(
     'product-on-model-model-wearing-product-beach',
     'Model Wearing Product Beach',
-    WiroEffectCategory.productOnModel,
+    WiroProductAdsCategory.productOnModel,
   ),
   modelWearingProductJungle(
     'product-on-model-model-wearing-product-jungle',
     'Model Wearing Product Jungle',
-    WiroEffectCategory.productOnModel,
+    WiroProductAdsCategory.productOnModel,
   ),
   productHeelsOnFeet(
     'product-on-model-product-heels-on-feet',
     'Product Heels On Feet',
-    WiroEffectCategory.productOnModel,
+    WiroProductAdsCategory.productOnModel,
   ),
   productWoreByModelInStudio(
     'product-on-model-product-wore-by-model-in-studio',
     'Product Wore By Model In Studio',
-    WiroEffectCategory.productOnModel,
+    WiroProductAdsCategory.productOnModel,
   ),
   productWoreByModelInMirror(
     'product-on-model-product-wore-by-model-in-mirror',
     'Product Wore By Model In Mirror',
-    WiroEffectCategory.productOnModel,
+    WiroProductAdsCategory.productOnModel,
   ),
   modelProductEditorialPortrait(
     'product-on-model-model-product-editorial-portrait',
     'Model Product Editorial Portrait',
-    WiroEffectCategory.productOnModel,
+    WiroProductAdsCategory.productOnModel,
   ),
   objectHeldByModelInStudio(
     'product-on-model-object-held-by-model-in-studio',
     'Object Held By Model In Studio',
-    WiroEffectCategory.productOnModel,
+    WiroProductAdsCategory.productOnModel,
   ),
   productWoreByModelInParis(
     'product-on-model-product-wore-by-model-in-paris',
     'Product Wore By Model In Paris',
-    WiroEffectCategory.productOnModel,
+    WiroProductAdsCategory.productOnModel,
   ),
 
   // Christmas Presets
   christmasSnowGlobe(
     'christmas-presets-christmas-snow-globe2',
     'Christmas Snow Globe',
-    WiroEffectCategory.christmas,
+    WiroProductAdsCategory.christmas,
   ),
   productAsOrnaments(
     'christmas-presets-product-as-ornaments',
     'Product As Ornaments',
-    WiroEffectCategory.christmas,
+    WiroProductAdsCategory.christmas,
   ),
   cableCarMiniature(
     'christmas-presets-cable-car-miniture',
     'Cable Car Miniature',
-    WiroEffectCategory.christmas,
+    WiroProductAdsCategory.christmas,
   ),
   christmasSantaChimney(
     'christmas-presets-christmas-santa-chimney',
     'Christmas Santa Chimney',
-    WiroEffectCategory.christmas,
+    WiroProductAdsCategory.christmas,
   ),
   christmasTrain(
     'christmas-presets-christmas-train',
     'Christmas Train',
-    WiroEffectCategory.christmas,
+    WiroProductAdsCategory.christmas,
   ),
   christmasSnowmanSkating(
     'christmas-presets-christmas-snowman-skating',
     'Christmas Snowman Skating',
-    WiroEffectCategory.christmas,
+    WiroProductAdsCategory.christmas,
   ),
   merryGoRoundToElves(
     'christmas-presets-merry-go-round-to-elves',
     'Merry Go Round To Elves',
-    WiroEffectCategory.christmas,
+    WiroProductAdsCategory.christmas,
   ),
   merryGoRoundChristmas(
     'christmas-presets-merry-go-round-christmas',
     'Merry Go Round Christmas',
-    WiroEffectCategory.christmas,
+    WiroProductAdsCategory.christmas,
   ),
   winterChariot(
     'christmas-presets-winter-chariot',
     'Winter Chariot',
-    WiroEffectCategory.christmas,
+    WiroProductAdsCategory.christmas,
   );
 
-  const WiroEffectType(this.value, this.label, this.category);
+  const WiroProductAdsEffect(this.value, this.label, this.category);
 
   final String value;
   final String label;
-  final WiroEffectCategory category;
+  final WiroProductAdsCategory category;
 
-  static WiroEffectType? fromValue(String value) {
+  static WiroProductAdsEffect? fromValue(String value) {
     try {
-      return WiroEffectType.values.firstWhere((e) => e.value == value);
+      return WiroProductAdsEffect.values.firstWhere((e) => e.value == value);
     } catch (_) {
       return null;
     }
   }
+
+  static List<WiroProductAdsEffect> byCategory(WiroProductAdsCategory category) {
+    return WiroProductAdsEffect.values
+        .where((e) => e.category == category)
+        .toList();
+  }
 }
 
-/// Categories for organizing effect types
-enum WiroEffectCategory {
+// =============================================================================
+// PRODUCT ADS WITH CAPTION EFFECTS
+// =============================================================================
+
+/// Effect types specific to Product Ads with Caption model
+enum WiroProductCaptionEffect {
+  // Christmas
+  productWithSantaHat(
+    'christmas-presets-product-with-santa-hat',
+    'Product With Santa Hat',
+    WiroProductCaptionCategory.christmas,
+  ),
+  christmasSnowGlobeMountains(
+    'christmas-presets-christmas-snow-globe-mountains',
+    'Christmas Snow Globe Mountains',
+    WiroProductCaptionCategory.christmas,
+  ),
+  polaroidWithSanta(
+    'christmas-presets-polaroid-with-santa',
+    'Polaroid With Santa',
+    WiroProductCaptionCategory.christmas,
+  ),
+  holidayCard(
+    'christmas-presets-holiday-card',
+    'Holiday Card',
+    WiroProductCaptionCategory.christmas,
+  ),
+  lettersToSanta(
+    'christmas-presets-letters-to-santa',
+    'Letters To Santa',
+    WiroProductCaptionCategory.christmas,
+  ),
+
+  // Scene Morphs
+  storefrontToDisplay(
+    'scene-morphs-storefront-to-display',
+    'Storefront To Display',
+    WiroProductCaptionCategory.sceneMorphs,
+  ),
+  packageToProductWithConfetti(
+    'scene-morphs-package-to-product-with-confetti',
+    'Package To Product With Confetti',
+    WiroProductCaptionCategory.sceneMorphs,
+  ),
+
+  // Black Friday Sales
+  blackFridayClawMachine(
+    'black-friday-sales-black-friday-claw-machine',
+    'Black Friday Claw Machine',
+    WiroProductCaptionCategory.blackFriday,
+  ),
+  blackCoverToWhiteSpotlightsBlackFriday(
+    'black-friday-sales-black-cover-to-white-spotlights-black-friday',
+    'Black Cover To White Spotlights Black Friday',
+    WiroProductCaptionCategory.blackFriday,
+  ),
+  blackFridayElevator(
+    'black-friday-sales-black-friday-elevator',
+    'Black Friday Elevator',
+    WiroProductCaptionCategory.blackFriday,
+  ),
+  giftToProductWithConfettiBlack(
+    'black-friday-sales-gift-to-product-with-confetti-black',
+    'Gift To Product With Confetti Black',
+    WiroProductCaptionCategory.blackFriday,
+  ),
+  snowBlackFriday(
+    'black-friday-sales-snow-black-friday',
+    'Snow Black Friday',
+    WiroProductCaptionCategory.blackFriday,
+  ),
+  planeCityProductBlackFriday(
+    'black-friday-sales-plane-city-product-black-friday',
+    'Plane City Product Black Friday',
+    WiroProductCaptionCategory.blackFriday,
+  ),
+  blackBackgroundRedNeonText(
+    'black-friday-sales-black-background-red-neon-text',
+    'Black Background Red Neon Text',
+    WiroProductCaptionCategory.blackFriday,
+  ),
+  blackFridayVendingMachine(
+    'black-friday-sales-black-friday-vending-machine',
+    'Black Friday Vending Machine',
+    WiroProductCaptionCategory.blackFriday,
+  ),
+  domeProductBlackFriday(
+    'black-friday-sales-dome-product-black-friday',
+    'Dome Product Black Friday',
+    WiroProductCaptionCategory.blackFriday,
+  ),
+  blackFridayDisplayWindow(
+    'black-friday-sales-black-friday-display-window',
+    'Black Friday Display Window',
+    WiroProductCaptionCategory.blackFriday,
+  ),
+  giftStorefrontToProduct(
+    'black-friday-sales-gift-storefront-to-product',
+    'Gift Storefront To Product',
+    WiroProductCaptionCategory.blackFriday,
+  ),
+  blackPedestalSmokeRedNeonText(
+    'black-friday-sales-black-pedestal-smoke-red-neon-text',
+    'Black Pedestal Smoke Red Neon Text',
+    WiroProductCaptionCategory.blackFriday,
+  ),
+
+  // Product With Text
+  packageConfettiProductText(
+    'product-with-text-package-confetti-product-text',
+    'Package Confetti Product Text',
+    WiroProductCaptionCategory.productWithText,
+  ),
+  productBeachBanner(
+    'product-with-text-product-beach-banner',
+    'Product Beach Banner',
+    WiroProductCaptionCategory.productWithText,
+  ),
+  mojitoHappyHour(
+    'product-with-text-mojito-happy-hour',
+    'Mojito Happy Hour',
+    WiroProductCaptionCategory.productWithText,
+  ),
+  blackPedestalSmokeNeonText(
+    'product-with-text-black-pedestal-smoke-neon-text',
+    'Black Pedestal Smoke Neon Text',
+    WiroProductCaptionCategory.productWithText,
+  ),
+  rusticTableMenuItemText(
+    'product-with-text-rustic-table-menu-item-text',
+    'Rustic Table Menu Item Text',
+    WiroProductCaptionCategory.productWithText,
+  ),
+  cloudFontProductPedestal(
+    'product-with-text-3d-cloud-font-product-pedestal',
+    '3D Cloud Font Product Pedestal',
+    WiroProductCaptionCategory.productWithText,
+  ),
+  chromeFontProductInSky(
+    'product-with-text-chrome-font-product-in-sky',
+    'Chrome Font Product In Sky',
+    WiroProductCaptionCategory.productWithText,
+  ),
+  spaceOrbitProductSale(
+    'product-with-text-space-orbit-product-sale',
+    'Space Orbit Product Sale',
+    WiroProductCaptionCategory.productWithText,
+  ),
+  productSlicedToJello(
+    'product-with-text-product-sliced-to-jello',
+    'Product Sliced To Jello',
+    WiroProductCaptionCategory.productWithText,
+  ),
+  animalCoilingAroundProduct(
+    'product-with-text-animal-coiling-around-product',
+    'Animal Coiling Around Product',
+    WiroProductCaptionCategory.productWithText,
+  ),
+  conveyorBeltNeonTextProduct(
+    'product-with-text-conveyor-belt-neon-text-product',
+    'Conveyor Belt Neon Text Product',
+    WiroProductCaptionCategory.productWithText,
+  ),
+  productInGreekHeaven(
+    'product-with-text-product-in-greek-heaven',
+    'Product In Greek Heaven',
+    WiroProductCaptionCategory.productWithText,
+  ),
+  colorfulBalloonsTextProduct(
+    'product-with-text-colorful-balloons-text-product',
+    'Colorful Balloons Text Product',
+    WiroProductCaptionCategory.productWithText,
+  ),
+  productInMeltingIceCube(
+    'product-with-text-product-in-melting-ice-cube',
+    'Product In Melting Ice Cube',
+    WiroProductCaptionCategory.productWithText,
+  ),
+  waterdropInGrassyField(
+    'product-with-text-3d-waterdrop-in-grassy-field',
+    '3D Waterdrop In Grassy Field',
+    WiroProductCaptionCategory.productWithText,
+  ),
+  waterdropProductInBubble(
+    'product-with-text-3d-waterdrop-product-in-bubble',
+    '3D Waterdrop Product In Bubble',
+    WiroProductCaptionCategory.productWithText,
+  ),
+  lipstickOnSaleToday(
+    'product-with-text-lipstick-on-sale-today',
+    'Lipstick On Sale Today',
+    WiroProductCaptionCategory.productWithText,
+  ),
+  iceCreamCosmetics(
+    'product-with-text-ice-cream-cosmetics',
+    'Ice Cream Cosmetics',
+    WiroProductCaptionCategory.productWithText,
+  ),
+  productInGoo(
+    'product-with-text-product-in-goo',
+    'Product In Goo',
+    WiroProductCaptionCategory.productWithText,
+  ),
+  productInClearCapsule(
+    'product-with-text-product-in-clear-capsule',
+    'Product In Clear Capsule',
+    WiroProductCaptionCategory.productWithText,
+  ),
+  handbagSkyscraperSunset(
+    'product-with-text-handbag-skyscraper-sunset',
+    'Handbag Skyscraper Sunset',
+    WiroProductCaptionCategory.productWithText,
+  ),
+  butterflyHoldingProductIridescentText(
+    'product-with-text-butterfly-holding-product-iridescent-text',
+    'Butterfly Holding Product Iridescent Text',
+    WiroProductCaptionCategory.productWithText,
+  ),
+  hotDealLavaProduct(
+    'product-with-text-hot-deal-lava-product',
+    'Hot Deal Lava Product',
+    WiroProductCaptionCategory.productWithText,
+  );
+
+  const WiroProductCaptionEffect(this.value, this.label, this.category);
+
+  final String value;
+  final String label;
+  final WiroProductCaptionCategory category;
+
+  static WiroProductCaptionEffect? fromValue(String value) {
+    try {
+      return WiroProductCaptionEffect.values.firstWhere((e) => e.value == value);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static List<WiroProductCaptionEffect> byCategory(
+      WiroProductCaptionCategory category) {
+    return WiroProductCaptionEffect.values
+        .where((e) => e.category == category)
+        .toList();
+  }
+}
+
+// =============================================================================
+// PRODUCT ADS WITH LOGO EFFECTS
+// =============================================================================
+
+/// Effect types specific to Product Ads with Logo model
+enum WiroProductLogoEffect {
+  productHangingCityMatchingBanners(
+    'logo-and-product-product-hanging-city-matching-banners',
+    'Product Hanging City Matching Banners',
+  ),
+  goldenStorefrontLogo(
+    'logo-and-product-golden-storefront-logo',
+    'Golden Storefront Logo',
+  ),
+  oversizedObjectOnCart3dLogo(
+    'logo-and-product-oversized-object-on-cart-3d-logo',
+    'Oversized Object On Cart 3D Logo',
+  ),
+  productLogoDesert(
+    'logo-and-product-product-logo-desert',
+    'Product Logo Desert',
+  ),
+  logoInCappuccinoWithObject(
+    'logo-and-product-logo-in-cappuccino-with-object',
+    'Logo In Cappuccino With Object',
+  ),
+  productHangingOnParachuteWheatField(
+    'logo-and-product-product-hanging-on-parachute-wheat-field',
+    'Product Hanging On Parachute Wheat Field',
+  ),
+  bigProductCarSeatLogoOnBag(
+    'logo-and-product-big-product-car-seat-logo-on-bag',
+    'Big Product Car Seat Logo On Bag',
+  ),
+  pillCapsuleLogoAndProduct(
+    'logo-and-product-pill-capsule-logo-and-product',
+    'Pill Capsule Logo And Product',
+  ),
+  productFloatingCoffeeLogoOnNapkin(
+    'logo-and-product-product-floating-coffee-logo-on-napkin',
+    'Product Floating Coffee Logo On Napkin',
+  ),
+  surrealObjectLogoOnBus(
+    'logo-and-product-surreal-object-logo-on-bus',
+    'Surreal Object Logo On Bus',
+  ),
+  massiveProductWithSkyPlaneBanner(
+    'logo-and-product-massive-product-with-sky-plane-banner',
+    'Massive Product With Sky Plane Banner',
+  ),
+  billboardPanelInUrbanStreetWithLogo(
+    'logo-and-product-billboard-panel-in-urban-street-with-logo',
+    'Billboard Panel In Urban Street With Logo',
+  );
+
+  const WiroProductLogoEffect(this.value, this.label);
+
+  final String value;
+  final String label;
+
+  static WiroProductLogoEffect? fromValue(String value) {
+    try {
+      return WiroProductLogoEffect.values.firstWhere((e) => e.value == value);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static List<WiroProductLogoEffect> get all =>
+      WiroProductLogoEffect.values.toList();
+}
+
+// =============================================================================
+// CATEGORIES
+// =============================================================================
+
+/// Categories for Product Ads effects
+enum WiroProductAdsCategory {
   animateProducts('Animate Products'),
   sceneMorphs('Scene Morphs'),
   surrealStaging('Surreal Staging'),
   productOnModel('Product on Model'),
   christmas('Christmas');
 
-  const WiroEffectCategory(this.label);
+  const WiroProductAdsCategory(this.label);
 
   final String label;
 }
+
+/// Categories for Product Ads with Caption effects
+enum WiroProductCaptionCategory {
+  christmas('Christmas'),
+  sceneMorphs('Scene Morphs'),
+  blackFriday('Black Friday Sales'),
+  productWithText('Product With Text');
+
+  const WiroProductCaptionCategory(this.label);
+
+  final String label;
+}
+
+// =============================================================================
+// VIDEO MODE
+// =============================================================================
 
 /// Video mode options
 enum WiroVideoMode {
@@ -538,4 +1004,68 @@ enum WiroVideoMode {
 
   final String value;
   final String label;
+}
+
+// =============================================================================
+// HELPER CLASS FOR EFFECT SELECTION
+// =============================================================================
+
+/// Helper class to get effects for a specific model type
+class WiroEffects {
+  /// Get all effects for a given model type
+  static List<EffectOption> getEffectsForModel(WiroModelType model) {
+    switch (model) {
+      case WiroModelType.textAnimations:
+        return WiroTextAnimationEffect.values
+            .map((e) => EffectOption(value: e.value, label: e.label))
+            .toList();
+      case WiroModelType.productAds:
+        return WiroProductAdsEffect.values
+            .map((e) => EffectOption(
+                  value: e.value,
+                  label: e.label,
+                  category: e.category.label,
+                ))
+            .toList();
+      case WiroModelType.productAdsWithCaption:
+        return WiroProductCaptionEffect.values
+            .map((e) => EffectOption(
+                  value: e.value,
+                  label: e.label,
+                  category: e.category.label,
+                ))
+            .toList();
+      case WiroModelType.productAdsWithLogo:
+        return WiroProductLogoEffect.values
+            .map((e) => EffectOption(value: e.value, label: e.label))
+            .toList();
+    }
+  }
+
+  /// Get default effect for a given model type
+  static String getDefaultEffect(WiroModelType model) {
+    switch (model) {
+      case WiroModelType.textAnimations:
+        return WiroTextAnimationEffect.bubblegumLetters.value;
+      case WiroModelType.productAds:
+        return WiroProductAdsEffect.smokyPedestal.value;
+      case WiroModelType.productAdsWithCaption:
+        return WiroProductCaptionEffect.productBeachBanner.value;
+      case WiroModelType.productAdsWithLogo:
+        return WiroProductLogoEffect.goldenStorefrontLogo.value;
+    }
+  }
+}
+
+/// Generic effect option for UI display
+class EffectOption {
+  const EffectOption({
+    required this.value,
+    required this.label,
+    this.category,
+  });
+
+  final String value;
+  final String label;
+  final String? category;
 }

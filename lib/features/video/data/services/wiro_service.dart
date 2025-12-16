@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/models.dart';
@@ -12,28 +13,103 @@ final wiroServiceProvider = Provider<WiroService>((ref) {
 /// All API calls are made through Firebase Cloud Functions to keep
 /// API keys secure on the server side.
 class WiroService {
-  /// Start a video generation task
-  ///
-  /// Returns [WiroRunTaskResponse] containing the task ID and socket token
-  Future<WiroRunTaskResponse> runTask({
-    required String inputImageUrl,
-    required WiroEffectType effectType,
+  final FirebaseFunctions _functions = FirebaseFunctions.instance;
+
+  // Cloud Function references
+  HttpsCallable get _runTaskFunction => _functions.httpsCallable('runWiroTask');
+  HttpsCallable get _getTaskDetailFunction =>
+      _functions.httpsCallable('getWiroTaskDetail');
+  HttpsCallable get _killTaskFunction =>
+      _functions.httpsCallable('killWiroTask');
+  HttpsCallable get _cancelTaskFunction =>
+      _functions.httpsCallable('cancelWiroTask');
+
+  /// Start a 3D Text Animation task
+  Future<WiroRunTaskResponse> runTextAnimation({
+    required String caption,
+    required String effectType,
     WiroVideoMode videoMode = WiroVideoMode.standard,
   }) async {
-    // TODO: Call Firebase Cloud Function 'wiro-runTask'
-    // The Cloud Function will:
-    // 1. Get Wiro API credentials from Secret Manager
-    // 2. Generate HMAC signature
-    // 3. Make POST request to https://api.wiro.ai/v1/Run/wiro/product-ads
-    // 4. Return the response
+    return _runTask(
+      WiroTextAnimationsRequest(
+        caption: caption,
+        effectType: effectType,
+        videoMode: videoMode,
+      ),
+    );
+  }
 
-    throw UnimplementedError('Cloud Function not yet implemented');
+  /// Start a Product Ads task (image only)
+  Future<WiroRunTaskResponse> runProductAds({
+    required String inputImageUrl,
+    required String effectType,
+    WiroVideoMode videoMode = WiroVideoMode.standard,
+  }) async {
+    return _runTask(
+      WiroProductAdsRequest(
+        inputImageUrl: inputImageUrl,
+        effectType: effectType,
+        videoMode: videoMode,
+      ),
+    );
+  }
+
+  /// Start a Product Ads with Caption task
+  Future<WiroRunTaskResponse> runProductAdsWithCaption({
+    required String inputImageUrl,
+    required String caption,
+    required String effectType,
+    WiroVideoMode videoMode = WiroVideoMode.standard,
+  }) async {
+    return _runTask(
+      WiroProductAdsCaptionRequest(
+        inputImageUrl: inputImageUrl,
+        caption: caption,
+        effectType: effectType,
+        videoMode: videoMode,
+      ),
+    );
+  }
+
+  /// Start a Product Ads with Logo task
+  Future<WiroRunTaskResponse> runProductAdsWithLogo({
+    required String productImageUrl,
+    required String logoImageUrl,
+    required String effectType,
+    WiroVideoMode videoMode = WiroVideoMode.standard,
+  }) async {
+    return _runTask(
+      WiroProductAdsLogoRequest(
+        productImageUrl: productImageUrl,
+        logoImageUrl: logoImageUrl,
+        effectType: effectType,
+        videoMode: videoMode,
+      ),
+    );
+  }
+
+  /// Generic method to run any Wiro task
+  Future<WiroRunTaskResponse> _runTask(WiroRunTaskRequest request) async {
+    try {
+      final result = await _runTaskFunction.call<Map<String, dynamic>>(
+        request.toJson(),
+      );
+
+      return WiroRunTaskResponse.fromJson(result.data);
+    } on FirebaseFunctionsException catch (e) {
+      return WiroRunTaskResponse(
+        taskId: '',
+        socketAccessToken: '',
+        result: false,
+        errors: [e.message ?? 'Unknown error'],
+      );
+    }
   }
 
   /// Get task detail/status
   ///
   /// Can be called with either [taskId] or [socketToken]
-  Future<WiroTaskDetailResponse> getTaskDetail({
+  Future<WiroTaskDetail?> getTaskDetail({
     String? taskId,
     String? socketToken,
   }) async {
@@ -42,18 +118,20 @@ class WiroService {
       'Either taskId or socketToken must be provided',
     );
 
-    // TODO: Call Firebase Cloud Function 'wiro-getTaskDetail'
-    // The Cloud Function will:
-    // 1. Get Wiro API credentials from Secret Manager
-    // 2. Generate HMAC signature
-    // 3. Make POST request to https://api.wiro.ai/v1/Task/Detail
-    // 4. Return the response
+    try {
+      final result = await _getTaskDetailFunction.call<Map<String, dynamic>>({
+        if (taskId != null) 'taskId': taskId,
+        if (socketToken != null) 'socketToken': socketToken,
+      });
 
-    throw UnimplementedError('Cloud Function not yet implemented');
+      return WiroTaskDetail.fromJson(result.data);
+    } on FirebaseFunctionsException catch (e) {
+      throw Exception(e.message ?? 'Failed to get task detail');
+    }
   }
 
   /// Kill a running task
-  Future<void> killTask({
+  Future<bool> killTask({
     String? taskId,
     String? socketToken,
   }) async {
@@ -62,14 +140,29 @@ class WiroService {
       'Either taskId or socketToken must be provided',
     );
 
-    // TODO: Call Firebase Cloud Function 'wiro-killTask'
-    throw UnimplementedError('Cloud Function not yet implemented');
+    try {
+      final result = await _killTaskFunction.call<Map<String, dynamic>>({
+        if (taskId != null) 'taskId': taskId,
+        if (socketToken != null) 'socketToken': socketToken,
+      });
+
+      return result.data['success'] == true;
+    } on FirebaseFunctionsException catch (e) {
+      throw Exception(e.message ?? 'Failed to kill task');
+    }
   }
 
   /// Cancel a queued task
-  Future<void> cancelTask({required String taskId}) async {
-    // TODO: Call Firebase Cloud Function 'wiro-cancelTask'
-    throw UnimplementedError('Cloud Function not yet implemented');
+  Future<bool> cancelTask({required String taskId}) async {
+    try {
+      final result = await _cancelTaskFunction.call<Map<String, dynamic>>({
+        'taskId': taskId,
+      });
+
+      return result.data['success'] == true;
+    } on FirebaseFunctionsException catch (e) {
+      throw Exception(e.message ?? 'Failed to cancel task');
+    }
   }
 
   /// Poll for task completion
@@ -89,13 +182,8 @@ class WiroService {
       }
 
       // Get task detail
-      final response = await getTaskDetail(taskId: taskId);
+      final task = await getTaskDetail(taskId: taskId);
 
-      if (response.hasError) {
-        throw Exception(response.errors.join(', '));
-      }
-
-      final task = response.firstTask;
       if (task == null) {
         throw Exception('Task not found');
       }
@@ -112,4 +200,3 @@ class WiroService {
     }
   }
 }
-
