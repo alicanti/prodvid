@@ -974,12 +974,26 @@ enum WiroVideoMode {
 
 /// Helper class to get effects for a specific model type
 class WiroEffects {
+  /// CDN base URL for effect covers
+  static const String _cdnBase = 'https://cdn.wiro.ai/uploads/effects';
+
+  /// Build cover URL for an effect
+  static String _buildCoverUrl(String effectValue) {
+    return '$_cdnBase/$effectValue.mp4';
+  }
+
   /// Get all effects for a given model type
   static List<EffectOption> getEffectsForModel(WiroModelType model) {
     switch (model) {
       case WiroModelType.textAnimations:
         return WiroTextAnimationEffect.values
-            .map((e) => EffectOption(value: e.value, label: e.label))
+            .map(
+              (e) => EffectOption(
+                value: e.value,
+                label: e.label,
+                coverUrl: _buildCoverUrl(e.value),
+              ),
+            )
             .toList();
       case WiroModelType.productAds:
         return WiroProductAdsEffect.values
@@ -988,6 +1002,7 @@ class WiroEffects {
                 value: e.value,
                 label: e.label,
                 category: e.category.label,
+                coverUrl: _buildCoverUrl(e.value),
               ),
             )
             .toList();
@@ -998,12 +1013,19 @@ class WiroEffects {
                 value: e.value,
                 label: e.label,
                 category: e.category.label,
+                coverUrl: _buildCoverUrl(e.value),
               ),
             )
             .toList();
       case WiroModelType.productAdsWithLogo:
         return WiroProductLogoEffect.values
-            .map((e) => EffectOption(value: e.value, label: e.label))
+            .map(
+              (e) => EffectOption(
+                value: e.value,
+                label: e.label,
+                coverUrl: _buildCoverUrl(e.value),
+              ),
+            )
             .toList();
     }
   }
@@ -1025,19 +1047,24 @@ class WiroEffects {
 
 /// Generic effect option for UI display
 class EffectOption {
-  const EffectOption({required this.value, required this.label, this.category});
+  const EffectOption({
+    required this.value,
+    required this.label,
+    this.category,
+    this.coverUrl,
+  });
 
   final String value;
   final String label;
   final String? category;
-
-  /// Get the cover image URL for this effect
-  /// Format: https://cdn.wiro.ai/uploads/effects/{effect-value}/cover.webp
-  String get coverUrl =>
-      'https://cdn.wiro.ai/uploads/effects/$value/cover.webp';
+  final String? coverUrl;
 
   /// Get the preview video URL for this effect
-  /// Format: https://cdn.wiro.ai/uploads/effects/{effect-value}/preview.mp4
+  /// Format: https://cdn.wiro.ai/uploads/effects/{effect-value}.mp4
   String get previewVideoUrl =>
-      'https://cdn.wiro.ai/uploads/effects/$value/preview.mp4';
+      'https://cdn.wiro.ai/uploads/effects/$value.mp4';
+
+  /// Get cover URL or fallback to preview
+  String get effectCoverUrl =>
+      coverUrl ?? 'https://cdn.wiro.ai/uploads/effects/$value.mp4';
 }

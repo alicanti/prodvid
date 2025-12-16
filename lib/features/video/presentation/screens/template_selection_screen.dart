@@ -1,10 +1,10 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/bottom_nav_bar.dart';
+import '../../../../core/widgets/video_cover_widget.dart';
 import '../../data/models/wiro_effect_type.dart';
 import '../../data/models/wiro_model_type.dart';
 
@@ -459,51 +459,22 @@ class _EffectCard extends StatelessWidget {
                   ),
                 ],
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    // Cover image from CDN with gradient fallback
-                    CachedNetworkImage(
-                      imageUrl: effect.coverUrl,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: _getGradient(),
-                          ),
-                        ),
-                        child: Center(
-                          child: Icon(
-                            _getIcon(),
-                            size: 40,
-                            color: Colors.white.withValues(alpha: 0.5),
-                          ),
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: _getGradient(),
-                          ),
-                        ),
-                        child: Center(
-                          child: Icon(
-                            _getIcon(),
-                            size: 48,
-                            color: Colors.white.withValues(alpha: 0.8),
-                          ),
-                        ),
-                      ),
-                    ),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  // Video cover from CDN with gradient fallback
+                  VideoThumbnailWidget(
+                    videoUrl: effect.effectCoverUrl,
+                    fallbackGradient: _getGradient(),
+                    fallbackIcon: _getIcon(),
+                    borderRadius: 16,
+                    playOnHover: true,
+                  ),
 
-                    // Overlay gradient
-                    Container(
+                  // Overlay gradient
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
@@ -515,52 +486,52 @@ class _EffectCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                  ),
 
-                    // Category badge
-                    if (effect.category != null)
-                      Positioned(
-                        top: 8,
-                        left: 8,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.6),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            _getCategoryShortName(effect.category!),
-                            style: const TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                    // Play icon overlay on hover
+                  // Category badge
+                  if (effect.category != null)
                     Positioned(
-                      bottom: 8,
-                      right: 8,
+                      top: 8,
+                      left: 8,
                       child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(50),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
                         ),
-                        child: const Icon(
-                          Icons.play_arrow,
-                          color: Colors.white,
-                          size: 20,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.6),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          _getCategoryShortName(effect.category!),
+                          style: const TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                            letterSpacing: 0.5,
+                          ),
                         ),
                       ),
                     ),
-                  ],
-                ),
+
+                  // Play icon overlay
+                  Positioned(
+                    bottom: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      child: const Icon(
+                        Icons.play_arrow,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
