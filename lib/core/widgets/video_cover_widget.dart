@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
+import '../services/video_cache_service.dart';
 import '../theme/app_colors.dart';
 
 /// A widget that displays a video as a cover/thumbnail
 /// Auto-plays muted, loops, and shows gradient fallback on error
+/// Uses cached video player for optimal performance
 class VideoCoverWidget extends StatefulWidget {
   const VideoCoverWidget({
     super.key,
@@ -45,9 +47,8 @@ class _VideoCoverWidgetState extends State<VideoCoverWidget> {
 
   Future<void> _initializeVideo() async {
     try {
-      _controller = VideoPlayerController.networkUrl(
-        Uri.parse(widget.videoUrl),
-      );
+      // Use cached video player for better performance
+      _controller = await CachedVideoPlayerController.create(widget.videoUrl);
 
       await _controller!.initialize();
       _controller!.setLooping(true);
@@ -134,6 +135,7 @@ class _VideoCoverWidgetState extends State<VideoCoverWidget> {
 }
 
 /// Simpler thumbnail version that just shows first frame
+/// Uses cached video player for optimal performance
 class VideoThumbnailWidget extends StatefulWidget {
   const VideoThumbnailWidget({
     super.key,
@@ -176,9 +178,8 @@ class _VideoThumbnailWidgetState extends State<VideoThumbnailWidget> {
 
   Future<void> _initializeVideo() async {
     try {
-      _controller = VideoPlayerController.networkUrl(
-        Uri.parse(widget.videoUrl),
-      );
+      // Use cached video player for better performance
+      _controller = await CachedVideoPlayerController.create(widget.videoUrl);
 
       await _controller!.initialize();
       _controller!.setLooping(true);
@@ -291,4 +292,3 @@ class _VideoThumbnailWidgetState extends State<VideoThumbnailWidget> {
     );
   }
 }
-

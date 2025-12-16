@@ -5,6 +5,7 @@ import 'package:video_player/video_player.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/bottom_nav_bar.dart';
+import '../../../../core/services/video_cache_service.dart';
 import '../../../video/data/models/wiro_model_type.dart';
 import '../../../video/data/models/wiro_effect_type.dart';
 
@@ -29,6 +30,55 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _collections = _buildCollections();
     _heroEffects = _buildHeroEffects();
+    
+    // Preload videos in the background for smooth playback
+    _preloadVideos();
+  }
+
+  /// Preload hero and first collection videos
+  Future<void> _preloadVideos() async {
+    final urlsToPreload = <String>[];
+
+    // Add hero effect URLs
+    for (final featured in _heroEffects) {
+      final url = _getEffectCoverUrl(featured);
+      if (url != null) {
+        urlsToPreload.add(url);
+      }
+    }
+
+    // Add first two collections' effect URLs
+    for (int i = 0; i < 2 && i < _collections.length; i++) {
+      for (final featured in _collections[i].effects.take(5)) {
+        final url = _getEffectCoverUrl(featured);
+        if (url != null) {
+          urlsToPreload.add(url);
+        }
+      }
+    }
+
+    // Preload in background
+    VideoPreloader.preloadAll(urlsToPreload);
+  }
+
+  String? _getEffectCoverUrl(_FeaturedEffect featured) {
+    final effect = featured.effect;
+    final model = featured.model;
+
+    String effectValue;
+    if (effect is WiroProductAdsEffect) {
+      effectValue = effect.value;
+    } else if (effect is WiroTextAnimationEffect) {
+      effectValue = effect.value;
+    } else if (effect is WiroProductCaptionEffect) {
+      effectValue = effect.value;
+    } else if (effect is WiroProductLogoEffect) {
+      effectValue = effect.value;
+    } else {
+      return null;
+    }
+
+    return model.getCoverUrl(effectValue);
   }
 
   List<_FeaturedEffect> _buildHeroEffects() {
@@ -319,55 +369,27 @@ class _HomeScreenState extends State<HomeScreen> {
             backgroundColor: AppColors.backgroundDark,
             elevation: 0,
             toolbarHeight: 70,
-            title: Row(
-              children: [
-                // Logo with neon gradient
-                ShaderMask(
-                  shaderCallback: (bounds) => const LinearGradient(
-                    colors: [
-                      Color(0xFF00D9FF), // Electric Cyan
-                      Color(0xFF00FF88), // Neon Green
-                    ],
-                  ).createShader(bounds),
-                  child: Text(
-                    'ProdVid',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
-                          letterSpacing: -0.5,
-                        ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [
-                        Color(0x3300D9FF), // Electric Cyan with alpha
-                        Color(0x3300FF88), // Neon Green with alpha
-                      ],
+            title: ShaderMask(
+              shaderCallback: (bounds) => const LinearGradient(
+                colors: [
+                  Color(0xFF00D9FF), // Electric Cyan
+                  Color(0xFF00FF88), // Neon Green
+                ],
+              ).createShader(bounds),
+              child: Text(
+                'ProdVid',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                      letterSpacing: -0.5,
                     ),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(
-                      color: const Color(0xFF00D9FF).withValues(alpha: 0.3),
-                      width: 1,
-                    ),
-                  ),
-                  child: const Text(
-                    'AI',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF00D9FF),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
+            actions: [
+              // Credits badge
+              _CreditsBadge(credits: 150),
+              const SizedBox(width: 16),
+            ],
           ),
 
           // Hero section
@@ -453,11 +475,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
           const SizedBox(height: 20),
 
-          // Hero Slider
+          // Hero Slider - with extra padding for glow effect
           SizedBox(
-            height: 220,
+            height: 240, // Extra height for glow
             child: PageView.builder(
               controller: _heroPageController,
+              clipBehavior: Clip.none, // Allow glow to overflow
               itemCount: _heroEffects.length,
               onPageChanged: (index) {
                 setState(() {
@@ -467,7 +490,7 @@ class _HomeScreenState extends State<HomeScreen> {
               itemBuilder: (context, index) {
                 final featured = _heroEffects[index];
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  padding: const EdgeInsets.fromLTRB(6, 0, 6, 20), // Bottom padding for glow
                   child: _HeroEffectCard(
                     key: ValueKey('hero_${_getEffectValue(featured.effect)}'),
                     featured: featured,
@@ -618,6 +641,84 @@ enum EffectBadge {
   final IconData icon;
 }
 
+/// Credits badge widget for app bar
+class _CreditsBadge extends StatelessWidget {
+  const _CreditsBadge({required this.credits});
+
+  final int credits;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        // TODO: Navigate to credits/subscription page
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              const Color(0xFFFFD700).withValues(alpha: 0.15),
+              const Color(0xFFFFAA00).withValues(alpha: 0.15),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: const Color(0xFFFFD700).withValues(alpha: 0.4),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Coin icon with glow
+            Container(
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFFFFD700), Color(0xFFFFAA00)],
+                ),
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFFFD700).withValues(alpha: 0.5),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: const Center(
+                child: Text(
+                  '⚡',
+                  style: TextStyle(fontSize: 10),
+                ),
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              '$credits',
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFFFFD700),
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(
+              Icons.add_circle,
+              size: 16,
+              color: const Color(0xFFFFD700).withValues(alpha: 0.7),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _EffectCollection {
   const _EffectCollection({
     required this.title,
@@ -682,7 +783,8 @@ class _HeroEffectCardState extends State<_HeroEffectCard> {
     if (coverUrl == null) return;
 
     try {
-      _controller = VideoPlayerController.networkUrl(Uri.parse(coverUrl));
+      // Use cached video player for better performance
+      _controller = await CachedVideoPlayerController.create(coverUrl);
       await _controller!.initialize();
       _controller!.setLooping(true);
       _controller!.setVolume(0);
@@ -980,7 +1082,8 @@ class _EffectCarouselCardState extends State<_EffectCarouselCard> {
     }
 
     try {
-      _controller = VideoPlayerController.networkUrl(Uri.parse(coverUrl));
+      // Use cached video player for better performance
+      _controller = await CachedVideoPlayerController.create(coverUrl);
       await _controller!.initialize();
       _controller!.setLooping(true);
       _controller!.setVolume(0);

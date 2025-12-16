@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/services/video_cache_service.dart';
 import '../../data/models/wiro_effect_type.dart';
 import '../../data/models/wiro_model_type.dart';
 
@@ -95,7 +96,8 @@ class _EffectGalleryScreenState extends State<EffectGalleryScreen>
     final coverUrl = widget.modelType.getCoverUrl(effect.value);
 
     try {
-      final controller = VideoPlayerController.networkUrl(Uri.parse(coverUrl));
+      // Use cached video player for better performance
+      final controller = await CachedVideoPlayerController.create(coverUrl);
       await controller.initialize();
       controller.setLooping(true);
       controller.setVolume(0);

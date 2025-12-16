@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/services/video_cache_service.dart';
 import '../../data/models/wiro_effect_type.dart';
 import '../../data/models/wiro_model_type.dart';
 
@@ -59,9 +60,8 @@ class _EffectDetailScreenState extends State<EffectDetailScreen> {
 
   Future<void> _initializeVideo() async {
     try {
-      _videoController = VideoPlayerController.networkUrl(
-        Uri.parse(_coverUrl),
-      );
+      // Use cached video player for better performance
+      _videoController = await CachedVideoPlayerController.create(_coverUrl);
       await _videoController!.initialize();
       _videoController!.setLooping(true);
       _videoController!.setVolume(0);

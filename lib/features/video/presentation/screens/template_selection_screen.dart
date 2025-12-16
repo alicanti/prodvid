@@ -5,6 +5,7 @@ import 'package:video_player/video_player.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/bottom_nav_bar.dart';
+import '../../../../core/services/video_cache_service.dart';
 import '../../data/models/wiro_effect_type.dart';
 import '../../data/models/wiro_model_type.dart';
 
@@ -418,9 +419,8 @@ class _EffectCardState extends State<_EffectCard> {
     }
 
     try {
-      _controller = VideoPlayerController.networkUrl(
-        Uri.parse(effect.coverUrl!),
-      );
+      // Use cached video player for better performance
+      _controller = await CachedVideoPlayerController.create(effect.coverUrl!);
       await _controller!.initialize();
       _controller!.setLooping(true);
       _controller!.setVolume(0);
