@@ -8,6 +8,7 @@ analyzer:
     - "lib/generated/**"
   errors:
     invalid_annotation_target: ignore
+    todo: ignore  # TODOs are intentional placeholders
   language:
     strict-casts: true
     strict-inference: true
@@ -20,7 +21,7 @@ linter:
     avoid_empty_else: true
     avoid_relative_lib_imports: true
     avoid_returning_null_for_future: true
-    avoid_slow_async_io: true
+    avoid_slow_async_io: false  # Async file checks are acceptable for our use case
     avoid_type_to_string: true
     cancel_subscriptions: true
     close_sinks: true
@@ -31,7 +32,7 @@ linter:
     avoid_bool_literals_in_conditional_expressions: true
     avoid_catches_without_on_clauses: false
     avoid_catching_errors: true
-    avoid_classes_with_only_static_members: true
+    avoid_classes_with_only_static_members: false  # Utility classes like AppColors are acceptable
     avoid_double_and_int_checks: true
     avoid_field_initializers_in_const_classes: true
     avoid_implementing_value_types: true
@@ -45,7 +46,7 @@ linter:
     avoid_types_on_closure_parameters: true
     avoid_unused_constructor_parameters: true
     avoid_void_async: true
-    cascade_invocations: true
+    cascade_invocations: false  # Stylistic preference, readability varies
     cast_nullable_to_non_nullable: true
     combinators_ordering: true
     conditional_uri_does_not_exist: true
@@ -53,7 +54,7 @@ linter:
     directives_ordering: true
     eol_at_end_of_file: false  # Handled by IDE/formatter
     flutter_style_todos: false  # Disabled: TODOs are placeholders for implementation
-    join_return_with_assignment: true
+    join_return_with_assignment: false  # Separate assignment improves readability
     leading_newlines_in_multiline_strings: true
     missing_whitespace_between_adjacent_strings: true
     no_adjacent_strings_in_list: true
@@ -90,7 +91,7 @@ linter:
     sort_unnamed_constructors_first: true
     tighten_type_of_initializing_formals: true
     type_annotate_public_apis: true
-    unawaited_futures: true
+    unawaited_futures: false  # Fire-and-forget preloading is intentional
     unnecessary_await_in_return: true
     unnecessary_lambdas: true
     unnecessary_null_aware_assignments: true
