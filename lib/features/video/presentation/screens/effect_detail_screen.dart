@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../data/models/wiro_effect_type.dart';
@@ -35,10 +36,45 @@ class _EffectDetailScreenState extends State<EffectDetailScreen> {
 
   final ImagePicker _picker = ImagePicker();
 
+  // Video preview
+  VideoPlayerController? _videoController;
+  bool _isVideoInitialized = false;
+  bool _hasVideoError = false;
+
+  /// Get the cover URL for this effect
+  String get _coverUrl => widget.modelType.getCoverUrl(widget.effectType);
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeVideo();
+  }
+
   @override
   void dispose() {
     _captionController.dispose();
+    _videoController?.dispose();
     super.dispose();
+  }
+
+  Future<void> _initializeVideo() async {
+    try {
+      _videoController = VideoPlayerController.networkUrl(
+        Uri.parse(_coverUrl),
+      );
+      await _videoController!.initialize();
+      _videoController!.setLooping(true);
+      _videoController!.setVolume(0);
+      _videoController!.play();
+
+      if (mounted) {
+        setState(() => _isVideoInitialized = true);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _hasVideoError = true);
+      }
+    }
   }
 
   bool get _canGenerate {
@@ -207,15 +243,10 @@ class _EffectDetailScreenState extends State<EffectDetailScreen> {
 
   Widget _buildEffectPreview() {
     return Container(
-      height: 200,
+      height: 220,
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: _getEffectGradient(),
-        ),
         boxShadow: [
           BoxShadow(
             color: _getEffectGradient().first.withValues(alpha: 0.4),
@@ -224,76 +255,126 @@ class _EffectDetailScreenState extends State<EffectDetailScreen> {
           ),
         ],
       ),
-      child: Stack(
-        children: [
-          // Pattern overlay
-          Positioned.fill(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: CustomPaint(
-                painter: _PatternPainter(),
-              ),
-            ),
-          ),
-
-          // Center icon
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                  child: Icon(
-                    _getModelIcon(),
-                    size: 48,
-                    color: Colors.white,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Video or gradient fallback
+            if (_isVideoInitialized && !_hasVideoError && _videoController != null)
+              FittedBox(
+                fit: BoxFit.cover,
+                child: SizedBox(
+                  width: _videoController!.value.size.width,
+                  height: _videoController!.value.size.height,
+                  child: VideoPlayer(_videoController!),
+                ),
+              )
+            else
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: _getEffectGradient(),
                   ),
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  widget.effectLabel,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Play button hint
-          Positioned(
-            bottom: 16,
-            right: 16,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.play_circle_outline, color: Colors.white, size: 16),
-                  SizedBox(width: 4),
-                  Text(
-                    'Preview',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
+                child: Stack(
+                  children: [
+                    // Pattern overlay
+                    CustomPaint(
+                      size: Size.infinite,
+                      painter: _PatternPainter(),
                     ),
-                  ),
-                ],
+                    // Loading or icon
+                    Center(
+                      child: _hasVideoError
+                          ? Icon(
+                              _getModelIcon(),
+                              size: 48,
+                              color: Colors.white.withValues(alpha: 0.8),
+                            )
+                          : SizedBox(
+                              width: 32,
+                              height: 32,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 3,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white.withValues(alpha: 0.8),
+                                ),
+                              ),
+                            ),
+                    ),
+                  ],
+                ),
+              ),
+
+            // Bottom gradient overlay
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withValues(alpha: 0.6),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+
+            // Effect name at bottom
+            Positioned(
+              bottom: 16,
+              left: 16,
+              right: 16,
+              child: Text(
+                widget.effectLabel,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+
+            // Video playing indicator
+            if (_isVideoInitialized && !_hasVideoError)
+              Positioned(
+                top: 12,
+                right: 12,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      const Text(
+                        'Preview',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
