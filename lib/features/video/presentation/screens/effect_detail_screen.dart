@@ -77,6 +77,18 @@ class _EffectDetailScreenState extends State<EffectDetailScreen> {
     }
   }
 
+  /// Open full-screen effect gallery
+  void _openGallery() {
+    // Find current effect index
+    final effects = WiroEffects.getEffectsForModel(widget.modelType);
+    final currentIndex = effects.indexWhere((e) => e.value == widget.effectType);
+
+    context.push('/effect-gallery', extra: {
+      'modelType': widget.modelType,
+      'initialIndex': currentIndex >= 0 ? currentIndex : 0,
+    });
+  }
+
   bool get _canGenerate {
     switch (widget.modelType.inputType) {
       case WiroInputType.textOnly:
@@ -190,8 +202,11 @@ class _EffectDetailScreenState extends State<EffectDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Effect Preview Card
-                  _buildEffectPreview()
+                  // Effect Preview Card (tappable to open gallery)
+                  GestureDetector(
+                    onTap: _openGallery,
+                    child: _buildEffectPreview(),
+                  )
                       .animate()
                       .fadeIn(duration: 400.ms)
                       .slideY(begin: -0.1, end: 0),
@@ -373,6 +388,24 @@ class _EffectDetailScreenState extends State<EffectDetailScreen> {
                   ),
                 ),
               ),
+
+            // Expand icon (tap to open gallery)
+            Positioned(
+              top: 12,
+              left: 12,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.fullscreen,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+            ),
           ],
         ),
       ),

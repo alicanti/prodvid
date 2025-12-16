@@ -9,6 +9,7 @@ import '../features/profile/presentation/screens/profile_screen.dart';
 import '../features/splash/presentation/screens/splash_screen.dart';
 import '../features/video/data/models/wiro_model_type.dart';
 import '../features/video/presentation/screens/effect_detail_screen.dart';
+import '../features/video/presentation/screens/effect_gallery_screen.dart';
 import '../features/video/presentation/screens/template_selection_screen.dart';
 import '../features/video/presentation/screens/video_creation_screen.dart';
 import '../features/video/presentation/screens/video_export_screen.dart';
@@ -22,6 +23,7 @@ abstract class AppRoutes {
   static const String create = '/create';
   static const String templates = '/templates';
   static const String effectDetail = '/effect-detail';
+  static const String effectGallery = '/effect-gallery';
   static const String videoExport = '/video-export';
   static const String profile = '/profile';
   static const String settings = '/settings';
@@ -85,6 +87,19 @@ final routerProvider = Provider<GoRouter>((ref) {
                 WiroModelType.productAds,
             effectType: extra?['effectType'] as String? ?? '',
             effectLabel: extra?['effectLabel'] as String? ?? 'Effect',
+          );
+        },
+      ),
+
+      // Effect Gallery (full screen swipe)
+      GoRoute(
+        path: AppRoutes.effectGallery,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return EffectGalleryScreen(
+            modelType: extra?['modelType'] as WiroModelType? ??
+                WiroModelType.productAds,
+            initialEffectIndex: extra?['initialIndex'] as int? ?? 0,
           );
         },
       ),
