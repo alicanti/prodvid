@@ -43,8 +43,8 @@ enum WiroModelType {
   final WiroInputType inputType;
   final String coverFolder;
 
-  /// CDN base URL
-  static const String cdnBase = 'https://cdn.wiro.ai/uploads/effects';
+  /// CDN base URL for sample inputs/covers
+  static const String cdnBase = 'https://cdn.wiro.ai/uploads/sampleinputs';
 
   /// Get cover URL for an effect value
   String getCoverUrl(String effectValue) =>
