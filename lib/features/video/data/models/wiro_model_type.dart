@@ -77,4 +77,3 @@ enum WiroInputType {
 
   final String label;
 }
-

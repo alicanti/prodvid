@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/bottom_nav_bar.dart';
 
 /// User profile screen matching Stitch design - prodvid_user_profile
 class ProfileScreen extends StatelessWidget {
@@ -483,61 +484,15 @@ class ProfileScreen extends StatelessWidget {
       ),
 
       // Bottom navigation
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: AppColors.surfaceLight,
-          border: Border(top: BorderSide(color: AppColors.borderDark)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 10,
-              offset: const Offset(0, -4),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _NavItem(
-                  icon: Icons.home,
-                  label: 'Home',
-                  isSelected: false,
-                  onTap: () => context.go('/home'),
-                ),
-                GestureDetector(
-                  onTap: () => context.push('/create'),
-                  child: Container(
-                    width: 56,
-                    height: 56,
-                    margin: const EdgeInsets.only(bottom: 8),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.4),
-                          blurRadius: 20,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(Icons.add, color: Colors.white, size: 30),
-                  ),
-                ),
-                _NavItem(
-                  icon: Icons.person,
-                  label: 'Profile',
-                  isSelected: true,
-                  onTap: () {},
-                ),
-              ],
-            ),
-          ),
-        ),
+      bottomNavigationBar: AppBottomNavBar(
+        currentIndex: 2, // Profile tab
+        onTap: (index) {
+          if (index == 0) {
+            context.go('/home');
+          } else if (index == 1) {
+            context.go('/templates');
+          }
+        },
       ),
     );
   }
@@ -620,43 +575,3 @@ class _SettingsItem extends StatelessWidget {
   }
 }
 
-class _NavItem extends StatelessWidget {
-  const _NavItem({
-    required this.icon,
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: 28,
-            color: isSelected ? AppColors.primary : AppColors.slate400,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              color: isSelected ? AppColors.primary : AppColors.slate400,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

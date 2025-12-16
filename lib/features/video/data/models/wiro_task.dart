@@ -177,7 +177,8 @@ class WiroRunTaskResponse {
   factory WiroRunTaskResponse.fromJson(Map<String, dynamic> json) {
     return WiroRunTaskResponse(
       taskId: json['taskId'] as String? ?? json['taskid'] as String? ?? '',
-      socketAccessToken: json['socketAccessToken'] as String? ??
+      socketAccessToken:
+          json['socketAccessToken'] as String? ??
           json['socketaccesstoken'] as String? ??
           '',
       result: json['result'] as bool? ?? false,
@@ -207,7 +208,8 @@ class WiroTaskOutput {
     return WiroTaskOutput(
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
-      contentType: json['contentType'] as String? ??
+      contentType:
+          json['contentType'] as String? ??
           json['contenttype'] as String? ??
           '',
       url: json['url'] as String? ?? '',
@@ -253,7 +255,8 @@ class WiroTaskDetail {
     return WiroTaskDetail(
       id: json['id'] as String? ?? '',
       uuid: json['uuid'] as String? ?? '',
-      socketAccessToken: json['socketaccesstoken'] as String? ??
+      socketAccessToken:
+          json['socketaccesstoken'] as String? ??
           json['socketAccessToken'] as String? ??
           '',
       status: WiroTaskStatus.fromValue(json['status'] as String? ?? ''),
@@ -262,10 +265,11 @@ class WiroTaskDetail {
           .toList(),
       elapsedSeconds:
           double.tryParse(json['elapsedSeconds']?.toString() ?? '') ??
-              double.tryParse(json['elapsedseconds']?.toString() ?? ''),
+          double.tryParse(json['elapsedseconds']?.toString() ?? ''),
       startTime: _parseTimestamp(json['starttime']),
       endTime: _parseTimestamp(json['endtime']),
-      debugError: json['debugerror'] as String? ?? json['debugError'] as String?,
+      debugError:
+          json['debugerror'] as String? ?? json['debugError'] as String?,
     );
   }
 

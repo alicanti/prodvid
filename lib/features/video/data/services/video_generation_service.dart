@@ -156,7 +156,8 @@ class VideoGenerationService {
       case WiroModelType.productAdsWithCaption:
         if (project.inputImageUrl == null) {
           throw Exception(
-              'Product image is required for Product Ads with Caption');
+            'Product image is required for Product Ads with Caption',
+          );
         }
         if (project.caption == null || project.caption!.isEmpty) {
           throw Exception('Caption is required for Product Ads with Caption');
@@ -166,7 +167,8 @@ class VideoGenerationService {
       case WiroModelType.productAdsWithLogo:
         if (project.inputImageUrl == null) {
           throw Exception(
-              'Product image is required for Product Ads with Logo');
+            'Product image is required for Product Ads with Logo',
+          );
         }
         if (project.logoImageUrl == null) {
           throw Exception('Logo image is required for Product Ads with Logo');
@@ -184,9 +186,7 @@ class VideoGenerationService {
       return project;
     }
 
-    final task = await _wiroService.getTaskDetail(
-      taskId: project.wiroTaskId,
-    );
+    final task = await _wiroService.getTaskDetail(taskId: project.wiroTaskId);
 
     if (task == null) {
       return project.copyWith(

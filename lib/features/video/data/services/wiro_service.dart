@@ -131,10 +131,7 @@ class WiroService {
   }
 
   /// Kill a running task
-  Future<bool> killTask({
-    String? taskId,
-    String? socketToken,
-  }) async {
+  Future<bool> killTask({String? taskId, String? socketToken}) async {
     assert(
       taskId != null || socketToken != null,
       'Either taskId or socketToken must be provided',

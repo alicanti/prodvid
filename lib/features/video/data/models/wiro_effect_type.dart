@@ -6,26 +6,14 @@ import 'wiro_model_type.dart';
 
 /// Effect types for 3D Text Animations model
 enum WiroTextAnimationEffect {
-  silverBalloonsParis(
-    'titles-silver-balloons-paris',
-    'Silver Balloons Paris',
-  ),
-  bubblegumLetters(
-    'titles-bubblegum-letters',
-    'Bubblegum Letters',
-  ),
-  rainyCityStreet(
-    'titles-rainy-city-street',
-    'Rainy City Street',
-  ),
+  silverBalloonsParis('titles-silver-balloons-paris', 'Silver Balloons Paris'),
+  bubblegumLetters('titles-bubblegum-letters', 'Bubblegum Letters'),
+  rainyCityStreet('titles-rainy-city-street', 'Rainy City Street'),
   inflatableLettersPool(
     'titles-inflatable-letters-pool',
     'Inflatable Letters Pool',
   ),
-  shopWindowNeon(
-    'titles-shop-window-neon',
-    'Shop Window Neon',
-  ),
+  shopWindowNeon('titles-shop-window-neon', 'Shop Window Neon'),
   glossyHeliumBalloons(
     'titles-glossy-helium-balloons',
     'Glossy Helium Balloons',
@@ -34,30 +22,15 @@ enum WiroTextAnimationEffect {
     'titles-golden-balloons-confetti',
     'Golden Balloons Confetti',
   ),
-  giftBox(
-    'titles-gift-box',
-    'Gift Box',
-  ),
-  islandShapedText(
-    'titles-island-shaped-text',
-    'Island Shaped Text',
-  ),
+  giftBox('titles-gift-box', 'Gift Box'),
+  islandShapedText('titles-island-shaped-text', 'Island Shaped Text'),
   enveloppeBloomingFlowers(
     'titles-enveloppe-blooming-flowers',
     'Enveloppe Blooming Flowers',
   ),
-  colorfulToyBlocks(
-    'titles-colorful-toy-blocks',
-    'Colorful Toy Blocks',
-  ),
-  hangingTags(
-    'titles-hanging-tags',
-    'Hanging Tags',
-  ),
-  watermelonSplash(
-    'titles-watermelon-splash',
-    'Watermelon Splash',
-  ),
+  colorfulToyBlocks('titles-colorful-toy-blocks', 'Colorful Toy Blocks'),
+  hangingTags('titles-hanging-tags', 'Hanging Tags'),
+  watermelonSplash('titles-watermelon-splash', 'Watermelon Splash'),
   cookingIngredientsRusticTable(
     'titles-cooking-ingredients-rustic-table',
     'Cooking Ingredients Rustic Table',
@@ -66,22 +39,13 @@ enum WiroTextAnimationEffect {
     'titles-inflated-pastel-letters-confetti',
     'Inflated Pastel Letters Confetti',
   ),
-  birthdayCake(
-    'titles-birthday-cake',
-    'Birthday Cake',
-  ),
-  goldScript(
-    'titles-gold-script',
-    'Gold Script',
-  ),
+  birthdayCake('titles-birthday-cake', 'Birthday Cake'),
+  goldScript('titles-gold-script', 'Gold Script'),
   pinkFurFloweredField(
     'titles-pink-fur-flowered-field',
     'Pink Fur Flowered Field',
   ),
-  candyLand(
-    'titles-candy-land',
-    'Candy Land',
-  ),
+  candyLand('titles-candy-land', 'Candy Land'),
   rockLettersBeachWaves(
     'titles-rock-letters-beach-waves',
     'Rock Letters Beach Waves',
@@ -90,10 +54,7 @@ enum WiroTextAnimationEffect {
     'titles-dreamy-clouds-gradient-sky',
     'Dreamy Clouds Gradient Sky',
   ),
-  redNeonStreetNight(
-    'titles-red-neon-street-night',
-    'Red Neon Street Night',
-  );
+  redNeonStreetNight('titles-red-neon-street-night', 'Red Neon Street Night');
 
   const WiroTextAnimationEffect(this.value, this.label);
 
@@ -134,11 +95,7 @@ enum WiroProductAdsEffect {
     'Water Dark Electric Hues',
     WiroProductAdsCategory.animateProducts,
   ),
-  snow(
-    'animate-products-snow',
-    'Snow',
-    WiroProductAdsCategory.animateProducts,
-  ),
+  snow('animate-products-snow', 'Snow', WiroProductAdsCategory.animateProducts),
   glitterSilver(
     'animate-products-glitter-silver',
     'Glitter Silver',
@@ -637,7 +594,9 @@ enum WiroProductAdsEffect {
     }
   }
 
-  static List<WiroProductAdsEffect> byCategory(WiroProductAdsCategory category) {
+  static List<WiroProductAdsEffect> byCategory(
+    WiroProductAdsCategory category,
+  ) {
     return WiroProductAdsEffect.values
         .where((e) => e.category == category)
         .toList();
@@ -876,14 +835,17 @@ enum WiroProductCaptionEffect {
 
   static WiroProductCaptionEffect? fromValue(String value) {
     try {
-      return WiroProductCaptionEffect.values.firstWhere((e) => e.value == value);
+      return WiroProductCaptionEffect.values.firstWhere(
+        (e) => e.value == value,
+      );
     } catch (_) {
       return null;
     }
   }
 
   static List<WiroProductCaptionEffect> byCategory(
-      WiroProductCaptionCategory category) {
+    WiroProductCaptionCategory category,
+  ) {
     return WiroProductCaptionEffect.values
         .where((e) => e.category == category)
         .toList();
@@ -1021,19 +983,23 @@ class WiroEffects {
             .toList();
       case WiroModelType.productAds:
         return WiroProductAdsEffect.values
-            .map((e) => EffectOption(
-                  value: e.value,
-                  label: e.label,
-                  category: e.category.label,
-                ))
+            .map(
+              (e) => EffectOption(
+                value: e.value,
+                label: e.label,
+                category: e.category.label,
+              ),
+            )
             .toList();
       case WiroModelType.productAdsWithCaption:
         return WiroProductCaptionEffect.values
-            .map((e) => EffectOption(
-                  value: e.value,
-                  label: e.label,
-                  category: e.category.label,
-                ))
+            .map(
+              (e) => EffectOption(
+                value: e.value,
+                label: e.label,
+                category: e.category.label,
+              ),
+            )
             .toList();
       case WiroModelType.productAdsWithLogo:
         return WiroProductLogoEffect.values
@@ -1059,11 +1025,7 @@ class WiroEffects {
 
 /// Generic effect option for UI display
 class EffectOption {
-  const EffectOption({
-    required this.value,
-    required this.label,
-    this.category,
-  });
+  const EffectOption({required this.value, required this.label, this.category});
 
   final String value;
   final String label;

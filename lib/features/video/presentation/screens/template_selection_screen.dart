@@ -4,8 +4,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/bottom_nav_bar.dart';
+import '../../data/models/wiro_effect_type.dart';
+import '../../data/models/wiro_model_type.dart';
 
-/// Video template selection screen matching Stitch design - video_template_selection
+/// Video template selection screen with Wiro models and effects
 class TemplateSelectionScreen extends StatefulWidget {
   const TemplateSelectionScreen({super.key});
 
@@ -15,14 +17,47 @@ class TemplateSelectionScreen extends StatefulWidget {
 }
 
 class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
-  int _selectedFilter = 0;
-  final List<String> _filters = [
-    'All',
-    'Motion',
-    'Background',
-    'Lighting',
-    '3D',
-  ];
+  // Selected model type (top tabs)
+  WiroModelType _selectedModel = WiroModelType.productAds;
+
+  // Selected category within model (filter chips)
+  String? _selectedCategory;
+
+  // Search query
+  String _searchQuery = '';
+
+  // Get effects for the selected model
+  List<EffectOption> get _filteredEffects {
+    var effects = WiroEffects.getEffectsForModel(_selectedModel);
+
+    // Filter by category if selected
+    if (_selectedCategory != null && _selectedCategory!.isNotEmpty) {
+      effects =
+          effects.where((e) => e.category == _selectedCategory).toList();
+    }
+
+    // Filter by search query
+    if (_searchQuery.isNotEmpty) {
+      effects = effects
+          .where(
+            (e) => e.label.toLowerCase().contains(_searchQuery.toLowerCase()),
+          )
+          .toList();
+    }
+
+    return effects;
+  }
+
+  // Get unique categories for the selected model
+  List<String> get _categories {
+    final effects = WiroEffects.getEffectsForModel(_selectedModel);
+    final categories = effects
+        .where((e) => e.category != null)
+        .map((e) => e.category!)
+        .toSet()
+        .toList();
+    return ['All', ...categories];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,11 +89,14 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 48), // Balance the back button
+                  const SizedBox(width: 48),
                 ],
               ),
             ),
           ),
+
+          // Model Type Tabs
+          _buildModelTabs(),
 
           // Search bar
           Padding(
@@ -77,6 +115,11 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
                   Expanded(
                     child: TextField(
                       style: const TextStyle(color: Colors.white),
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value;
+                        });
+                      },
                       decoration: InputDecoration(
                         hintText: 'Search effects...',
                         hintStyle: TextStyle(
@@ -87,152 +130,374 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
                       ),
                     ),
                   ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: Icon(Icons.tune, color: AppColors.textSecondaryDark),
-                  ),
+                  if (_searchQuery.isNotEmpty)
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _searchQuery = '';
+                        });
+                      },
+                      icon: Icon(Icons.close, color: AppColors.textSecondaryDark),
+                    ),
                 ],
               ),
             ),
           ),
 
-          // Filter chips
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
+          // Category Filter Chips (only for models with categories)
+          if (_categories.length > 1) _buildCategoryChips(),
+
+          const SizedBox(height: 8),
+
+          // Effect count
+          Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
-              children: _filters.asMap().entries.map((entry) {
-                final isSelected = entry.key == _selectedFilter;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 12),
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedFilter = entry.key;
-                      });
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? AppColors.primary
-                            : AppColors.surfaceCard,
-                        borderRadius: BorderRadius.circular(9999),
-                        border: isSelected
-                            ? null
-                            : Border.all(color: Colors.transparent),
-                        boxShadow: isSelected
-                            ? [
-                                BoxShadow(
-                                  color: AppColors.primary.withValues(
-                                    alpha: 0.3,
-                                  ),
-                                  blurRadius: 8,
-                                ),
-                              ]
-                            : null,
-                      ),
-                      child: Text(
-                        entry.value,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: isSelected
-                              ? FontWeight.w700
-                              : FontWeight.w500,
-                          color: isSelected ? Colors.white : Colors.white,
-                        ),
-                      ),
-                    ),
+              children: [
+                Text(
+                  '${_filteredEffects.length} effects',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textSecondaryDark,
+                    fontWeight: FontWeight.w500,
                   ),
-                );
-              }).toList(),
+                ),
+              ],
             ),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
 
-          // Templates grid
+          // Effects grid
           Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 0.65,
-              ),
-              itemCount: _templates.length,
-              itemBuilder: (context, index) {
-                final template = _templates[index];
-                return _TemplateCard(
-                      template: template,
-                      index: index,
-                      onTap: () {
-                        // Navigate to creation with selected template
-                        context.push('/create', extra: template);
-                      },
-                    )
-                    .animate()
-                    .fadeIn(
-                      delay: Duration(milliseconds: 100 * index),
-                      duration: 400.ms,
-                    )
-                    .scale(begin: const Offset(0.95, 0.95));
-              },
-            ),
+            child: _filteredEffects.isEmpty
+                ? _buildEmptyState()
+                : GridView.builder(
+                    padding: const EdgeInsets.all(16),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                      childAspectRatio: 0.75,
+                    ),
+                    itemCount: _filteredEffects.length,
+                    itemBuilder: (context, index) {
+                      final effect = _filteredEffects[index];
+                      return _EffectCard(
+                            effect: effect,
+                            index: index,
+                            modelType: _selectedModel,
+                            onTap: () => _onEffectSelected(effect),
+                          )
+                          .animate()
+                          .fadeIn(
+                            delay: Duration(milliseconds: 50 * (index % 6)),
+                            duration: 300.ms,
+                          )
+                          .scale(begin: const Offset(0.95, 0.95));
+                    },
+                  ),
           ),
         ],
       ),
       bottomNavigationBar: AppBottomNavBar(
-        currentIndex: 1,
+        currentIndex: 1, // Effects tab
         onTap: (index) {
           if (index == 0) context.go('/home');
-          if (index == 2) context.push('/profile');
+          if (index == 2) context.go('/profile');
         },
       ),
     );
   }
+
+  Widget _buildModelTabs() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: WiroModelType.values.map((model) {
+            final isSelected = model == _selectedModel;
+            return Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _selectedModel = model;
+                    _selectedCategory = null;
+                    _searchQuery = '';
+                  });
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: isSelected
+                        ? LinearGradient(
+                            colors: [
+                              AppColors.primary,
+                              AppColors.primary.withValues(alpha: 0.8),
+                            ],
+                          )
+                        : null,
+                    color: isSelected ? null : AppColors.surfaceCard,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isSelected
+                          ? AppColors.primary
+                          : AppColors.borderDark,
+                      width: isSelected ? 2 : 1,
+                    ),
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: AppColors.primary.withValues(alpha: 0.3),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _getModelIcon(model),
+                        color: isSelected
+                            ? Colors.white
+                            : AppColors.textSecondaryDark,
+                        size: 24,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        _getModelShortName(model),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight:
+                              isSelected ? FontWeight.w700 : FontWeight.w500,
+                          color: isSelected
+                              ? Colors.white
+                              : AppColors.textSecondaryDark,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryChips() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: _categories.map((category) {
+          final isSelected = _selectedCategory == category ||
+              (category == 'All' && _selectedCategory == null);
+          return Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _selectedCategory = category == 'All' ? null : category;
+                });
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color:
+                      isSelected ? AppColors.primary : AppColors.surfaceCard,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: AppColors.primary.withValues(alpha: 0.3),
+                            blurRadius: 8,
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Text(
+                  category,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                    color: isSelected ? Colors.white : Colors.white70,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.search_off,
+            size: 64,
+            color: AppColors.textSecondaryDark.withValues(alpha: 0.5),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'No effects found',
+            style: TextStyle(
+              fontSize: 16,
+              color: AppColors.textSecondaryDark,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Try a different search or category',
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.textSecondaryDark.withValues(alpha: 0.7),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  IconData _getModelIcon(WiroModelType model) {
+    switch (model) {
+      case WiroModelType.textAnimations:
+        return Icons.text_fields;
+      case WiroModelType.productAds:
+        return Icons.image;
+      case WiroModelType.productAdsWithCaption:
+        return Icons.subtitles;
+      case WiroModelType.productAdsWithLogo:
+        return Icons.branding_watermark;
+    }
+  }
+
+  String _getModelShortName(WiroModelType model) {
+    switch (model) {
+      case WiroModelType.textAnimations:
+        return '3D Text';
+      case WiroModelType.productAds:
+        return 'Product';
+      case WiroModelType.productAdsWithCaption:
+        return 'Caption';
+      case WiroModelType.productAdsWithLogo:
+        return 'Logo';
+    }
+  }
+
+  void _onEffectSelected(EffectOption effect) {
+    // Navigate to creation with selected effect and model type
+    context.push('/create', extra: {
+      'modelType': _selectedModel,
+      'effectType': effect.value,
+      'effectLabel': effect.label,
+    });
+  }
 }
 
-class _TemplateCard extends StatelessWidget {
-  const _TemplateCard({
-    required this.template,
+class _EffectCard extends StatelessWidget {
+  const _EffectCard({
+    required this.effect,
     required this.index,
+    required this.modelType,
     required this.onTap,
   });
 
-  final EffectTemplate template;
+  final EffectOption effect;
   final int index;
+  final WiroModelType modelType;
   final VoidCallback onTap;
 
-  // Helper to get gradient colors for template
-  List<Color> _getTemplateGradient(int idx) {
+  // Gradients for different effect categories
+  List<Color> _getGradient() {
+    final category = effect.category ?? '';
+    
+    // Text Animations
+    if (category.isEmpty && modelType == WiroModelType.textAnimations) {
+      return [const Color(0xFF667eea), const Color(0xFF764ba2)];
+    }
+    
+    // Product Ads categories
+    if (category.contains('Animate')) {
+      return [const Color(0xFF00f2fe), const Color(0xFF4facfe)];
+    }
+    if (category.contains('Scene')) {
+      return [const Color(0xFFf5af19), const Color(0xFFf12711)];
+    }
+    if (category.contains('Surreal')) {
+      return [const Color(0xFFa18cd1), const Color(0xFFfbc2eb)];
+    }
+    if (category.contains('Model')) {
+      return [const Color(0xFF667eea), const Color(0xFF764ba2)];
+    }
+    if (category.contains('Christmas')) {
+      return [const Color(0xFF11998e), const Color(0xFF38ef7d)];
+    }
+    if (category.contains('Black Friday')) {
+      return [const Color(0xFF232526), const Color(0xFF414345)];
+    }
+    if (category.contains('Text')) {
+      return [const Color(0xFFfa709a), const Color(0xFFfee140)];
+    }
+    
+    // Logo effects
+    if (modelType == WiroModelType.productAdsWithLogo) {
+      return [const Color(0xFF2c3e50), const Color(0xFF4ca1af)];
+    }
+
+    // Default gradient based on index
     const gradients = [
-      [Color(0xFFfa709a), Color(0xFFfee140)], // Pop Art Burst
-      [Color(0xFFf5f7fa), Color(0xFFc3cfe2)], // Clean Studio
-      [Color(0xFF667eea), Color(0xFF764ba2)], // Glitch Motion
-      [Color(0xFF2c3e50), Color(0xFF4ca1af)], // Moody Shadows
-      [Color(0xFF00f2fe), Color(0xFF4facfe)], // Neon Cyber
-      [Color(0xFFffecd2), Color(0xFFfcb69f)], // Sunlight Beam
+      [Color(0xFFfa709a), Color(0xFFfee140)],
+      [Color(0xFF00f2fe), Color(0xFF4facfe)],
+      [Color(0xFF667eea), Color(0xFF764ba2)],
+      [Color(0xFF2c3e50), Color(0xFF4ca1af)],
+      [Color(0xFFffecd2), Color(0xFFfcb69f)],
+      [Color(0xFF11998e), Color(0xFF38ef7d)],
     ];
-    return gradients[idx % gradients.length];
+    return gradients[index % gradients.length];
   }
 
-  // Helper to get icon for template
-  IconData _getTemplateIcon(int idx) {
-    const icons = [
-      Icons.palette, // Pop Art
-      Icons.light_mode, // Clean Studio
-      Icons.bolt, // Glitch
-      Icons.dark_mode, // Moody
-      Icons.blur_on, // Neon
-      Icons.wb_sunny, // Sunlight
-    ];
-    return icons[idx % icons.length];
+  IconData _getIcon() {
+    final label = effect.label.toLowerCase();
+    
+    if (label.contains('balloon')) return Icons.celebration;
+    if (label.contains('neon')) return Icons.lightbulb;
+    if (label.contains('water') || label.contains('splash')) return Icons.water_drop;
+    if (label.contains('fire') || label.contains('hot')) return Icons.local_fire_department;
+    if (label.contains('snow') || label.contains('winter')) return Icons.ac_unit;
+    if (label.contains('christmas') || label.contains('santa')) return Icons.card_giftcard;
+    if (label.contains('gold') || label.contains('golden')) return Icons.star;
+    if (label.contains('smoke') || label.contains('mist')) return Icons.cloud;
+    if (label.contains('car') || label.contains('road')) return Icons.directions_car;
+    if (label.contains('city') || label.contains('urban')) return Icons.location_city;
+    if (label.contains('beach') || label.contains('sea')) return Icons.beach_access;
+    if (label.contains('model') || label.contains('studio')) return Icons.person;
+    if (label.contains('text') || label.contains('font')) return Icons.text_fields;
+    if (label.contains('logo') || label.contains('brand')) return Icons.branding_watermark;
+    if (label.contains('billboard')) return Icons.dashboard;
+    if (label.contains('confetti')) return Icons.celebration;
+    if (label.contains('flower') || label.contains('petal')) return Icons.local_florist;
+    
+    return Icons.auto_awesome;
   }
 
   @override
@@ -242,7 +507,7 @@ class _TemplateCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image
+          // Effect Preview
           Expanded(
             child: Container(
               decoration: BoxDecoration(
@@ -260,52 +525,59 @@ class _TemplateCard extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    // Gradient placeholder for template
+                    // Gradient background
                     Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: _getTemplateGradient(index),
-                        ),
-                      ),
-                      child: Center(
-                        child: Icon(
-                          _getTemplateIcon(index),
-                          size: 48,
-                          color: Colors.white.withValues(alpha: 0.7),
+                          colors: _getGradient(),
                         ),
                       ),
                     ),
 
-                    // Hover overlay
+                    // Icon
+                    Center(
+                      child: Icon(
+                        _getIcon(),
+                        size: 48,
+                        color: Colors.white.withValues(alpha: 0.8),
+                      ),
+                    ),
+
+                    // Overlay
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.1),
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withValues(alpha: 0.3),
+                          ],
+                        ),
                       ),
                     ),
 
-                    // Badge
-                    if (template.badge != null)
+                    // Category badge
+                    if (effect.category != null)
                       Positioned(
                         top: 8,
-                        right: 8,
+                        left: 8,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: template.badge == 'Hot'
-                                ? AppColors.primary.withValues(alpha: 0.9)
-                                : Colors.black.withValues(alpha: 0.5),
+                            color: Colors.black.withValues(alpha: 0.5),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
-                            template.badge!,
+                            _getCategoryShortName(effect.category!),
                             style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w600,
                               color: Colors.white,
                               letterSpacing: 0.5,
                             ),
@@ -313,19 +585,19 @@ class _TemplateCard extends StatelessWidget {
                         ),
                       ),
 
-                    // Magic icon on hover
+                    // Play icon overlay
                     Positioned.fill(
                       child: Center(
                         child: Container(
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(9999),
+                            borderRadius: BorderRadius.circular(50),
                           ),
                           child: const Icon(
-                            Icons.auto_awesome,
+                            Icons.play_arrow,
                             color: Colors.white,
-                            size: 32,
+                            size: 28,
                           ),
                         ),
                       ),
@@ -336,26 +608,16 @@ class _TemplateCard extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
-          // Title
+          // Effect title
           Text(
-            template.title,
+            effect.label,
             style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
               color: Colors.white,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-
-          const SizedBox(height: 4),
-
-          // Description
-          Text(
-            template.description,
-            style: TextStyle(fontSize: 12, color: AppColors.textSecondaryDark),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -363,72 +625,15 @@ class _TemplateCard extends StatelessWidget {
       ),
     );
   }
+
+  String _getCategoryShortName(String category) {
+    if (category.contains('Animate')) return 'ANIMATE';
+    if (category.contains('Scene')) return 'SCENE';
+    if (category.contains('Surreal')) return 'SURREAL';
+    if (category.contains('Model')) return 'MODEL';
+    if (category.contains('Christmas')) return 'XMAS';
+    if (category.contains('Black Friday')) return 'SALE';
+    if (category.contains('Text')) return 'TEXT';
+    return category.toUpperCase().substring(0, category.length.clamp(0, 6));
+  }
 }
-
-class EffectTemplate {
-  final String id;
-  final String title;
-  final String description;
-  final String imageUrl;
-  final String? badge;
-  final String aspectRatio;
-
-  const EffectTemplate({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.imageUrl,
-    this.badge,
-    this.aspectRatio = '9:16',
-  });
-}
-
-final List<EffectTemplate> _templates = [
-  EffectTemplate(
-    id: '1',
-    title: 'Pop Art Burst',
-    description: 'Vibrant colors & energetic motion',
-    imageUrl:
-        'https://lh3.googleusercontent.com/aida-public/AB6AXuCL6LERr702l_JwUxOTR2_DAt-BWJ_P2pFHZF_1PG3d5N7-ilAfRyptXclbgeQ7KvOkbX55bFz5Dj2gJxZwtCgmNw2gRzfJ1_xcqLkgAco6Qbgv1gBUlH4h00n019AjqiwrbmHTEkdfGyYusnTO5dLeDHGzcagBW0YVdv7t3Wgd3wzsZ0QnqQhQtP_d21M7GH0Dpv36SE_OAq4r6njxLJn_hxYj3o7wACIrRMMNz6fC7zjegFrzFYnxrdnz7Zrzb_JwXSgZFLEUWxM',
-    badge: 'New',
-  ),
-  EffectTemplate(
-    id: '2',
-    title: 'Clean Studio',
-    description: 'Professional white backdrop focus',
-    imageUrl:
-        'https://lh3.googleusercontent.com/aida-public/AB6AXuCYjVAdmHwiXImqbQ2oPayYJxRnt3CIzILFGbSoIXKhgzhgA5_U0Jnk22Rt9yjuA24eMkKzJna7eTDiE5qv8NFLyAbLmXSaejnyqvKowzVB_xSEezL2xm-wL2hFjKIdUWM94YqaCe6OYx7xM4yOFBKQ2_DiM5g7TeprYQ0siH310cy7Dvl6GA4TOrsSiTRcUkn6OaaRiTvRsJh34t1KtU4BI-yTQ3AzKny76ZN2G7EBfO3lZwsJ0Yt_REO6tlxitTiL-qU9DVE8wAE',
-    aspectRatio: '1:1',
-  ),
-  EffectTemplate(
-    id: '3',
-    title: 'Glitch Motion',
-    description: 'Modern digital distortion effect',
-    imageUrl:
-        'https://lh3.googleusercontent.com/aida-public/AB6AXuATDM-6OnWxPee_NRMFZobId3-Tdza2L6O776Mu2YeRG4RNyRDbq3snlHd9QJIKOQlIwFb9c3eJe5JQkd6xq3w888-X67DDsoF2KZdHwjcuhyHYkit6rTwr_Bu_CRxcb7pCVZAh_tbjoIVpbWLgh4eb80QCsDp1rVLc8xU6m7NQxa1zSIBxrifhk51Trkb9b7adkYRQsVybRMkCnVTeYnklB7v-S6W3_uYBVau6QuNglQoZw1Bxn4DxlcdoQf1zuuweFPoFrbyN8T0',
-    badge: 'Hot',
-  ),
-  EffectTemplate(
-    id: '4',
-    title: 'Moody Shadows',
-    description: 'Cinematic dark lighting setup',
-    imageUrl:
-        'https://lh3.googleusercontent.com/aida-public/AB6AXuDSUfi8Do35DzsUJnAAcXcxGFrzfIWwcccD1NpWhxUti9EDnU48HkcrAE2-4jWTRAzqdme4Zmljdd0XswYxE-NH-9eevmu1Qqprh6pShmzBo6DV-To1dbNz1d1lo81K4Fz2DAsW7n0BTqQJwhKKHsY5uVXRNwnuYWHqyDu3dvShEXWQnOCwuCi50hXFD166_U3eHe8kGL7doS6JuOTOcLt3zcMjiNs8VhP1p81JcLSXLkSr8O4LJ9bhj2KvTb6woO-WOBdBSo2PM2A',
-    aspectRatio: '4:5',
-  ),
-  EffectTemplate(
-    id: '5',
-    title: 'Neon Cyber',
-    description: 'Futuristic glowing edge outlines',
-    imageUrl:
-        'https://lh3.googleusercontent.com/aida-public/AB6AXuCRHETGWhJH4X3FoIEkpnk0UdDVjHk40NWq7m1o3FW0ByCeRF6jwztOmFl0fZtwxf1EokulLu7ZHApHCm3Wt6uaKWNDzC9j9EP5RClcoWMX-vI2QSNUFnVPXIepEugp-ZWMCALxRg91RUDCBq-DLckHw6rEtwJqDSzEALPzGmDdbDLpKqgffdX4J5Z5WIwhIkgbtDLBbf9Dn2ejMKKcVhz6_vCCm-QiYwtjsTc9NEgYKQrSRPXJojrJ1iV43tYub4LM3OBJrJjUIAs',
-  ),
-  EffectTemplate(
-    id: '6',
-    title: 'Sunlight Beam',
-    description: 'Warm natural lighting overlay',
-    imageUrl:
-        'https://lh3.googleusercontent.com/aida-public/AB6AXuDzl2rcD2JCrAJ9SEES2bs1Vl0MrqPnNSgcImfAUlLbccsFDd72R0UW5t-xe9ZziTZvKnTXzeBgfjXhNOwKKkCRWUjEHMdupDSdtH9ceUBFxNHZVWOedhAVzTJUW7IgLJgcggWRLbkixipynppvEEz-nzAGCWgjJ52VZUm17CtASD1B12rQP5KwZV2YgmjA_a-yH2Qkkcw-amJqnipS5Dzfd6KPkoBX3CAENTMuP_Ejn8AgKNDQW1-iMRI5E3vowlyvGAnd2b2E3kw',
-    aspectRatio: '1:1',
-  ),
-];

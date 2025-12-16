@@ -15,7 +15,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedFilter = 0;
-  int _currentNavIndex = 0;
 
   final List<String> _filters = ['All', 'Drafts', 'Rendering', 'Completed'];
 
@@ -216,13 +215,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
       // Bottom navigation
       bottomNavigationBar: AppBottomNavBar(
-        currentIndex: _currentNavIndex,
+        currentIndex: 0, // Projects tab
         onTap: (index) {
-          setState(() {
-            _currentNavIndex = index;
-          });
-          if (index == 2) {
-            context.push('/profile');
+          if (index == 1) {
+            context.go('/templates');
+          } else if (index == 2) {
+            context.go('/profile');
           }
         },
       ),
