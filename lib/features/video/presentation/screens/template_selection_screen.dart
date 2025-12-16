@@ -128,6 +128,7 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
                     itemBuilder: (context, index) {
                       final effect = _filteredEffects[index];
                       return _EffectCard(
+                            key: ValueKey('${_selectedModel.name}_${effect.value}'),
                             effect: effect,
                             index: index,
                             modelType: _selectedModel,
@@ -355,6 +356,7 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
 
 class _EffectCard extends StatefulWidget {
   const _EffectCard({
+    super.key,
     required this.effect,
     required this.index,
     required this.modelType,
@@ -386,14 +388,32 @@ class _EffectCardState extends State<_EffectCard> {
   }
 
   @override
+  void didUpdateWidget(covariant _EffectCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Reinitialize video if effect changed
+    if (oldWidget.effect.value != widget.effect.value ||
+        oldWidget.modelType != widget.modelType) {
+      _disposeVideo();
+      _initializeVideo();
+    }
+  }
+
+  @override
   void dispose() {
-    _controller?.dispose();
+    _disposeVideo();
     super.dispose();
+  }
+
+  void _disposeVideo() {
+    _controller?.dispose();
+    _controller = null;
+    _isInitialized = false;
+    _hasError = false;
   }
 
   Future<void> _initializeVideo() async {
     if (effect.coverUrl == null) {
-      setState(() => _hasError = true);
+      if (mounted) setState(() => _hasError = true);
       return;
     }
 
