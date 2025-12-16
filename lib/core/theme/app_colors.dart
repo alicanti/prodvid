@@ -53,6 +53,7 @@ abstract class AppColors {
   static const Color errorDark = Color(0xFFDC2626);
 
   // Accent Colors
+  static const Color accent = Color(0xFF8B5CF6);
   static const Color purple = Color(0xFF8B5CF6);
   static const Color orange = Color(0xFFF97316);
   static const Color teal = Color(0xFF14B8A6);

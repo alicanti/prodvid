@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/bottom_nav_bar.dart';
+import '../../../video/data/models/wiro_model_type.dart';
+import '../../../video/data/models/wiro_effect_type.dart';
 
-/// Project Dashboard matching Stitch design - project_dashboard
+/// Home Screen - Effect Discovery & Spotlight
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -14,185 +17,376 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedFilter = 0;
+  // Curated effect collections with badges
+  late final List<_EffectCollection> _collections;
+  late final List<_FeaturedEffect> _heroEffects;
+  
+  final PageController _heroPageController = PageController(viewportFraction: 0.92);
+  int _currentHeroPage = 0;
 
-  final List<String> _filters = ['All', 'Drafts', 'Rendering', 'Completed'];
+  @override
+  void initState() {
+    super.initState();
+    _collections = _buildCollections();
+    _heroEffects = _buildHeroEffects();
+  }
+
+  List<_FeaturedEffect> _buildHeroEffects() {
+    return [
+      _FeaturedEffect(
+        effect: WiroProductAdsEffect.smokyPedestal,
+        model: WiroModelType.productAds,
+        badge: EffectBadge.viral,
+      ),
+      _FeaturedEffect(
+        effect: WiroProductAdsEffect.liquidGold,
+        model: WiroModelType.productAds,
+        badge: EffectBadge.trending,
+      ),
+      _FeaturedEffect(
+        effect: WiroTextAnimationEffect.shopWindowNeon,
+        model: WiroModelType.textAnimations,
+        badge: EffectBadge.hot,
+      ),
+      _FeaturedEffect(
+        effect: WiroProductAdsEffect.helicopterToCity,
+        model: WiroModelType.productAds,
+        badge: EffectBadge.viral,
+      ),
+      _FeaturedEffect(
+        effect: WiroProductCaptionEffect.blackFridayClawMachine,
+        model: WiroModelType.productAdsWithCaption,
+        badge: EffectBadge.trending,
+      ),
+    ];
+  }
+
+  List<_EffectCollection> _buildCollections() {
+    return [
+      // Featured / Hero Section
+      _EffectCollection(
+        title: '🔥 Trending Now',
+        subtitle: 'Most popular effects this week',
+        effects: [
+          _FeaturedEffect(
+            effect: WiroProductAdsEffect.smokyPedestal,
+            model: WiroModelType.productAds,
+            badge: EffectBadge.viral,
+          ),
+          _FeaturedEffect(
+            effect: WiroProductAdsEffect.liquidGold,
+            model: WiroModelType.productAds,
+            badge: EffectBadge.trending,
+          ),
+          _FeaturedEffect(
+            effect: WiroTextAnimationEffect.shopWindowNeon,
+            model: WiroModelType.textAnimations,
+            badge: EffectBadge.hot,
+          ),
+          _FeaturedEffect(
+            effect: WiroProductAdsEffect.goldenFireworks,
+            model: WiroModelType.productAds,
+            badge: EffectBadge.trending,
+          ),
+          _FeaturedEffect(
+            effect: WiroProductCaptionEffect.blackFridayClawMachine,
+            model: WiroModelType.productAdsWithCaption,
+            badge: EffectBadge.viral,
+          ),
+        ],
+      ),
+
+      // New arrivals
+      _EffectCollection(
+        title: '✨ New This Week',
+        subtitle: 'Fresh effects just added',
+        effects: [
+          _FeaturedEffect(
+            effect: WiroProductAdsEffect.clawMachine,
+            model: WiroModelType.productAds,
+            badge: EffectBadge.newBadge,
+          ),
+          _FeaturedEffect(
+            effect: WiroProductLogoEffect.goldenStorefrontLogo,
+            model: WiroModelType.productAdsWithLogo,
+            badge: EffectBadge.newBadge,
+          ),
+          _FeaturedEffect(
+            effect: WiroTextAnimationEffect.candyLand,
+            model: WiroModelType.textAnimations,
+            badge: EffectBadge.newBadge,
+          ),
+          _FeaturedEffect(
+            effect: WiroProductAdsEffect.veniceBoat,
+            model: WiroModelType.productAds,
+            badge: EffectBadge.newBadge,
+          ),
+        ],
+      ),
+
+      // Scene Morphs collection
+      _EffectCollection(
+        title: '🎬 Cinematic Morphs',
+        subtitle: 'Transform your product into epic scenes',
+        effects: [
+          _FeaturedEffect(
+            effect: WiroProductAdsEffect.helicopterToCity,
+            model: WiroModelType.productAds,
+            badge: EffectBadge.hot,
+          ),
+          _FeaturedEffect(
+            effect: WiroProductAdsEffect.fireAndIce,
+            model: WiroModelType.productAds,
+            badge: EffectBadge.viral,
+          ),
+          _FeaturedEffect(
+            effect: WiroProductAdsEffect.rocketToSpace,
+            model: WiroModelType.productAds,
+          ),
+          _FeaturedEffect(
+            effect: WiroProductAdsEffect.underwaterToSky,
+            model: WiroModelType.productAds,
+          ),
+          _FeaturedEffect(
+            effect: WiroProductAdsEffect.desertToJungleMorph,
+            model: WiroModelType.productAds,
+          ),
+        ],
+      ),
+
+      // 3D Text collection
+      _EffectCollection(
+        title: '🔤 3D Text Magic',
+        subtitle: 'Stunning animated text effects',
+        effects: [
+          _FeaturedEffect(
+            effect: WiroTextAnimationEffect.glossyHeliumBalloons,
+            model: WiroModelType.textAnimations,
+            badge: EffectBadge.trending,
+          ),
+          _FeaturedEffect(
+            effect: WiroTextAnimationEffect.goldenBalloonsConfetti,
+            model: WiroModelType.textAnimations,
+            badge: EffectBadge.hot,
+          ),
+          _FeaturedEffect(
+            effect: WiroTextAnimationEffect.rainyCityStreet,
+            model: WiroModelType.textAnimations,
+          ),
+          _FeaturedEffect(
+            effect: WiroTextAnimationEffect.dreamyCloudsGradientSky,
+            model: WiroModelType.textAnimations,
+          ),
+          _FeaturedEffect(
+            effect: WiroTextAnimationEffect.redNeonStreetNight,
+            model: WiroModelType.textAnimations,
+          ),
+        ],
+      ),
+
+      // Surreal staging
+      _EffectCollection(
+        title: '🌈 Surreal & Creative',
+        subtitle: 'Make your product stand out',
+        effects: [
+          _FeaturedEffect(
+            effect: WiroProductAdsEffect.makeItBig,
+            model: WiroModelType.productAds,
+            badge: EffectBadge.viral,
+          ),
+          _FeaturedEffect(
+            effect: WiroProductAdsEffect.tinyProductHeld,
+            model: WiroModelType.productAds,
+            badge: EffectBadge.trending,
+          ),
+          _FeaturedEffect(
+            effect: WiroProductAdsEffect.productInABottle,
+            model: WiroModelType.productAds,
+          ),
+          _FeaturedEffect(
+            effect: WiroProductAdsEffect.objectCarousel,
+            model: WiroModelType.productAds,
+          ),
+          _FeaturedEffect(
+            effect: WiroProductAdsEffect.balloonsProduct,
+            model: WiroModelType.productAds,
+          ),
+        ],
+      ),
+
+      // Seasonal - Christmas
+      _EffectCollection(
+        title: '🎄 Holiday Specials',
+        subtitle: 'Perfect for the festive season',
+        effects: [
+          _FeaturedEffect(
+            effect: WiroProductAdsEffect.christmasSnowGlobe,
+            model: WiroModelType.productAds,
+            badge: EffectBadge.hot,
+          ),
+          _FeaturedEffect(
+            effect: WiroProductAdsEffect.christmasTrain,
+            model: WiroModelType.productAds,
+          ),
+          _FeaturedEffect(
+            effect: WiroProductCaptionEffect.holidayCard,
+            model: WiroModelType.productAdsWithCaption,
+          ),
+          _FeaturedEffect(
+            effect: WiroProductAdsEffect.winterChariot,
+            model: WiroModelType.productAds,
+          ),
+          _FeaturedEffect(
+            effect: WiroProductCaptionEffect.lettersToSanta,
+            model: WiroModelType.productAdsWithCaption,
+          ),
+        ],
+      ),
+
+      // Logo effects
+      _EffectCollection(
+        title: '🏷️ Brand & Logo',
+        subtitle: 'Showcase your brand identity',
+        effects: [
+          _FeaturedEffect(
+            effect: WiroProductLogoEffect.billboardPanelInUrbanStreetWithLogo,
+            model: WiroModelType.productAdsWithLogo,
+            badge: EffectBadge.trending,
+          ),
+          _FeaturedEffect(
+            effect: WiroProductLogoEffect.massiveProductWithSkyPlaneBanner,
+            model: WiroModelType.productAdsWithLogo,
+          ),
+          _FeaturedEffect(
+            effect: WiroProductLogoEffect.surrealObjectLogoOnBus,
+            model: WiroModelType.productAdsWithLogo,
+          ),
+          _FeaturedEffect(
+            effect: WiroProductLogoEffect.logoInCappuccinoWithObject,
+            model: WiroModelType.productAdsWithLogo,
+          ),
+        ],
+      ),
+    ];
+  }
+
+  @override
+  void dispose() {
+    _heroPageController.dispose();
+    super.dispose();
+  }
+
+  void _onEffectTap(_FeaturedEffect featured) {
+    final effectValue = _getEffectValue(featured.effect);
+    final effectLabel = _getEffectLabel(featured.effect);
+
+    context.push(
+      '/effect-detail',
+      extra: {
+        'modelType': featured.model,
+        'effectType': effectValue,
+        'effectLabel': effectLabel,
+      },
+    );
+  }
+
+  String _getEffectValue(dynamic effect) {
+    if (effect is WiroProductAdsEffect) return effect.value;
+    if (effect is WiroTextAnimationEffect) return effect.value;
+    if (effect is WiroProductCaptionEffect) return effect.value;
+    if (effect is WiroProductLogoEffect) return effect.value;
+    return '';
+  }
+
+  String _getEffectLabel(dynamic effect) {
+    if (effect is WiroProductAdsEffect) return effect.label;
+    if (effect is WiroTextAnimationEffect) return effect.label;
+    if (effect is WiroProductCaptionEffect) return effect.label;
+    if (effect is WiroProductLogoEffect) return effect.label;
+    return '';
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
-      body: Column(
-        children: [
-          // Header
-          SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Row(
-                children: [
-                  // Profile avatar
-                  GestureDetector(
-                    onTap: () => context.push('/profile'),
-                    child: Stack(
-                      children: [
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.1),
-                              width: 2,
-                            ),
-                          ),
-                          child: ClipOval(
-                            child: Container(
-                              color: AppColors.primary,
-                              child: const Icon(
-                                Icons.person,
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                            ),
-                          ),
+      body: CustomScrollView(
+        slivers: [
+          // App Bar
+          SliverAppBar(
+            floating: true,
+            snap: true,
+            backgroundColor: AppColors.backgroundDark,
+            elevation: 0,
+            toolbarHeight: 70,
+            title: Row(
+              children: [
+                // Logo with neon gradient
+                ShaderMask(
+                  shaderCallback: (bounds) => const LinearGradient(
+                    colors: [
+                      Color(0xFF00D9FF), // Electric Cyan
+                      Color(0xFF00FF88), // Neon Green
+                    ],
+                  ).createShader(bounds),
+                  child: Text(
+                    'ProdVid',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: -0.5,
                         ),
-                        // Online indicator
-                        Positioned(
-                          right: 0,
-                          bottom: 0,
-                          child: Container(
-                            width: 12,
-                            height: 12,
-                            decoration: BoxDecoration(
-                              color: AppColors.success,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: AppColors.backgroundDark,
-                                width: 2,
-                              ),
-                            ),
-                          ),
-                        ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0x3300D9FF), // Electric Cyan with alpha
+                        Color(0x3300FF88), // Neon Green with alpha
                       ],
                     ),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: const Color(0xFF00D9FF).withValues(alpha: 0.3),
+                      width: 1,
+                    ),
                   ),
-
-                  const SizedBox(width: 12),
-
-                  // Title
-                  Text(
-                    'AI Video Projects',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  child: const Text(
+                    'AI',
+                    style: TextStyle(
+                      fontSize: 10,
                       fontWeight: FontWeight.w700,
+                      color: Color(0xFF00D9FF),
                     ),
                   ),
-
-                  const Spacer(),
-
-                  // Search button
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.search,
-                      color: AppColors.textSecondaryDark,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Filter chips
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: _filters.asMap().entries.map((entry) {
-                  final isSelected = entry.key == _selectedFilter;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 12),
-                    child: _FilterChip(
-                      label: entry.value,
-                      isSelected: isSelected,
-                      onTap: () {
-                        setState(() {
-                          _selectedFilter = entry.key;
-                        });
-                      },
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-
-          // Projects list
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                // Generating project
-                _ProjectCard(
-                  title: 'Smart Watch Ad',
-                  status: ProjectStatus.generating,
-                  progress: 0.45,
-                  imageUrl:
-                      'https://lh3.googleusercontent.com/aida-public/AB6AXuDEzuVykiStzWh3JAXa71PjAo8FrszXQA6czP_gUWmGSQScAVfNDuIaXshS-YmPL53TD0Z4FragQj_zMZYu1qngu7mWQID5opdz6M8ucQ57WrPJcXX4feYHE7tMh_6F8h7h_qwYxcAq_C3ZqK7AeQN0DC520FAiH7tJ9mHlkNW70D7qdhAvUHclEdmLuzuz_ULurhN2yStwFsx29WFa39thGZ-TAB5_aJ2vVMYZ-eqW8-rf77l3Jjjn8Vu-5aXFh3LTWDy5eh9Lais',
-                  statusText: 'Applying effect...',
-                ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1),
-
-                const SizedBox(height: 16),
-
-                // Draft project
-                _ProjectCard(
-                      title: 'Summer Shoe Promo',
-                      status: ProjectStatus.draft,
-                      duration: '00:15',
-                      imageUrl:
-                          'https://lh3.googleusercontent.com/aida-public/AB6AXuD6yFff5XhGmkpew-PrN_B_S3EwmPTKrleFTFJWhxdN2gh_a1N9k9z9bI9zKucZs-hsLc5K-UEe1iifkXjzCNY7A1pS6zwsxhlYeDh5aDpcXfFNoSykK0UZV4k2BW9qbfsBmu9qC5n5el08xOTyFqz5DjGUODvKXUlH7AuIvr_Ifeg0WGfT8LjKBY41h1P_6iwv_boy66y0SxnzXhwyzzlE0dpIkPs_uau-IRiY1NCtSfNnwEq6GBEEsHROWu-w6D0XuwHTpaZmMTM',
-                      statusText: 'Edited 2h ago',
-                    )
-                    .animate()
-                    .fadeIn(delay: 100.ms, duration: 400.ms)
-                    .slideY(begin: 0.1),
-
-                const SizedBox(height: 16),
-
-                // Completed project
-                _ProjectCard(
-                      title: 'Gym Wear Campaign',
-                      status: ProjectStatus.completed,
-                      duration: '01:30',
-                      imageUrl:
-                          'https://lh3.googleusercontent.com/aida-public/AB6AXuCS7XnHudi2oqIuObAf5MWdXZ0ezMICLHHzbxpW4yEhEwqgq7ZZyL6w4TdXoJFsi5OJCGbh-HcmQU1Na8ioy6aDdRcx6LNWdqwP4XQ39xNXAXv4tDjkMgpUtT5t_8YFwEGYl60dsL7LQ2pG2XAZH0jYvW-bqYXghhmoCqcUJYAiKrlORvNybkAvypqiKwvJ_WsAA69YWBNo6w3aM8prJv99pG-GSUwg6GhZjoDvf44dSN2IpEEtnFg2X41Rf_tNUOfUNNi_jmPMkOo',
-                      statusText: '3 days ago',
-                      showShareButton: true,
-                    )
-                    .animate()
-                    .fadeIn(delay: 200.ms, duration: 400.ms)
-                    .slideY(begin: 0.1),
-
-                const SizedBox(height: 16),
-
-                // Another draft
-                _ProjectCard(
-                      title: 'Abstract Art Reel',
-                      status: ProjectStatus.draft,
-                      duration: '00:45',
-                      imageUrl:
-                          'https://lh3.googleusercontent.com/aida-public/AB6AXuBssbbLdRbW9jWUUtapKtvVSO5tLxnZE6RFx2z7bRpToB69CsZfY3HblNdGWN120IzDWzU-aDuYqAMqF9_aw4wyJPRwRvuebrhWvDEafq-nIkaz8qf_0D08fgQP2CY-gVAwntbtQFhqNSq7MApU32-3yzf8HA5SEamS7KWXAk9LgB44Vlm6L-qJXjWcbYV4J1aYHksJB9-GN3AfH0k7mnGjs-kwPt0te-ClQC24qygHC0kbaOzNTqm5mKkSPQjvGZgxGHaAzfs',
-                      statusText: 'Edited 1 week ago',
-                    )
-                    .animate()
-                    .fadeIn(delay: 300.ms, duration: 400.ms)
-                    .slideY(begin: 0.1),
-
-                const SizedBox(height: 100), // Space for FAB
+                ),
               ],
             ),
+          ),
+
+          // Hero section
+          SliverToBoxAdapter(
+            child: _buildHeroSection(),
+          ),
+
+          // Effect collections
+          ..._collections.asMap().entries.map((entry) {
+            final index = entry.key;
+            final collection = entry.value;
+            return SliverToBoxAdapter(
+              child: _buildCollectionSection(collection, index),
+            );
+          }),
+
+          // Bottom padding
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 100),
           ),
         ],
       ),
@@ -206,7 +400,7 @@ class _HomeScreenState extends State<HomeScreen> {
           elevation: 8,
           icon: const Icon(Icons.add_circle, color: Colors.white),
           label: const Text(
-            'Create New AI Video',
+            'Create Video',
             style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white),
           ),
         ),
@@ -215,7 +409,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       // Bottom navigation
       bottomNavigationBar: AppBottomNavBar(
-        currentIndex: 0, // Projects tab
+        currentIndex: 0,
         onTap: (index) {
           if (index == 1) {
             context.go('/templates');
@@ -226,390 +420,826 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  Widget _buildHeroSection() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(0, 8, 0, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Welcome text
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Discover Effects',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
+                ).animate().fadeIn(duration: 400.ms).slideX(begin: -0.1),
+                const SizedBox(height: 4),
+                Text(
+                  'Turn your products into viral videos',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: AppColors.textSecondaryDark,
+                      ),
+                ).animate().fadeIn(delay: 100.ms, duration: 400.ms).slideX(begin: -0.1),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Hero Slider
+          SizedBox(
+            height: 220,
+            child: PageView.builder(
+              controller: _heroPageController,
+              itemCount: _heroEffects.length,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentHeroPage = index;
+                });
+              },
+              itemBuilder: (context, index) {
+                final featured = _heroEffects[index];
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: _HeroEffectCard(
+                    key: ValueKey('hero_${_getEffectValue(featured.effect)}'),
+                    featured: featured,
+                    onTap: () => _onEffectTap(featured),
+                  ),
+                );
+              },
+            ),
+          ).animate().fadeIn(delay: 200.ms, duration: 500.ms).scale(
+                begin: const Offset(0.95, 0.95),
+              ),
+
+          const SizedBox(height: 16),
+
+          // Page indicator
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              _heroEffects.length,
+              (index) => AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                width: _currentHeroPage == index ? 24 : 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: _currentHeroPage == index
+                      ? const Color(0xFF00D9FF)
+                      : AppColors.slate700,
+                  borderRadius: BorderRadius.circular(4),
+                  boxShadow: _currentHeroPage == index
+                      ? [
+                          BoxShadow(
+                            color: const Color(0xFF00D9FF).withValues(alpha: 0.5),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : null,
+                ),
+              ),
+            ),
+          ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCollectionSection(_EffectCollection collection, int sectionIndex) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 28),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Section header
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      collection.title,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      collection.subtitle,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppColors.textSecondaryDark,
+                          ),
+                    ),
+                  ],
+                ),
+                TextButton(
+                  onPressed: () => context.go('/templates'),
+                  child: Text(
+                    'See All',
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
+              .animate()
+              .fadeIn(
+                delay: Duration(milliseconds: 100 * sectionIndex),
+                duration: 400.ms,
+              ),
+
+          const SizedBox(height: 12),
+
+          // Horizontal carousel
+          SizedBox(
+            height: 200,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: collection.effects.length,
+              itemBuilder: (context, index) {
+                final featured = collection.effects[index];
+                return Padding(
+                  padding: EdgeInsets.only(
+                    right: index < collection.effects.length - 1 ? 12 : 0,
+                  ),
+                  child: _EffectCarouselCard(
+                    key: ValueKey('${collection.title}_${_getEffectValue(featured.effect)}'),
+                    featured: featured,
+                    onTap: () => _onEffectTap(featured),
+                  ),
+                )
+                    .animate()
+                    .fadeIn(
+                      delay: Duration(milliseconds: 100 * sectionIndex + 50 * index),
+                      duration: 400.ms,
+                    )
+                    .slideX(begin: 0.2);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-enum ProjectStatus { draft, generating, completed }
+// =============================================================================
+// MODELS
+// =============================================================================
 
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({
-    required this.label,
-    required this.isSelected,
+enum EffectBadge {
+  viral('VIRAL', Color(0xFFFF4757), Icons.local_fire_department),
+  trending('TREND', Color(0xFFFFBE0B), Icons.trending_up),
+  hot('HOT', Color(0xFFFF6B6B), Icons.whatshot),
+  newBadge('NEW', Color(0xFF00D9FF), Icons.auto_awesome);
+
+  const EffectBadge(this.label, this.color, this.icon);
+
+  final String label;
+  final Color color;
+  final IconData icon;
+}
+
+class _EffectCollection {
+  const _EffectCollection({
+    required this.title,
+    required this.subtitle,
+    required this.effects,
+  });
+
+  final String title;
+  final String subtitle;
+  final List<_FeaturedEffect> effects;
+}
+
+class _FeaturedEffect {
+  const _FeaturedEffect({
+    required this.effect,
+    required this.model,
+    this.badge,
+  });
+
+  final dynamic effect;
+  final WiroModelType model;
+  final EffectBadge? badge;
+}
+
+// =============================================================================
+// WIDGETS
+// =============================================================================
+
+/// Hero card for featured effect
+class _HeroEffectCard extends StatefulWidget {
+  const _HeroEffectCard({
+    super.key,
+    required this.featured,
     required this.onTap,
   });
 
-  final String label;
-  final bool isSelected;
+  final _FeaturedEffect featured;
   final VoidCallback onTap;
+
+  @override
+  State<_HeroEffectCard> createState() => _HeroEffectCardState();
+}
+
+class _HeroEffectCardState extends State<_HeroEffectCard> {
+  VideoPlayerController? _controller;
+  bool _isInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeVideo();
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  Future<void> _initializeVideo() async {
+    final coverUrl = _getCoverUrl();
+    if (coverUrl == null) return;
+
+    try {
+      _controller = VideoPlayerController.networkUrl(Uri.parse(coverUrl));
+      await _controller!.initialize();
+      _controller!.setLooping(true);
+      _controller!.setVolume(0);
+      _controller!.play();
+
+      if (mounted) {
+        setState(() => _isInitialized = true);
+      }
+    } catch (e) {
+      debugPrint('Error initializing hero video: $e');
+    }
+  }
+
+  String? _getCoverUrl() {
+    final effect = widget.featured.effect;
+    final model = widget.featured.model;
+
+    String effectValue;
+    if (effect is WiroProductAdsEffect) {
+      effectValue = effect.value;
+    } else if (effect is WiroTextAnimationEffect) {
+      effectValue = effect.value;
+    } else if (effect is WiroProductCaptionEffect) {
+      effectValue = effect.value;
+    } else if (effect is WiroProductLogoEffect) {
+      effectValue = effect.value;
+    } else {
+      return null;
+    }
+
+    return model.getCoverUrl(effectValue);
+  }
+
+  String _getEffectLabel() {
+    final effect = widget.featured.effect;
+    if (effect is WiroProductAdsEffect) return effect.label;
+    if (effect is WiroTextAnimationEffect) return effect.label;
+    if (effect is WiroProductCaptionEffect) return effect.label;
+    if (effect is WiroProductLogoEffect) return effect.label;
+    return '';
+  }
+
+  // Neon gradient for loading state
+  List<Color> _getNeonGradient() {
+    switch (widget.featured.model) {
+      case WiroModelType.textAnimations:
+        return [const Color(0xFF00D9FF), const Color(0xFF00FF88)];
+      case WiroModelType.productAds:
+        return [const Color(0xFFFF6B6B), const Color(0xFFFFBE0B)];
+      case WiroModelType.productAdsWithCaption:
+        return [const Color(0xFF00D9FF), const Color(0xFF4FACFE)];
+      case WiroModelType.productAdsWithLogo:
+        return [const Color(0xFF00FF88), const Color(0xFF00D9FF)];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      onTap: widget.onTap,
+      child: Container(
+        height: 220,
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : AppColors.surfaceDark,
-          borderRadius: BorderRadius.circular(9999),
-          border: Border.all(
-            color: isSelected ? Colors.transparent : AppColors.borderDark,
-          ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : null,
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            color: isSelected ? Colors.white : AppColors.slate400,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ProjectCard extends StatelessWidget {
-  const _ProjectCard({
-    required this.title,
-    required this.status,
-    required this.imageUrl,
-    required this.statusText,
-    this.progress,
-    this.duration,
-    this.showShareButton = false,
-  });
-
-  final String title;
-  final ProjectStatus status;
-  final String imageUrl;
-  final String statusText;
-  final double? progress;
-  final String? duration;
-  final bool showShareButton;
-
-  // Generate consistent gradient colors based on string hash
-  List<Color> _getGradientColors(String seed) {
-    final hash = seed.hashCode;
-    final gradients = [
-      [const Color(0xFF667eea), const Color(0xFF764ba2)],
-      [const Color(0xFF4facfe), const Color(0xFF00f2fe)],
-      [const Color(0xFFfa709a), const Color(0xFFfee140)],
-      [const Color(0xFF43e97b), const Color(0xFF38f9d7)],
-      [const Color(0xFFf093fb), const Color(0xFFf5576c)],
-      [const Color(0xFF5ee7df), const Color(0xFFb490ca)],
-    ];
-    return gradients[hash.abs() % gradients.length];
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.surfaceDark,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderDark),
-      ),
-      child: Row(
-        children: [
-          // Thumbnail
-          SizedBox(
-            width: 120,
-            height: 120,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.horizontal(
-                left: Radius.circular(15),
-              ),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  // Gradient placeholder (replace with actual image when available)
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: _getGradientColors(imageUrl),
-                      ),
-                    ),
-                    child: Center(
-                      child: Icon(
-                        Icons.play_circle_outline,
-                        size: 40,
-                        color: Colors.white.withValues(alpha: 0.5),
-                      ),
-                    ),
-                  ),
-
-                  // Overlay for generating status
-                  if (status == ProjectStatus.generating)
-                    Container(
-                      color: Colors.black.withValues(alpha: 0.4),
-                      child: Center(
-                        child: SizedBox(
-                          width: 40,
-                          height: 40,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 4,
-                            valueColor: AlwaysStoppedAnimation(
-                              AppColors.primary,
-                            ),
-                            backgroundColor: Colors.white.withValues(
-                              alpha: 0.2,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                  // Play button for completed
-                  if (status == ProjectStatus.completed)
-                    Container(
-                      color: Colors.black.withValues(alpha: 0.2),
-                      child: Center(
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(9999),
-                          ),
-                          child: const Icon(
-                            Icons.play_arrow,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                  // Duration badge
-                  if (duration != null)
-                    Positioned(
-                      right: 8,
-                      bottom: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.6),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          duration!,
-                          style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF00D9FF).withValues(alpha: 0.25),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
             ),
-          ),
-
-          // Content
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Status badge & menu
-                  Row(
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Video background
+              if (_isInitialized && _controller != null)
+                FittedBox(
+                  fit: BoxFit.cover,
+                  child: SizedBox(
+                    width: _controller!.value.size.width,
+                    height: _controller!.value.size.height,
+                    child: VideoPlayer(_controller!),
+                  ),
+                )
+              else
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: _getNeonGradient(),
+                    ),
+                  ),
+                  child: Stack(
                     children: [
-                      _StatusBadge(status: status),
-                      const Spacer(),
-                      Icon(
-                        Icons.more_vert,
-                        color: AppColors.textSecondaryDark,
-                        size: 20,
+                      CustomPaint(
+                        size: Size.infinite,
+                        painter: _GridPatternPainter(),
+                      ),
+                      Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation(
+                            Colors.white.withValues(alpha: 0.7),
+                          ),
+                        ),
                       ),
                     ],
                   ),
+                ),
 
-                  const SizedBox(height: 8),
-
-                  // Title
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
+              // Gradient overlay
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.8),
+                    ],
+                    stops: const [0.3, 1.0],
                   ),
+                ),
+              ),
 
-                  const SizedBox(height: 8),
-
-                  // Progress bar or status text
-                  if (status == ProjectStatus.generating &&
-                      progress != null) ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          statusText,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textSecondaryDark,
-                          ),
-                        ),
-                        Text(
-                          '${(progress! * 100).toInt()}%',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.primary,
-                          ),
+              // Badge
+              if (widget.featured.badge != null)
+                Positioned(
+                  top: 12,
+                  left: 12,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: widget.featured.badge!.color,
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: widget.featured.badge!.color.withValues(alpha: 0.5),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 6),
-                    Container(
-                      height: 6,
-                      decoration: BoxDecoration(
-                        color: AppColors.slate700,
-                        borderRadius: BorderRadius.circular(9999),
-                      ),
-                      child: FractionallySizedBox(
-                        alignment: Alignment.centerLeft,
-                        widthFactor: progress,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(9999),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ] else ...[
-                    Row(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          status == ProjectStatus.completed
-                              ? Icons.calendar_today
-                              : Icons.schedule,
+                          widget.featured.badge!.icon,
                           size: 14,
-                          color: AppColors.textSecondaryDark,
+                          color: Colors.white,
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          statusText,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textSecondaryDark,
+                          widget.featured.badge!.label,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            letterSpacing: 0.5,
                           ),
                         ),
-                        if (showShareButton) ...[
-                          const Spacer(),
-                          Icon(Icons.share, size: 20, color: AppColors.primary),
-                        ],
+                      ],
+                    ),
+                  ),
+                ),
+
+              // Content
+              Positioned(
+                left: 16,
+                right: 16,
+                bottom: 16,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Model type chip
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        widget.featured.model.label,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      _getEffectLabel(),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                          ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF00D9FF), Color(0xFF00FF88)],
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF00D9FF).withValues(alpha: 0.4),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.play_arrow, size: 18, color: Colors.white),
+                              SizedBox(width: 4),
+                              Text(
+                                'Try Now',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ],
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
 
-class _StatusBadge extends StatelessWidget {
-  const _StatusBadge({required this.status});
+/// Carousel card for effect
+class _EffectCarouselCard extends StatefulWidget {
+  const _EffectCarouselCard({
+    super.key,
+    required this.featured,
+    required this.onTap,
+  });
 
-  final ProjectStatus status;
+  final _FeaturedEffect featured;
+  final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
-    Color bgColor;
-    Color textColor;
-    String text;
-    bool showPulse = false;
+  State<_EffectCarouselCard> createState() => _EffectCarouselCardState();
+}
 
-    switch (status) {
-      case ProjectStatus.generating:
-        bgColor = AppColors.primary.withValues(alpha: 0.2);
-        textColor = AppColors.primary;
-        text = 'Generating';
-        showPulse = true;
-      case ProjectStatus.draft:
-        bgColor = AppColors.slate700;
-        textColor = AppColors.slate300;
-        text = 'Draft';
-      case ProjectStatus.completed:
-        bgColor = AppColors.success.withValues(alpha: 0.1);
-        textColor = AppColors.success;
-        text = 'Completed';
+class _EffectCarouselCardState extends State<_EffectCarouselCard> {
+  VideoPlayerController? _controller;
+  bool _isInitialized = false;
+  bool _hasError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeVideo();
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  Future<void> _initializeVideo() async {
+    final coverUrl = _getCoverUrl();
+    if (coverUrl == null) {
+      setState(() => _hasError = true);
+      return;
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (showPulse) ...[_PulseDot(), const SizedBox(width: 6)],
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: textColor,
+    try {
+      _controller = VideoPlayerController.networkUrl(Uri.parse(coverUrl));
+      await _controller!.initialize();
+      _controller!.setLooping(true);
+      _controller!.setVolume(0);
+      _controller!.play();
+
+      if (mounted) {
+        setState(() => _isInitialized = true);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _hasError = true);
+      }
+    }
+  }
+
+  String? _getCoverUrl() {
+    final effect = widget.featured.effect;
+    final model = widget.featured.model;
+
+    String effectValue;
+    if (effect is WiroProductAdsEffect) {
+      effectValue = effect.value;
+    } else if (effect is WiroTextAnimationEffect) {
+      effectValue = effect.value;
+    } else if (effect is WiroProductCaptionEffect) {
+      effectValue = effect.value;
+    } else if (effect is WiroProductLogoEffect) {
+      effectValue = effect.value;
+    } else {
+      return null;
+    }
+
+    return model.getCoverUrl(effectValue);
+  }
+
+  String _getEffectLabel() {
+    final effect = widget.featured.effect;
+    if (effect is WiroProductAdsEffect) return effect.label;
+    if (effect is WiroTextAnimationEffect) return effect.label;
+    if (effect is WiroProductCaptionEffect) return effect.label;
+    if (effect is WiroProductLogoEffect) return effect.label;
+    return '';
+  }
+
+  List<Color> _getGradient() {
+    final model = widget.featured.model;
+    switch (model) {
+      case WiroModelType.textAnimations:
+        return [const Color(0xFF667eea), const Color(0xFF764ba2)];
+      case WiroModelType.productAds:
+        return [const Color(0xFFf093fb), const Color(0xFFf5576c)];
+      case WiroModelType.productAdsWithCaption:
+        return [const Color(0xFF4facfe), const Color(0xFF00f2fe)];
+      case WiroModelType.productAdsWithLogo:
+        return [const Color(0xFF43e97b), const Color(0xFF38f9d7)];
+    }
+  }
+
+  IconData _getIcon() {
+    switch (widget.featured.model) {
+      case WiroModelType.textAnimations:
+        return Icons.text_fields;
+      case WiroModelType.productAds:
+        return Icons.shopping_bag;
+      case WiroModelType.productAdsWithCaption:
+        return Icons.subtitles;
+      case WiroModelType.productAdsWithLogo:
+        return Icons.branding_watermark;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: Container(
+        width: 150,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Video or gradient background
+              if (_isInitialized && !_hasError && _controller != null)
+                FittedBox(
+                  fit: BoxFit.cover,
+                  child: SizedBox(
+                    width: _controller!.value.size.width,
+                    height: _controller!.value.size.height,
+                    child: VideoPlayer(_controller!),
+                  ),
+                )
+              else
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: _getGradient(),
+                    ),
+                  ),
+                  child: Stack(
+                    children: [
+                      CustomPaint(
+                        size: Size.infinite,
+                        painter: _GridPatternPainter(),
+                      ),
+                      Center(
+                        child: _hasError
+                            ? Icon(
+                                _getIcon(),
+                                size: 36,
+                                color: Colors.white.withValues(alpha: 0.8),
+                              )
+                            : SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white.withValues(alpha: 0.6),
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ],
+                  ),
+                ),
+
+              // Gradient overlay
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.7),
+                    ],
+                    stops: const [0.5, 1.0],
+                  ),
+                ),
+              ),
+
+              // Badge
+              if (widget.featured.badge != null)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: widget.featured.badge!.color,
+                      borderRadius: BorderRadius.circular(6),
+                      boxShadow: [
+                        BoxShadow(
+                          color: widget.featured.badge!.color.withValues(alpha: 0.5),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          widget.featured.badge!.icon,
+                          size: 10,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(width: 2),
+                        Text(
+                          widget.featured.badge!.label,
+                          style: const TextStyle(
+                            fontSize: 8,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+              // Title
+              Positioned(
+                left: 10,
+                right: 10,
+                bottom: 10,
+                child: Text(
+                  _getEffectLabel(),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    height: 1.2,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+
+              // Play icon hint
+              Positioned(
+                left: 10,
+                bottom: 42,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Icon(
+                    Icons.play_arrow,
+                    size: 12,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
 
-class _PulseDot extends StatelessWidget {
+/// Grid pattern painter for gradient backgrounds
+class _GridPatternPainter extends CustomPainter {
   @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 8,
-      height: 8,
-      child: Stack(
-        children: [
-          Container(
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  shape: BoxShape.circle,
-                ),
-              )
-              .animate(onPlay: (controller) => controller.repeat())
-              .scale(
-                begin: const Offset(1, 1),
-                end: const Offset(2, 2),
-                duration: 1000.ms,
-              )
-              .fadeOut(duration: 1000.ms),
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              shape: BoxShape.circle,
-            ),
-          ),
-        ],
-      ),
-    );
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.1)
+      ..strokeWidth = 1;
+
+    const double gridSize = 20;
+
+    for (double i = 0; i < size.width; i += gridSize) {
+      canvas.drawLine(Offset(i, 0), Offset(i, size.height), paint);
+    }
+    for (double i = 0; i < size.height; i += gridSize) {
+      canvas.drawLine(Offset(0, i), Offset(size.width, i), paint);
+    }
   }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
