@@ -37,7 +37,7 @@ class VideoExportScreen extends StatelessWidget {
                   ),
                   TextButton(
                     onPressed: () => context.go('/home'),
-                    child: Text(
+                    child: const Text(
                       'Done',
                       style: TextStyle(
                         fontSize: 16,
@@ -65,7 +65,7 @@ class VideoExportScreen extends StatelessWidget {
                         ),
                         child: AspectRatio(
                           aspectRatio: 9 / 16,
-                          child: Container(
+                          child: DecoratedBox(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: [
@@ -82,7 +82,7 @@ class VideoExportScreen extends StatelessWidget {
                                 fit: StackFit.expand,
                                 children: [
                                   // Video thumbnail placeholder
-                                  Container(
+                                  DecoratedBox(
                                     decoration: const BoxDecoration(
                                       gradient: LinearGradient(
                                         begin: Alignment.topLeft,
@@ -213,7 +213,7 @@ class VideoExportScreen extends StatelessWidget {
 
                   const SizedBox(height: 4),
 
-                  Text(
+                  const Text(
                     'Your product video is ready to be shared with the world.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -238,16 +238,16 @@ class VideoExportScreen extends StatelessWidget {
                     onPressed: () {},
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 56),
-                      side: BorderSide(color: AppColors.borderDark),
+                      side: const BorderSide(color: AppColors.borderDark),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: Row(
+                    child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.autorenew, color: Colors.white),
-                        const SizedBox(width: 8),
+                        Icon(Icons.autorenew, color: Colors.white),
+                        SizedBox(width: 8),
                         Text(
                           'Re-generate',
                           style: TextStyle(
@@ -286,11 +286,11 @@ class VideoExportScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 16),
-                        Expanded(
+                        const Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'Export Settings',
                                 style: TextStyle(
                                   fontSize: 14,
@@ -310,7 +310,7 @@ class VideoExportScreen extends StatelessWidget {
                         ),
                         TextButton(
                           onPressed: () {},
-                          child: Text(
+                          child: const Text(
                             'Edit',
                             style: TextStyle(
                               fontSize: 14,
@@ -326,10 +326,10 @@ class VideoExportScreen extends StatelessWidget {
                   const SizedBox(height: 24),
 
                   // Share section
-                  Align(
+                  const Align(
                     alignment: Alignment.centerLeft,
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 4),
+                      padding: EdgeInsets.only(left: 4),
                       child: Text(
                         'Share directly',
                         style: TextStyle(
@@ -405,14 +405,14 @@ class VideoExportScreen extends StatelessWidget {
                             color: AppColors.surfaceCard,
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Icon(
+                          child: const Icon(
                             Icons.link,
                             color: AppColors.slate400,
                             size: 20,
                           ),
                         ),
                         const SizedBox(width: 12),
-                        Expanded(
+                        const Expanded(
                           child: Text(
                             'https://app.video/v/x83920s...',
                             style: TextStyle(
@@ -425,7 +425,7 @@ class VideoExportScreen extends StatelessWidget {
                         ),
                         TextButton(
                           onPressed: () {},
-                          child: Text(
+                          child: const Text(
                             'Copy',
                             style: TextStyle(
                               fontSize: 14,
@@ -447,8 +447,8 @@ class VideoExportScreen extends StatelessWidget {
       ),
 
       // Bottom navigation
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
+      bottomNavigationBar: DecoratedBox(
+        decoration: const BoxDecoration(
           color: AppColors.surfaceDark,
           border: Border(top: BorderSide(color: AppColors.borderDark)),
         ),
@@ -536,7 +536,7 @@ class _ShareButton extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
               color: AppColors.slate400,
