@@ -3,9 +3,9 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../../../core/services/video_cache_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/bottom_nav_bar.dart';
-import '../../../../core/services/video_cache_service.dart';
 import '../../data/models/wiro_effect_type.dart';
 import '../../data/models/wiro_model_type.dart';
 
@@ -62,7 +62,7 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
               decoration: BoxDecoration(
                 color: AppColors.backgroundDark.withValues(alpha: 0.95),
-                border: Border(bottom: BorderSide(color: AppColors.borderDark)),
+                border: const Border(bottom: BorderSide(color: AppColors.borderDark)),
               ),
               child: Row(
                 children: [
@@ -100,7 +100,7 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
               children: [
                 Text(
                   '${_filteredEffects.length} effects',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 13,
                     color: AppColors.textSecondaryDark,
                     fontWeight: FontWeight.w500,
@@ -298,7 +298,7 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
             color: AppColors.textSecondaryDark.withValues(alpha: 0.5),
           ),
           const SizedBox(height: 16),
-          Text(
+          const Text(
             'No effects found',
             style: TextStyle(
               fontSize: 16,
@@ -357,11 +357,7 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
 
 class _EffectCard extends StatefulWidget {
   const _EffectCard({
-    super.key,
-    required this.effect,
-    required this.index,
-    required this.modelType,
-    required this.onTap,
+    required this.effect, required this.index, required this.modelType, required this.onTap, super.key,
   });
 
   final EffectOption effect;
@@ -518,7 +514,7 @@ class _EffectCardState extends State<_EffectCard> {
         children: [
           // Effect Preview
           Expanded(
-            child: Container(
+            child: DecoratedBox(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
@@ -545,7 +541,7 @@ class _EffectCardState extends State<_EffectCard> {
                         ),
                       )
                     else
-                      Container(
+                      DecoratedBox(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
@@ -688,7 +684,7 @@ class _GridPatternPainter extends CustomPainter {
     const spacing = 24.0;
 
     // Draw diagonal lines
-    for (double i = -size.height; i < size.width + size.height; i += spacing) {
+    for (var i = -size.height; i < size.width + size.height; i += spacing) {
       canvas.drawLine(
         Offset(i, 0),
         Offset(i + size.height, size.height),

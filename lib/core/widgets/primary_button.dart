@@ -4,9 +4,7 @@ import '../theme/app_colors.dart';
 /// Primary button matching Stitch design
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton({
-    super.key,
-    required this.text,
-    required this.onPressed,
+    required this.text, required this.onPressed, super.key,
     this.icon,
     this.isLoading = false,
     this.height = 56,

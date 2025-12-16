@@ -4,9 +4,7 @@ import '../theme/app_colors.dart';
 /// Bottom navigation bar matching Stitch design
 class AppBottomNavBar extends StatelessWidget {
   const AppBottomNavBar({
-    super.key,
-    required this.currentIndex,
-    required this.onTap,
+    required this.currentIndex, required this.onTap, super.key,
   });
 
   final int currentIndex;
@@ -14,11 +12,11 @@ class AppBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: AppColors.backgroundDark.withValues(alpha: 0.95),
         border: const Border(
-          top: BorderSide(color: AppColors.borderDark, width: 1),
+          top: BorderSide(color: AppColors.borderDark),
         ),
       ),
       child: SafeArea(

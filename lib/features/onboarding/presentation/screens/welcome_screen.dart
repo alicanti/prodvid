@@ -23,7 +23,7 @@ class WelcomeScreen extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.video_camera_front, color: Colors.white, size: 36),
+                  const Icon(Icons.video_camera_front, color: Colors.white, size: 36),
                   const SizedBox(width: 8),
                   Text(
                     'ProdVid',
@@ -50,8 +50,8 @@ class WelcomeScreen extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
                               ),
-                              children: [
-                                const _StepCard(
+                              children: const [
+                                _StepCard(
                                   index: 0,
                                   title: '1. Upload Image',
                                   icon: Icons.add_photo_alternate_rounded,
@@ -61,8 +61,8 @@ class WelcomeScreen extends StatelessWidget {
                                   ],
                                   showUploadBadge: true,
                                 ),
-                                const SizedBox(width: 16),
-                                const _StepCard(
+                                SizedBox(width: 16),
+                                _StepCard(
                                   index: 1,
                                   title: '2. Select AI Effect',
                                   icon: Icons.auto_awesome,
@@ -73,8 +73,8 @@ class WelcomeScreen extends StatelessWidget {
                                   isHighlighted: true,
                                   showMagicIcon: true,
                                 ),
-                                const SizedBox(width: 16),
-                                const _StepCard(
+                                SizedBox(width: 16),
+                                _StepCard(
                                   index: 2,
                                   title: '3. Get Video Ad',
                                   icon: Icons.play_circle_filled_rounded,
@@ -261,7 +261,7 @@ class _StepCard extends StatelessWidget {
                 Positioned(
                   top: 16,
                   right: 16,
-                  child: Icon(Icons.auto_awesome, color: Colors.white, size: 24)
+                  child: const Icon(Icons.auto_awesome, color: Colors.white, size: 24)
                       .animate(
                         onPlay: (controller) =>
                             controller.repeat(reverse: true),

@@ -34,7 +34,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         prefs.getBool(_onboardingCompleteKey) ?? false;
 
     // Simulate loading progress
-    for (int i = 0; i <= 100; i += 5) {
+    for (var i = 0; i <= 100; i += 5) {
       await Future<void>.delayed(const Duration(milliseconds: 50));
       if (mounted) {
         setState(() {
@@ -114,7 +114,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                                     alpha: 0.2,
                                   ),
                                   blurRadius: 32,
-                                  spreadRadius: 0,
                                 ),
                               ],
                             ),
@@ -190,7 +189,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                   child: Column(
                     children: [
                       // Loading text
-                      Text(
+                      const Text(
                         'INITIALIZING',
                         style: TextStyle(
                           fontSize: 12,

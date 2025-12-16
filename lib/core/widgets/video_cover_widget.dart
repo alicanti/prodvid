@@ -9,8 +9,7 @@ import '../theme/app_colors.dart';
 /// Uses cached video player for optimal performance
 class VideoCoverWidget extends StatefulWidget {
   const VideoCoverWidget({
-    super.key,
-    required this.videoUrl,
+    required this.videoUrl, super.key,
     this.fallbackGradient,
     this.fallbackIcon,
     this.borderRadius = 16,
@@ -102,7 +101,7 @@ class _VideoCoverWidgetState extends State<VideoCoverWidget> {
   }
 
   Widget _buildFallback() {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -138,8 +137,7 @@ class _VideoCoverWidgetState extends State<VideoCoverWidget> {
 /// Uses cached video player for optimal performance
 class VideoThumbnailWidget extends StatefulWidget {
   const VideoThumbnailWidget({
-    super.key,
-    required this.videoUrl,
+    required this.videoUrl, super.key,
     this.fallbackGradient,
     this.fallbackIcon,
     this.borderRadius = 16,
@@ -263,7 +261,7 @@ class _VideoThumbnailWidgetState extends State<VideoThumbnailWidget> {
   }
 
   Widget _buildFallback() {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,

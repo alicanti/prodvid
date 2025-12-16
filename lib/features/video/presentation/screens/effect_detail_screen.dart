@@ -6,18 +6,15 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/services/video_cache_service.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../data/models/wiro_effect_type.dart';
 import '../../data/models/wiro_model_type.dart';
 
 /// Effect detail screen for configuring and generating videos
 class EffectDetailScreen extends StatefulWidget {
   const EffectDetailScreen({
-    super.key,
-    required this.modelType,
-    required this.effectType,
-    required this.effectLabel,
+    required this.modelType, required this.effectType, required this.effectLabel, super.key,
   });
 
   final WiroModelType modelType;
@@ -104,7 +101,7 @@ class _EffectDetailScreenState extends State<EffectDetailScreen> {
   }
 
   Future<void> _pickProductImage() async {
-    final XFile? image = await _picker.pickImage(
+    final image = await _picker.pickImage(
       source: ImageSource.gallery,
       maxWidth: 1920,
       maxHeight: 1920,
@@ -118,7 +115,7 @@ class _EffectDetailScreenState extends State<EffectDetailScreen> {
   }
 
   Future<void> _pickLogoImage() async {
-    final XFile? image = await _picker.pickImage(
+    final image = await _picker.pickImage(
       source: ImageSource.gallery,
       maxWidth: 1024,
       maxHeight: 1024,
@@ -170,7 +167,7 @@ class _EffectDetailScreenState extends State<EffectDetailScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
               decoration: BoxDecoration(
                 color: AppColors.backgroundDark.withValues(alpha: 0.95),
-                border: Border(bottom: BorderSide(color: AppColors.borderDark)),
+                border: const Border(bottom: BorderSide(color: AppColors.borderDark)),
               ),
               child: Row(
                 children: [
@@ -225,7 +222,7 @@ class _EffectDetailScreenState extends State<EffectDetailScreen> {
                     ),
                     child: Text(
                       widget.modelType.label,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: AppColors.primary,
@@ -286,7 +283,7 @@ class _EffectDetailScreenState extends State<EffectDetailScreen> {
                 ),
               )
             else
-              Container(
+              DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -435,7 +432,7 @@ class _EffectDetailScreenState extends State<EffectDetailScreen> {
         image: _logoImage,
         onPick: _pickLogoImage,
         hint: 'Tap to select logo image',
-        aspectRatio: 1.0,
+        aspectRatio: 1,
       ));
       widgets.add(const SizedBox(height: 24));
     }
@@ -464,7 +461,7 @@ class _EffectDetailScreenState extends State<EffectDetailScreen> {
           ),
         ),
         if (_isRequiredField(title))
-          Text(
+          const Text(
             ' *',
             style: TextStyle(
               fontSize: 16,
@@ -548,7 +545,7 @@ class _EffectDetailScreenState extends State<EffectDetailScreen> {
                       color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(50),
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.add_photo_alternate_outlined,
                       size: 40,
                       color: AppColors.primary,
@@ -557,7 +554,7 @@ class _EffectDetailScreenState extends State<EffectDetailScreen> {
                   const SizedBox(height: 12),
                   Text(
                     hint,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14,
                       color: AppColors.textSecondaryDark,
                     ),
@@ -569,7 +566,7 @@ class _EffectDetailScreenState extends State<EffectDetailScreen> {
   }
 
   Widget _buildCaptionInput() {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: AppColors.surfaceCard,
         borderRadius: BorderRadius.circular(16),
@@ -581,14 +578,14 @@ class _EffectDetailScreenState extends State<EffectDetailScreen> {
         maxLines: 3,
         maxLength: 50,
         onChanged: (_) => setState(() {}),
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
           hintText: 'Enter short text (1-2 words recommended)\ne.g., SALE, New Arrival, 50% OFF',
           hintStyle: TextStyle(
             color: AppColors.textSecondaryDark,
             fontSize: 14,
           ),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(16),
+          contentPadding: EdgeInsets.all(16),
           counterStyle: TextStyle(color: AppColors.textSecondaryDark),
         ),
       ),
@@ -674,7 +671,7 @@ class _EffectDetailScreenState extends State<EffectDetailScreen> {
   Widget _buildGenerateButton() {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.backgroundDark,
         border: Border(top: BorderSide(color: AppColors.borderDark)),
       ),
@@ -695,7 +692,7 @@ class _EffectDetailScreenState extends State<EffectDetailScreen> {
               shadowColor: AppColors.primary.withValues(alpha: 0.5),
             ),
             child: _isGenerating
-                ? Row(
+                ? const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(
@@ -707,8 +704,8 @@ class _EffectDetailScreenState extends State<EffectDetailScreen> {
                               AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      const Text(
+                      SizedBox(width: 12),
+                      Text(
                         'Generating...',
                         style: TextStyle(
                           fontSize: 16,
@@ -718,12 +715,12 @@ class _EffectDetailScreenState extends State<EffectDetailScreen> {
                       ),
                     ],
                   )
-                : Row(
+                : const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.auto_awesome, color: Colors.white),
-                      const SizedBox(width: 8),
-                      const Text(
+                      Icon(Icons.auto_awesome, color: Colors.white),
+                      SizedBox(width: 8),
+                      Text(
                         'Generate Video',
                         style: TextStyle(
                           fontSize: 16,
@@ -806,7 +803,7 @@ class _PatternPainter extends CustomPainter {
       ..strokeWidth = 1;
 
     const spacing = 30.0;
-    for (double i = -size.height; i < size.width + size.height; i += spacing) {
+    for (var i = -size.height; i < size.width + size.height; i += spacing) {
       canvas.drawLine(
         Offset(i, 0),
         Offset(i + size.height, size.height),

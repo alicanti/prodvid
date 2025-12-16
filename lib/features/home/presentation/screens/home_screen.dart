@@ -3,11 +3,11 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../../../core/services/video_cache_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/bottom_nav_bar.dart';
-import '../../../../core/services/video_cache_service.dart';
-import '../../../video/data/models/wiro_model_type.dart';
 import '../../../video/data/models/wiro_effect_type.dart';
+import '../../../video/data/models/wiro_model_type.dart';
 
 /// Home Screen - Effect Discovery & Spotlight
 class HomeScreen extends StatefulWidget {
@@ -48,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     // Add first two collections' effect URLs
-    for (int i = 0; i < 2 && i < _collections.length; i++) {
+    for (var i = 0; i < 2 && i < _collections.length; i++) {
       for (final featured in _collections[i].effects.take(5)) {
         final url = _getEffectCoverUrl(featured);
         if (url != null) {
@@ -83,27 +83,27 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List<_FeaturedEffect> _buildHeroEffects() {
     return [
-      _FeaturedEffect(
+      const _FeaturedEffect(
         effect: WiroProductAdsEffect.smokyPedestal,
         model: WiroModelType.productAds,
         badge: EffectBadge.viral,
       ),
-      _FeaturedEffect(
+      const _FeaturedEffect(
         effect: WiroProductAdsEffect.liquidGold,
         model: WiroModelType.productAds,
         badge: EffectBadge.trending,
       ),
-      _FeaturedEffect(
+      const _FeaturedEffect(
         effect: WiroTextAnimationEffect.shopWindowNeon,
         model: WiroModelType.textAnimations,
         badge: EffectBadge.hot,
       ),
-      _FeaturedEffect(
+      const _FeaturedEffect(
         effect: WiroProductAdsEffect.helicopterToCity,
         model: WiroModelType.productAds,
         badge: EffectBadge.viral,
       ),
-      _FeaturedEffect(
+      const _FeaturedEffect(
         effect: WiroProductCaptionEffect.blackFridayClawMachine,
         model: WiroModelType.productAdsWithCaption,
         badge: EffectBadge.trending,
@@ -114,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<_EffectCollection> _buildCollections() {
     return [
       // Featured / Hero Section
-      _EffectCollection(
+      const _EffectCollection(
         title: '🔥 Trending Now',
         subtitle: 'Most popular effects this week',
         effects: [
@@ -147,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
 
       // New arrivals
-      _EffectCollection(
+      const _EffectCollection(
         title: '✨ New This Week',
         subtitle: 'Fresh effects just added',
         effects: [
@@ -175,7 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
 
       // Scene Morphs collection
-      _EffectCollection(
+      const _EffectCollection(
         title: '🎬 Cinematic Morphs',
         subtitle: 'Transform your product into epic scenes',
         effects: [
@@ -205,7 +205,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
 
       // 3D Text collection
-      _EffectCollection(
+      const _EffectCollection(
         title: '🔤 3D Text Magic',
         subtitle: 'Stunning animated text effects',
         effects: [
@@ -235,7 +235,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
 
       // Surreal staging
-      _EffectCollection(
+      const _EffectCollection(
         title: '🌈 Surreal & Creative',
         subtitle: 'Make your product stand out',
         effects: [
@@ -265,7 +265,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
 
       // Seasonal - Christmas
-      _EffectCollection(
+      const _EffectCollection(
         title: '🎄 Holiday Specials',
         subtitle: 'Perfect for the festive season',
         effects: [
@@ -294,7 +294,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
 
       // Logo effects
-      _EffectCollection(
+      const _EffectCollection(
         title: '🏷️ Brand & Logo',
         subtitle: 'Showcase your brand identity',
         effects: [
@@ -385,10 +385,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
               ),
             ),
-            actions: [
+            actions: const [
               // Credits badge
               _CreditsBadge(credits: 150),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
             ],
           ),
 
@@ -571,7 +571,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 TextButton(
                   onPressed: () => context.go('/templates'),
-                  child: Text(
+                  child: const Text(
                     'See All',
                     style: TextStyle(
                       color: AppColors.primary,
@@ -665,7 +665,6 @@ class _CreditsBadge extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: const Color(0xFFFFD700).withValues(alpha: 0.4),
-            width: 1,
           ),
         ),
         child: Row(
@@ -750,9 +749,7 @@ class _FeaturedEffect {
 /// Hero card for featured effect
 class _HeroEffectCard extends StatefulWidget {
   const _HeroEffectCard({
-    super.key,
-    required this.featured,
-    required this.onTap,
+    required this.featured, required this.onTap, super.key,
   });
 
   final _FeaturedEffect featured;
@@ -873,7 +870,7 @@ class _HeroEffectCardState extends State<_HeroEffectCard> {
                   ),
                 )
               else
-                Container(
+                DecoratedBox(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
@@ -1045,9 +1042,7 @@ class _HeroEffectCardState extends State<_HeroEffectCard> {
 /// Carousel card for effect
 class _EffectCarouselCard extends StatefulWidget {
   const _EffectCarouselCard({
-    super.key,
-    required this.featured,
-    required this.onTap,
+    required this.featured, required this.onTap, super.key,
   });
 
   final _FeaturedEffect featured;
@@ -1187,7 +1182,7 @@ class _EffectCarouselCardState extends State<_EffectCarouselCard> {
                   ),
                 )
               else
-                Container(
+                DecoratedBox(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,

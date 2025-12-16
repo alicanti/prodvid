@@ -4,17 +4,15 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:video_player/video_player.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/services/video_cache_service.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../data/models/wiro_effect_type.dart';
 import '../../data/models/wiro_model_type.dart';
 
 /// Full-screen effect gallery with vertical swipe navigation
 class EffectGalleryScreen extends StatefulWidget {
   const EffectGalleryScreen({
-    super.key,
-    required this.modelType,
-    required this.initialEffectIndex,
+    required this.modelType, required this.initialEffectIndex, super.key,
   });
 
   final WiroModelType modelType;
@@ -70,7 +68,7 @@ class _EffectGalleryScreenState extends State<EffectGalleryScreen>
 
   void _initializeVideosAround(int index) {
     // Initialize current, previous, and next videos
-    for (int i = index - 1; i <= index + 1; i++) {
+    for (var i = index - 1; i <= index + 1; i++) {
       if (i >= 0 && i < _effects.length && !_videoControllers.containsKey(i)) {
         _initializeVideo(i);
       }
@@ -201,7 +199,7 @@ class _EffectGalleryScreenState extends State<EffectGalleryScreen>
                       ),
                     )
                   else
-                    Container(
+                    DecoratedBox(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,

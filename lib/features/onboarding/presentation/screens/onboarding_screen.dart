@@ -91,7 +91,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 children: [
                   TextButton(
                     onPressed: _completeOnboarding,
-                    child: Text(
+                    child: const Text(
                       'Skip',
                       style: TextStyle(
                         fontSize: 16,
@@ -141,14 +141,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   const SizedBox(height: 16),
 
                   // Terms and Privacy
-                  Text.rich(
+                  const Text.rich(
                     TextSpan(
                       style: TextStyle(
                         fontSize: 12,
                         color: AppColors.textTertiaryDark,
                       ),
                       children: [
-                        const TextSpan(
+                        TextSpan(
                           text: 'By continuing, you agree to our ',
                         ),
                         TextSpan(
@@ -158,7 +158,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        const TextSpan(text: ' and '),
+                        TextSpan(text: ' and '),
                         TextSpan(
                           text: 'Privacy Policy',
                           style: TextStyle(
@@ -212,7 +212,7 @@ class _OnboardingPage1 extends StatelessWidget {
                           fit: StackFit.expand,
                           children: [
                             // Gradient background
-                            Container(
+                            DecoratedBox(
                               decoration: const BoxDecoration(
                                 gradient: LinearGradient(
                                   begin: Alignment.topLeft,
@@ -265,7 +265,7 @@ class _OnboardingPage1 extends StatelessWidget {
                                     color: Colors.white.withValues(alpha: 0.1),
                                   ),
                                 ),
-                                child: Row(
+                                child: const Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(
@@ -273,8 +273,8 @@ class _OnboardingPage1 extends StatelessWidget {
                                       color: AppColors.primary,
                                       size: 18,
                                     ),
-                                    const SizedBox(width: 6),
-                                    const Text(
+                                    SizedBox(width: 6),
+                                    Text(
                                       'AI MAGIC',
                                       style: TextStyle(
                                         fontSize: 10,
@@ -306,13 +306,13 @@ class _OnboardingPage1 extends StatelessWidget {
                                                 borderRadius:
                                                     BorderRadius.circular(12),
                                               ),
-                                              child: Icon(
+                                              child: const Icon(
                                                 Icons.videocam,
                                                 color: AppColors.primary,
                                               ),
                                             ),
                                             const SizedBox(width: 16),
-                                            Expanded(
+                                            const Expanded(
                                               child: Column(
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
@@ -343,7 +343,7 @@ class _OnboardingPage1 extends StatelessWidget {
                                                       ),
                                                     ],
                                                   ),
-                                                  const SizedBox(height: 8),
+                                                  SizedBox(height: 8),
                                                   _ProgressBar(progress: 0.98),
                                                 ],
                                               ),
@@ -368,7 +368,6 @@ class _OnboardingPage1 extends StatelessWidget {
 
           // Text content
           Expanded(
-            flex: 1,
             child: Column(
               children: [
                 RichText(
@@ -378,8 +377,8 @@ class _OnboardingPage1 extends StatelessWidget {
                       fontWeight: FontWeight.w800,
                       height: 1.1,
                     ),
-                    children: [
-                      const TextSpan(text: 'Magic in '),
+                    children: const [
+                      TextSpan(text: 'Magic in '),
                       TextSpan(
                         text: 'Motion',
                         style: TextStyle(color: AppColors.primary),
@@ -441,7 +440,7 @@ class _OnboardingPage2 extends StatelessWidget {
           const SizedBox(height: 40),
 
           // Timeline steps
-          Expanded(
+          const Expanded(
             child: Column(
               children: [
                 _TimelineStep(
@@ -496,7 +495,7 @@ class _OnboardingPage3 extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   // Gradient placeholder
-                  Container(
+                  DecoratedBox(
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
@@ -534,11 +533,9 @@ class _OnboardingPage3 extends StatelessWidget {
 
         // Text content
         Expanded(
-          flex: 1,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(
                   'Your Studio,\nPowered by AI',
@@ -626,7 +623,7 @@ class _TimelineStep extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       description,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         color: AppColors.textSecondaryDark,

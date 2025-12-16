@@ -4,9 +4,7 @@ import '../theme/app_colors.dart';
 /// Page indicator dots matching Stitch design
 class PageIndicator extends StatelessWidget {
   const PageIndicator({
-    super.key,
-    required this.count,
-    required this.currentIndex,
+    required this.count, required this.currentIndex, super.key,
   });
 
   final int count;
@@ -31,7 +29,6 @@ class PageIndicator extends StatelessWidget {
                     BoxShadow(
                       color: AppColors.primary.withValues(alpha: 0.6),
                       blurRadius: 12,
-                      spreadRadius: 0,
                     ),
                   ]
                 : null,

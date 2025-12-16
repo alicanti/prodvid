@@ -48,7 +48,7 @@ class VideoCacheManager {
   /// Preload multiple videos
   static Future<void> preloadVideos(List<String> urls) async {
     await Future.wait(
-      urls.map((url) => preloadVideo(url)),
+      urls.map(preloadVideo),
     );
   }
 
@@ -154,7 +154,7 @@ class VideoPreloader {
         .toList();
 
     await Future.wait(
-      urlsToPreload.map((url) => preload(url)),
+      urlsToPreload.map(preload),
     );
   }
 

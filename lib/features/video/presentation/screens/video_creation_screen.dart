@@ -71,8 +71,8 @@ class _VideoCreationScreenState extends State<VideoCreationScreen> {
               child: Column(
                 children: [
                   // Description
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
+                  const Padding(
+                    padding: EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 16,
                     ),
@@ -95,7 +95,7 @@ class _VideoCreationScreenState extends State<VideoCreationScreen> {
                         constraints: const BoxConstraints(maxWidth: 340),
                         child: AspectRatio(
                           aspectRatio: 3 / 4,
-                          child: Container(
+                          child: DecoratedBox(
                             decoration: BoxDecoration(
                               color: AppColors.surfaceCard,
                               borderRadius: BorderRadius.circular(20),
@@ -186,10 +186,10 @@ class _VideoCreationScreenState extends State<VideoCreationScreen> {
       ),
 
       // Bottom navigation
-      bottomNavigationBar: Container(
+      bottomNavigationBar: DecoratedBox(
         decoration: BoxDecoration(
           color: AppColors.surfaceDark,
-          border: Border(top: BorderSide(color: AppColors.borderDark)),
+          border: const Border(top: BorderSide(color: AppColors.borderDark)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.1),
@@ -245,7 +245,7 @@ class _ImagePreview extends StatelessWidget {
       fit: StackFit.expand,
       children: [
         // Image placeholder (replace with actual image when available)
-        Container(
+        DecoratedBox(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -329,7 +329,7 @@ class _EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onSelectImage,
-      child: Container(
+      child: ColoredBox(
         color: AppColors.surfaceCard,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -341,14 +341,14 @@ class _EmptyState extends StatelessWidget {
                 color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(9999),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.add_photo_alternate_outlined,
                 color: AppColors.primary,
                 size: 40,
               ),
             ),
             const SizedBox(height: 16),
-            Text(
+            const Text(
               'Tap to select image',
               style: TextStyle(
                 fontSize: 16,
@@ -357,7 +357,7 @@ class _EmptyState extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 4),
-            Text(
+            const Text(
               'or use the buttons below',
               style: TextStyle(
                 fontSize: 14,
@@ -483,7 +483,7 @@ class _NavItem extends StatelessWidget {
                   Container(
                         width: 8,
                         height: 8,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: AppColors.primary,
                           shape: BoxShape.circle,
                         ),

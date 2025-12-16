@@ -40,7 +40,7 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   TextButton(
                     onPressed: () {},
-                    child: Text(
+                    child: const Text(
                       'Edit',
                       style: TextStyle(
                         fontSize: 16,
@@ -86,9 +86,9 @@ class ProfileScreen extends StatelessWidget {
                                       ),
                                     ],
                                   ),
-                                  child: ClipOval(
-                                    child: Container(
-                                      decoration: const BoxDecoration(
+                                  child: const ClipOval(
+                                    child: DecoratedBox(
+                                      decoration: BoxDecoration(
                                         gradient: LinearGradient(
                                           begin: Alignment.topLeft,
                                           end: Alignment.bottomRight,
@@ -98,7 +98,7 @@ class ProfileScreen extends StatelessWidget {
                                           ],
                                         ),
                                       ),
-                                      child: const Icon(
+                                      child: Icon(
                                         Icons.person,
                                         size: 48,
                                         color: Colors.white,
@@ -145,7 +145,7 @@ class ProfileScreen extends StatelessWidget {
                         const SizedBox(height: 4),
 
                         // Email
-                        Text(
+                        const Text(
                           'alex.j@example.com',
                           style: TextStyle(
                             fontSize: 16,
@@ -166,7 +166,7 @@ class ProfileScreen extends StatelessWidget {
                             color: AppColors.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(9999),
                           ),
-                          child: Text(
+                          child: const Text(
                             'PRO MEMBER',
                             style: TextStyle(
                               fontSize: 12,
@@ -197,7 +197,7 @@ class ProfileScreen extends StatelessWidget {
                         const SizedBox(height: 12),
 
                         // Credits card
-                        Container(
+                        DecoratedBox(
                           decoration: BoxDecoration(
                             color: AppColors.surfaceDark,
                             borderRadius: BorderRadius.circular(16),
@@ -210,7 +210,7 @@ class ProfileScreen extends StatelessWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
+                                    const Text(
                                       'CURRENT PLAN',
                                       style: TextStyle(
                                         fontSize: 12,
@@ -246,8 +246,8 @@ class ProfileScreen extends StatelessWidget {
                                               ),
                                         ),
                                         const SizedBox(width: 8),
-                                        Padding(
-                                          padding: const EdgeInsets.only(
+                                        const Padding(
+                                          padding: EdgeInsets.only(
                                             bottom: 4,
                                           ),
                                           child: Text(
@@ -297,7 +297,7 @@ class ProfileScreen extends StatelessWidget {
 
                                     const SizedBox(height: 8),
 
-                                    Text(
+                                    const Text(
                                       'Resets in 5 days',
                                       style: TextStyle(
                                         fontSize: 12,
@@ -318,7 +318,7 @@ class ProfileScreen extends StatelessWidget {
                                   color: AppColors.primary.withValues(
                                     alpha: 0.05,
                                   ),
-                                  border: Border(
+                                  border: const Border(
                                     top: BorderSide(
                                       color: AppColors.borderDark,
                                     ),
@@ -331,7 +331,7 @@ class ProfileScreen extends StatelessWidget {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
+                                    const Text(
                                       'Need more credits?',
                                       style: TextStyle(
                                         fontSize: 14,
@@ -343,7 +343,7 @@ class ProfileScreen extends StatelessWidget {
                                       onPressed: () {
                                         // TODO: Navigate to paywall when designed
                                       },
-                                      child: Text(
+                                      child: const Text(
                                         'Upgrade Plan',
                                         style: TextStyle(
                                           fontSize: 14,
@@ -378,7 +378,7 @@ class ProfileScreen extends StatelessWidget {
 
                         const SizedBox(height: 12),
 
-                        Container(
+                        DecoratedBox(
                           decoration: BoxDecoration(
                             color: AppColors.surfaceDark,
                             borderRadius: BorderRadius.circular(16),
@@ -449,11 +449,11 @@ class ProfileScreen extends StatelessWidget {
                               color: AppColors.error.withValues(alpha: 0.3),
                             ),
                           ),
-                          child: Row(
+                          child: const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(Icons.logout, color: AppColors.error),
-                              const SizedBox(width: 8),
+                              SizedBox(width: 8),
                               Text(
                                 'Log Out',
                                 style: TextStyle(
@@ -472,7 +472,7 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: 16),
 
                   // Version
-                  Text(
+                  const Text(
                     'ProdVid v2.4.0',
                     style: TextStyle(fontSize: 12, color: AppColors.slate600),
                   ),
@@ -551,7 +551,7 @@ class _SettingsItem extends StatelessWidget {
                       ),
                       Text(
                         subtitle,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.slate400,
                         ),
@@ -559,7 +559,7 @@ class _SettingsItem extends StatelessWidget {
                     ],
                   ),
                 ),
-                Icon(Icons.chevron_right, color: AppColors.slate400),
+                const Icon(Icons.chevron_right, color: AppColors.slate400),
               ],
             ),
           ),
