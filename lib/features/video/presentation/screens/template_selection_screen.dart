@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/bottom_nav_bar.dart';
@@ -352,7 +353,7 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
   }
 }
 
-class _EffectCard extends StatelessWidget {
+class _EffectCard extends StatefulWidget {
   const _EffectCard({
     required this.effect,
     required this.index,
@@ -364,6 +365,56 @@ class _EffectCard extends StatelessWidget {
   final int index;
   final WiroModelType modelType;
   final VoidCallback onTap;
+
+  @override
+  State<_EffectCard> createState() => _EffectCardState();
+}
+
+class _EffectCardState extends State<_EffectCard> {
+  VideoPlayerController? _controller;
+  bool _isInitialized = false;
+  bool _hasError = false;
+
+  EffectOption get effect => widget.effect;
+  int get index => widget.index;
+  WiroModelType get modelType => widget.modelType;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeVideo();
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  Future<void> _initializeVideo() async {
+    if (effect.coverUrl == null) {
+      setState(() => _hasError = true);
+      return;
+    }
+
+    try {
+      _controller = VideoPlayerController.networkUrl(
+        Uri.parse(effect.coverUrl!),
+      );
+      await _controller!.initialize();
+      _controller!.setLooping(true);
+      _controller!.setVolume(0);
+      _controller!.play();
+
+      if (mounted) {
+        setState(() => _isInitialized = true);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _hasError = true);
+      }
+    }
+  }
 
   // Gradients for different effect categories
   List<Color> _getGradient() {
@@ -441,7 +492,7 @@ class _EffectCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: widget.onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -463,37 +514,54 @@ class _EffectCard extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    // Gradient background with pattern
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: _getGradient(),
+                    // Video or gradient fallback
+                    if (_isInitialized && !_hasError && _controller != null)
+                      FittedBox(
+                        fit: BoxFit.cover,
+                        child: SizedBox(
+                          width: _controller!.value.size.width,
+                          height: _controller!.value.size.height,
+                          child: VideoPlayer(_controller!),
                         ),
-                      ),
-                    ),
-
-                    // Pattern overlay
-                    CustomPaint(
-                      painter: _GridPatternPainter(),
-                    ),
-
-                    // Center icon
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
+                      )
+                    else
+                      Container(
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(50),
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: _getGradient(),
+                          ),
                         ),
-                        child: Icon(
-                          _getIcon(),
-                          size: 36,
-                          color: Colors.white.withValues(alpha: 0.9),
+                        child: Stack(
+                          children: [
+                            // Pattern overlay
+                            CustomPaint(
+                              size: Size.infinite,
+                              painter: _GridPatternPainter(),
+                            ),
+                            // Loading or icon
+                            Center(
+                              child: _hasError
+                                  ? Icon(
+                                      _getIcon(),
+                                      size: 36,
+                                      color: Colors.white.withValues(alpha: 0.8),
+                                    )
+                                  : SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white.withValues(alpha: 0.6),
+                                        ),
+                                      ),
+                                    ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
 
                     // Bottom gradient overlay
                     Container(
@@ -535,23 +603,24 @@ class _EffectCard extends StatelessWidget {
                         ),
                       ),
 
-                    // Play icon overlay
-                    Positioned(
-                      bottom: 8,
-                      right: 8,
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                        child: const Icon(
-                          Icons.play_arrow,
-                          color: Colors.white,
-                          size: 20,
+                    // Play icon overlay (only if not playing video)
+                    if (!_isInitialized || _hasError)
+                      Positioned(
+                        bottom: 8,
+                        right: 8,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: const Icon(
+                            Icons.play_arrow,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ),

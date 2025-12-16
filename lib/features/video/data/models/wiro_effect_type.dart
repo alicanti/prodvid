@@ -974,14 +974,6 @@ enum WiroVideoMode {
 
 /// Helper class to get effects for a specific model type
 class WiroEffects {
-  /// CDN base URL for effect covers
-  static const String _cdnBase = 'https://cdn.wiro.ai/uploads/effects';
-
-  /// Build cover URL for an effect
-  static String _buildCoverUrl(String effectValue) {
-    return '$_cdnBase/$effectValue.mp4';
-  }
-
   /// Get all effects for a given model type
   static List<EffectOption> getEffectsForModel(WiroModelType model) {
     switch (model) {
@@ -991,7 +983,7 @@ class WiroEffects {
               (e) => EffectOption(
                 value: e.value,
                 label: e.label,
-                coverUrl: _buildCoverUrl(e.value),
+                coverUrl: model.getCoverUrl(e.value),
               ),
             )
             .toList();
@@ -1002,7 +994,7 @@ class WiroEffects {
                 value: e.value,
                 label: e.label,
                 category: e.category.label,
-                coverUrl: _buildCoverUrl(e.value),
+                coverUrl: model.getCoverUrl(e.value),
               ),
             )
             .toList();
@@ -1013,7 +1005,7 @@ class WiroEffects {
                 value: e.value,
                 label: e.label,
                 category: e.category.label,
-                coverUrl: _buildCoverUrl(e.value),
+                coverUrl: model.getCoverUrl(e.value),
               ),
             )
             .toList();
@@ -1023,7 +1015,7 @@ class WiroEffects {
               (e) => EffectOption(
                 value: e.value,
                 label: e.label,
-                coverUrl: _buildCoverUrl(e.value),
+                coverUrl: model.getCoverUrl(e.value),
               ),
             )
             .toList();
