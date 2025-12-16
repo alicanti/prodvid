@@ -23,9 +23,6 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
   // Selected category within model (filter chips)
   String? _selectedCategory;
 
-  // Search query
-  String _searchQuery = '';
-
   // Get effects for the selected model
   List<EffectOption> get _filteredEffects {
     var effects = WiroEffects.getEffectsForModel(_selectedModel);
@@ -34,15 +31,6 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
     if (_selectedCategory != null && _selectedCategory!.isNotEmpty) {
       effects =
           effects.where((e) => e.category == _selectedCategory).toList();
-    }
-
-    // Filter by search query
-    if (_searchQuery.isNotEmpty) {
-      effects = effects
-          .where(
-            (e) => e.label.toLowerCase().contains(_searchQuery.toLowerCase()),
-          )
-          .toList();
     }
 
     return effects;
@@ -77,7 +65,7 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    onPressed: () => context.pop(),
+                    onPressed: () => context.go('/home'),
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
                   ),
                   Expanded(
@@ -97,52 +85,6 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
 
           // Model Type Tabs
           _buildModelTabs(),
-
-          // Search bar
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Container(
-              height: 48,
-              decoration: BoxDecoration(
-                color: AppColors.surfaceCard,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  const SizedBox(width: 16),
-                  Icon(Icons.search, color: AppColors.textSecondaryDark),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextField(
-                      style: const TextStyle(color: Colors.white),
-                      onChanged: (value) {
-                        setState(() {
-                          _searchQuery = value;
-                        });
-                      },
-                      decoration: InputDecoration(
-                        hintText: 'Search effects...',
-                        hintStyle: TextStyle(
-                          color: AppColors.textSecondaryDark,
-                        ),
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                    ),
-                  ),
-                  if (_searchQuery.isNotEmpty)
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _searchQuery = '';
-                        });
-                      },
-                      icon: Icon(Icons.close, color: AppColors.textSecondaryDark),
-                    ),
-                ],
-              ),
-            ),
-          ),
 
           // Category Filter Chips (only for models with categories)
           if (_categories.length > 1) _buildCategoryChips(),
@@ -212,29 +154,25 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
   }
 
   Widget _buildModelTabs() {
-    return Container(
+    return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: WiroModelType.values.map((model) {
-            final isSelected = model == _selectedModel;
-            return Padding(
-              padding: const EdgeInsets.only(right: 8),
+      child: Row(
+        children: WiroModelType.values.map((model) {
+          final isSelected = model == _selectedModel;
+          final isLast = model == WiroModelType.values.last;
+          return Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(right: isLast ? 0 : 8),
               child: GestureDetector(
                 onTap: () {
                   setState(() {
                     _selectedModel = model;
                     _selectedCategory = null;
-                    _searchQuery = '';
                   });
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                   decoration: BoxDecoration(
                     gradient: isSelected
                         ? LinearGradient(
@@ -276,7 +214,7 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
                       Text(
                         _getModelShortName(model),
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 11,
                           fontWeight:
                               isSelected ? FontWeight.w700 : FontWeight.w500,
                           color: isSelected
@@ -288,9 +226,9 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
                   ),
                 ),
               ),
-            );
-          }).toList(),
-        ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
