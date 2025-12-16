@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
@@ -343,8 +344,8 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
   }
 
   void _onEffectSelected(EffectOption effect) {
-    // Navigate to creation with selected effect and model type
-    context.push('/create', extra: {
+    // Navigate to effect detail page
+    context.push('/effect-detail', extra: {
       'modelType': _selectedModel,
       'effectType': effect.value,
       'effectLabel': effect.label,
@@ -463,27 +464,45 @@ class _EffectCard extends StatelessWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    // Gradient background
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: _getGradient(),
+                    // Cover image from CDN with gradient fallback
+                    CachedNetworkImage(
+                      imageUrl: effect.coverUrl,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: _getGradient(),
+                          ),
+                        ),
+                        child: Center(
+                          child: Icon(
+                            _getIcon(),
+                            size: 40,
+                            color: Colors.white.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: _getGradient(),
+                          ),
+                        ),
+                        child: Center(
+                          child: Icon(
+                            _getIcon(),
+                            size: 48,
+                            color: Colors.white.withValues(alpha: 0.8),
+                          ),
                         ),
                       ),
                     ),
 
-                    // Icon
-                    Center(
-                      child: Icon(
-                        _getIcon(),
-                        size: 48,
-                        color: Colors.white.withValues(alpha: 0.8),
-                      ),
-                    ),
-
-                    // Overlay
+                    // Overlay gradient
                     Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -491,7 +510,7 @@ class _EffectCard extends StatelessWidget {
                           end: Alignment.bottomCenter,
                           colors: [
                             Colors.transparent,
-                            Colors.black.withValues(alpha: 0.3),
+                            Colors.black.withValues(alpha: 0.4),
                           ],
                         ),
                       ),
@@ -508,7 +527,7 @@ class _EffectCard extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.5),
+                            color: Colors.black.withValues(alpha: 0.6),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
@@ -523,20 +542,20 @@ class _EffectCard extends StatelessWidget {
                         ),
                       ),
 
-                    // Play icon overlay
-                    Positioned.fill(
-                      child: Center(
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          child: const Icon(
-                            Icons.play_arrow,
-                            color: Colors.white,
-                            size: 28,
-                          ),
+                    // Play icon overlay on hover
+                    Positioned(
+                      bottom: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        child: const Icon(
+                          Icons.play_arrow,
+                          color: Colors.white,
+                          size: 20,
                         ),
                       ),
                     ),

@@ -1030,4 +1030,14 @@ class EffectOption {
   final String value;
   final String label;
   final String? category;
+
+  /// Get the cover image URL for this effect
+  /// Format: https://cdn.wiro.ai/uploads/effects/{effect-value}/cover.webp
+  String get coverUrl =>
+      'https://cdn.wiro.ai/uploads/effects/$value/cover.webp';
+
+  /// Get the preview video URL for this effect
+  /// Format: https://cdn.wiro.ai/uploads/effects/{effect-value}/preview.mp4
+  String get previewVideoUrl =>
+      'https://cdn.wiro.ai/uploads/effects/$value/preview.mp4';
 }

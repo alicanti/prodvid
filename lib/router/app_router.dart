@@ -7,6 +7,8 @@ import '../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../features/onboarding/presentation/screens/welcome_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
 import '../features/splash/presentation/screens/splash_screen.dart';
+import '../features/video/data/models/wiro_model_type.dart';
+import '../features/video/presentation/screens/effect_detail_screen.dart';
 import '../features/video/presentation/screens/template_selection_screen.dart';
 import '../features/video/presentation/screens/video_creation_screen.dart';
 import '../features/video/presentation/screens/video_export_screen.dart';
@@ -19,6 +21,7 @@ abstract class AppRoutes {
   static const String home = '/home';
   static const String create = '/create';
   static const String templates = '/templates';
+  static const String effectDetail = '/effect-detail';
   static const String videoExport = '/video-export';
   static const String profile = '/profile';
   static const String settings = '/settings';
@@ -70,6 +73,20 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.templates,
         builder: (context, state) => const TemplateSelectionScreen(),
+      ),
+
+      // Effect Detail
+      GoRoute(
+        path: AppRoutes.effectDetail,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return EffectDetailScreen(
+            modelType: extra?['modelType'] as WiroModelType? ??
+                WiroModelType.productAds,
+            effectType: extra?['effectType'] as String? ?? '',
+            effectLabel: extra?['effectLabel'] as String? ?? 'Effect',
+          );
+        },
       ),
 
       // Video Export
