@@ -380,36 +380,21 @@ class _HomeScreenState extends State<HomeScreen> {
               background: _buildHeroSlider(heroHeight),
               collapseMode: CollapseMode.parallax,
             ),
-            // Title with gradient backdrop
-            title: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.black.withValues(alpha: 0.6),
-                    Colors.black.withValues(alpha: 0.3),
-                    Colors.transparent,
-                  ],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: ShaderMask(
-                shaderCallback: (bounds) => const LinearGradient(
-                  colors: [
-                    Color(0xFF00D9FF),
-                    Color(0xFF00FF88),
-                  ],
-                ).createShader(bounds),
-                child: Text(
-                  'ProdVid',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                        letterSpacing: -0.5,
-                      ),
-                ),
+            // Title - no gradient backdrop
+            title: ShaderMask(
+              shaderCallback: (bounds) => const LinearGradient(
+                colors: [
+                  Color(0xFF00D9FF),
+                  Color(0xFF00FF88),
+                ],
+              ).createShader(bounds),
+              child: Text(
+                'ProdVid',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                      letterSpacing: -0.5,
+                    ),
               ),
             ),
             actions: const [
@@ -418,28 +403,18 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
 
-          // Content area with top radius - overlaps slider
+          // Spacing below slider
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 16),
+          ),
+
+          // Content area
           SliverToBoxAdapter(
-            child: Transform.translate(
-              offset: const Offset(0, -32),
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: AppColors.backgroundDark,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(32),
-                    topRight: Radius.circular(32),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 20),
-                    ..._collections.map((collection) {
-                      final index = _collections.indexOf(collection);
-                      return _buildCollectionSection(collection, index);
-                    }),
-                  ],
-                ),
-              ),
+            child: Column(
+              children: _collections.map((collection) {
+                final index = _collections.indexOf(collection);
+                return _buildCollectionSection(collection, index);
+              }).toList(),
             ),
           ),
 
@@ -807,11 +782,11 @@ class _FullscreenHeroCard extends StatelessWidget {
             ),
           ),
 
-          // Content at bottom - positioned higher for content overlap
+          // Content at bottom
           Positioned(
             left: 20,
             right: 20,
-            bottom: 56,
+            bottom: 24,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
