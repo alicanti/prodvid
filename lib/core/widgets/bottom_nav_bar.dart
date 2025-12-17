@@ -34,21 +34,20 @@ class AppBottomNavBar extends StatelessWidget {
               child: Container(
                 height: 72,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1A1A2E).withOpacity(0.85),
+                  color: const Color(0xFF1A1A2E).withValues(alpha: 0.85),
                   borderRadius: BorderRadius.circular(28),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.1),
-                    width: 1,
+                    color: Colors.white.withValues(alpha: 0.1),
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
+                      color: Colors.black.withValues(alpha: 0.3),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     ),
                     // Subtle neon glow
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(0.1),
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       blurRadius: 30,
                       spreadRadius: -5,
                     ),
@@ -176,12 +175,12 @@ class _NavItemState extends State<_NavItem> with SingleTickerProviderStateMixin 
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
                   color: widget.isSelected
-                      ? AppColors.primary.withOpacity(0.15)
+                      ? AppColors.primary.withValues(alpha: 0.15)
                       : Colors.transparent,
                   boxShadow: widget.isSelected
                       ? [
                           BoxShadow(
-                            color: AppColors.primary.withOpacity(0.3),
+                            color: AppColors.primary.withValues(alpha: 0.3),
                             blurRadius: 12,
                             spreadRadius: -2,
                           ),
@@ -193,7 +192,7 @@ class _NavItemState extends State<_NavItem> with SingleTickerProviderStateMixin 
                   size: 24,
                   color: widget.isSelected
                       ? AppColors.primary
-                      : Colors.white.withOpacity(0.5),
+                      : Colors.white.withValues(alpha: 0.5),
                 ),
               ),
               const SizedBox(height: 4),
@@ -205,7 +204,7 @@ class _NavItemState extends State<_NavItem> with SingleTickerProviderStateMixin 
                   fontWeight: widget.isSelected ? FontWeight.w700 : FontWeight.w500,
                   color: widget.isSelected
                       ? AppColors.primary
-                      : Colors.white.withOpacity(0.5),
+                      : Colors.white.withValues(alpha: 0.5),
                 ),
                 child: Text(widget.label),
               ),
@@ -281,7 +280,7 @@ class _CreateButtonState extends State<_CreateButton>
               boxShadow: [
                 // Main shadow
                 BoxShadow(
-                  color: const Color(0xFF00D9FF).withOpacity(0.4),
+                  color: const Color(0xFF00D9FF).withValues(alpha: 0.4),
                   blurRadius: 20,
                   spreadRadius: _isPressed ? -2 : 0,
                   offset: const Offset(0, 8),
@@ -289,7 +288,7 @@ class _CreateButtonState extends State<_CreateButton>
                 // Pulse glow
                 BoxShadow(
                   color: const Color(0xFF00FF88)
-                      .withOpacity(0.3 * _pulseAnimation.value),
+                      .withValues(alpha: 0.3 * _pulseAnimation.value),
                   blurRadius: 30 * _pulseAnimation.value,
                   spreadRadius: 5 * _pulseAnimation.value,
                 ),

@@ -150,8 +150,6 @@ class WiroService {
         socketAccessToken: '',
         result: false,
         errors: [e.message ?? 'Unknown error'],
-        creditsUsed: 0,
-        creditsRemaining: 0,
       );
     }
   }

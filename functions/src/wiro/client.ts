@@ -21,8 +21,9 @@ export class WiroClient {
   private apiSecret: string;
 
   constructor(apiKey: string, apiSecret: string) {
-    this.apiKey = apiKey;
-    this.apiSecret = apiSecret;
+    // Trim any whitespace/newlines that might be in the secrets
+    this.apiKey = apiKey.trim();
+    this.apiSecret = apiSecret.trim();
   }
 
   /**

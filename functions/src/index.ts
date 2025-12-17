@@ -15,6 +15,10 @@ export {
   cancelWiroTask,
   wiroCallback,
   getUserCredits,
+  prepareGeneration,
+  updateTaskWithWiroId,
+  updateTaskStatus2,
+  refundTaskCredits,
 } from './wiro/functions';
 
 // TODO: Add RevenueCat webhook handler

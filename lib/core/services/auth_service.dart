@@ -1,9 +1,18 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+/// Initial credits for new users
+const int initialCredits = 100;
 
 /// Firebase Auth instance provider
 final firebaseAuthProvider = Provider<FirebaseAuth>((ref) {
   return FirebaseAuth.instance;
+});
+
+/// Firestore instance provider
+final firestoreProvider = Provider<FirebaseFirestore>((ref) {
+  return FirebaseFirestore.instance;
 });
 
 /// Auth state stream provider
@@ -18,14 +27,119 @@ final currentUserProvider = Provider<User?>((ref) {
 
 /// Auth service provider
 final authServiceProvider = Provider<AuthService>((ref) {
-  return AuthService(ref.watch(firebaseAuthProvider));
+  return AuthService(
+    ref.watch(firebaseAuthProvider),
+    ref.watch(firestoreProvider),
+  );
+});
+
+/// User credits provider - watches Firestore for real-time credit updates
+final userCreditsProvider = StreamProvider<int>((ref) {
+  final auth = ref.watch(firebaseAuthProvider);
+  final firestore = ref.watch(firestoreProvider);
+  
+  final user = auth.currentUser;
+  if (user == null) {
+    return Stream.value(0);
+  }
+  
+  return firestore
+      .collection('users')
+      .doc(user.uid)
+      .snapshots()
+      .map((doc) => (doc.data()?['credits'] as num?)?.toInt() ?? 0);
+});
+
+/// User video project model
+class VideoProject {
+  VideoProject({
+    required this.taskId,
+    required this.modelType,
+    required this.effectType,
+    required this.videoMode,
+    required this.status,
+    this.videoUrl,
+    this.createdAt,
+    this.completedAt,
+  });
+
+  factory VideoProject.fromFirestore(Map<String, dynamic> data) {
+    return VideoProject(
+      taskId: data['taskId'] as String? ?? '',
+      modelType: data['modelType'] as String? ?? '',
+      effectType: data['effectType'] as String? ?? '',
+      videoMode: data['videoMode'] as String? ?? 'std',
+      status: data['status'] as String? ?? 'pending',
+      videoUrl: _extractVideoUrl(data['outputs']),
+      createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
+      completedAt: (data['completedAt'] as Timestamp?)?.toDate(),
+    );
+  }
+
+  final String taskId;
+  final String modelType;
+  final String effectType;
+  final String videoMode;
+  final String status;
+  final String? videoUrl;
+  final DateTime? createdAt;
+  final DateTime? completedAt;
+
+  bool get isCompleted => status == 'completed';
+  bool get isPending => status == 'pending' || status == 'processing' || status == 'preparing';
+  bool get isFailed => status == 'failed' || status == 'cancelled';
+
+  /// Get display name from effect type (e.g., "smoky-pedestal" -> "Smoky Pedestal")
+  String get displayName {
+    return effectType
+        .replaceAll('-', ' ')
+        .split(' ')
+        .map((word) => word.isNotEmpty 
+            ? '${word[0].toUpperCase()}${word.substring(1)}'
+            : '')
+        .join(' ');
+  }
+
+  /// Extract video URL from outputs array
+  static String? _extractVideoUrl(dynamic outputs) {
+    if (outputs == null) return null;
+    if (outputs is List && outputs.isNotEmpty) {
+      final firstOutput = outputs[0];
+      if (firstOutput is Map) {
+        return firstOutput['url'] as String?;
+      }
+    }
+    return null;
+  }
+}
+
+/// User videos provider - watches Firestore for user's video projects
+final userVideosProvider = StreamProvider<List<VideoProject>>((ref) {
+  final auth = ref.watch(firebaseAuthProvider);
+  final firestore = ref.watch(firestoreProvider);
+  
+  final user = auth.currentUser;
+  if (user == null) {
+    return Stream.value([]);
+  }
+  
+  // Query the root tasks collection filtered by userId, ordered by creation date
+  return firestore
+      .collection('tasks')
+      .where('userId', isEqualTo: user.uid)
+      .orderBy('createdAt', descending: true)
+      .snapshots()
+      .map((snapshot) => snapshot.docs
+          .map((doc) => VideoProject.fromFirestore(doc.data()))
+          .toList());
 });
 
 /// Authentication service for handling anonymous auth
 class AuthService {
-  AuthService(this._auth);
+  AuthService(this._auth, this._firestore);
 
   final FirebaseAuth _auth;
+  final FirebaseFirestore _firestore;
 
   /// Get the current user
   User? get currentUser => _auth.currentUser;
@@ -36,25 +150,59 @@ class AuthService {
   /// Get user ID
   String? get userId => _auth.currentUser?.uid;
 
-  /// Sign in anonymously
+  /// Sign in anonymously and create Firestore user document
   /// 
   /// Creates a new anonymous user if not already signed in.
+  /// Also creates a Firestore document with initial credits.
   /// Returns the User object on success.
   Future<User?> signInAnonymously() async {
     try {
-      // If already signed in, return current user
+      User? user;
+      
+      // If already signed in, use current user
       if (_auth.currentUser != null) {
-        return _auth.currentUser;
+        user = _auth.currentUser;
+      } else {
+        // Sign in anonymously
+        final userCredential = await _auth.signInAnonymously();
+        user = userCredential.user;
       }
 
-      // Sign in anonymously
-      final userCredential = await _auth.signInAnonymously();
-      return userCredential.user;
+      if (user != null) {
+        // Create or update user document in Firestore
+        await _createUserDocument(user.uid);
+      }
+
+      return user;
     } on FirebaseAuthException catch (e) {
       throw AuthException(e.message ?? 'Authentication failed', e.code);
     } catch (e) {
       throw AuthException('An unexpected error occurred', 'unknown');
     }
+  }
+
+  /// Create user document in Firestore with initial credits
+  Future<void> _createUserDocument(String userId) async {
+    final userRef = _firestore.collection('users').doc(userId);
+    final userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      // Create new user document with initial credits
+      await userRef.set({
+        'credits': initialCredits,
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    }
+  }
+
+  /// Get current user's credits
+  Future<int> getCredits() async {
+    final user = _auth.currentUser;
+    if (user == null) return 0;
+
+    final userDoc = await _firestore.collection('users').doc(user.uid).get();
+    return (userDoc.data()?['credits'] as num?)?.toInt() ?? 0;
   }
 
   /// Sign out
@@ -66,7 +214,9 @@ class AuthService {
   Future<void> deleteAccount() async {
     final user = _auth.currentUser;
     if (user != null) {
-      // TODO: Delete user data from Firestore before deleting account
+      // Delete user document from Firestore
+      await _firestore.collection('users').doc(user.uid).delete();
+      // Delete Firebase Auth account
       await user.delete();
     }
   }
@@ -85,4 +235,3 @@ class AuthException implements Exception {
   @override
   String toString() => 'AuthException: $message (code: $code)';
 }
-

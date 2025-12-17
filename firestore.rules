@@ -2,37 +2,20 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Users collection - users can only read/write their own data
+    // Users collection - users can read/write their own document
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
       
-      // Subcollections
-      match /videos/{videoId} {
+      // Tasks subcollection
+      match /tasks/{taskId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
-      
-      match /transactions/{transactionId} {
-        allow read: if request.auth != null && request.auth.uid == userId;
-        allow write: if false; // Only Cloud Functions can write
-      }
     }
     
-    // Templates collection - read only for authenticated users
-    match /templates/{templateId} {
-      allow read: if request.auth != null;
-      allow write: if false; // Only admin/cloud functions
-    }
-    
-    // Effect types collection - read only
-    match /effectTypes/{effectId} {
-      allow read: if request.auth != null;
-      allow write: if false;
-    }
-    
-    // Deny all other access
-    match /{document=**} {
-      allow read, write: if false;
+    // Tasks collection - Cloud Functions can access, users can read their own
+    match /tasks/{taskId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      // Write only from Cloud Functions (admin SDK bypasses rules)
     }
   }
 }

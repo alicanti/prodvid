@@ -29,8 +29,7 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
 
     // Filter by category if selected
     if (_selectedCategory != null && _selectedCategory!.isNotEmpty) {
-      effects =
-          effects.where((e) => e.category == _selectedCategory).toList();
+      effects = effects.where((e) => e.category == _selectedCategory).toList();
     }
 
     return effects;
@@ -66,7 +65,7 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.08),
+                        color: Colors.white.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
@@ -88,17 +87,18 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
                           ).createShader(bounds),
                           child: Text(
                             'Effects',
-                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                            ),
+                            style: Theme.of(context).textTheme.headlineSmall
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                ),
                           ),
                         ),
                         Text(
                           '${_filteredEffects.length} templates available',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.white.withOpacity(0.5),
+                            color: Colors.white.withValues(alpha: 0.5),
                           ),
                         ),
                       ],
@@ -144,16 +144,18 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
                     padding: const EdgeInsets.all(16),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      childAspectRatio: 0.75,
-                    ),
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          childAspectRatio: 0.75,
+                        ),
                     itemCount: _filteredEffects.length,
                     itemBuilder: (context, index) {
                       final effect = _filteredEffects[index];
                       return _EffectCard(
-                            key: ValueKey('${_selectedModel.name}_${effect.value}'),
+                            key: ValueKey(
+                              '${_selectedModel.name}_${effect.value}',
+                            ),
                             effect: effect,
                             index: index,
                             modelType: _selectedModel,
@@ -184,7 +186,7 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
           final isSelected = model == _selectedModel;
           final colors = _getModelColors(model);
           final isLast = model == WiroModelType.values.last;
-          
+
           return Padding(
             padding: EdgeInsets.only(right: isLast ? 0 : 10),
             child: GestureDetector(
@@ -197,7 +199,10 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 250),
                 curve: Curves.easeOutCubic,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   gradient: isSelected
                       ? LinearGradient(
@@ -210,14 +215,14 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isSelected
-                        ? colors.first.withOpacity(0.5)
-                        : Colors.white.withOpacity(0.08),
+                        ? colors.first.withValues(alpha: 0.5)
+                        : Colors.white.withValues(alpha: 0.08),
                     width: 1.5,
                   ),
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: colors.first.withOpacity(0.4),
+                            color: colors.first.withValues(alpha: 0.4),
                             blurRadius: 16,
                             offset: const Offset(0, 6),
                           ),
@@ -231,16 +236,14 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
                     Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: isSelected 
-                            ? Colors.white.withOpacity(0.2)
-                            : colors.first.withOpacity(0.15),
+                        color: isSelected
+                            ? Colors.white.withValues(alpha: 0.2)
+                            : colors.first.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
                         _getModelIcon(model),
-                        color: isSelected
-                            ? Colors.white
-                            : colors.first,
+                        color: isSelected ? Colors.white : colors.first,
                         size: 16,
                       ),
                     ),
@@ -253,7 +256,7 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
                         fontWeight: FontWeight.w600,
                         color: isSelected
                             ? Colors.white
-                            : Colors.white.withOpacity(0.9),
+                            : Colors.white.withValues(alpha: 0.9),
                       ),
                     ),
                   ],
@@ -281,13 +284,14 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
 
   Widget _buildCategoryChips() {
     final colors = _getModelColors(_selectedModel);
-    
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: _categories.map((category) {
-          final isSelected = _selectedCategory == category ||
+          final isSelected =
+              _selectedCategory == category ||
               (category == 'All' && _selectedCategory == null);
           return Padding(
             padding: const EdgeInsets.only(right: 8),
@@ -304,20 +308,18 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  gradient: isSelected
-                      ? LinearGradient(colors: colors)
-                      : null,
+                  gradient: isSelected ? LinearGradient(colors: colors) : null,
                   color: isSelected ? null : const Color(0xFF1A1A2E),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: isSelected
-                        ? colors.first.withOpacity(0.5)
-                        : Colors.white.withOpacity(0.1),
+                        ? colors.first.withValues(alpha: 0.5)
+                        : Colors.white.withValues(alpha: 0.1),
                   ),
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: colors.first.withOpacity(0.3),
+                            color: colors.first.withValues(alpha: 0.3),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -329,9 +331,9 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: isSelected 
-                        ? Colors.white 
-                        : Colors.white.withOpacity(0.6),
+                    color: isSelected
+                        ? Colors.white
+                        : Colors.white.withValues(alpha: 0.6),
                   ),
                 ),
               ),
@@ -402,11 +404,14 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
 
   void _onEffectSelected(EffectOption effect) {
     // Navigate to effect detail page
-    context.push('/effect-detail', extra: {
-      'modelType': _selectedModel,
-      'effectType': effect.value,
-      'effectLabel': effect.label,
-    });
+    context.push(
+      '/effect-detail',
+      extra: {
+        'modelType': _selectedModel,
+        'effectType': effect.value,
+        'effectLabel': effect.label,
+      },
+    );
   }
 }
 

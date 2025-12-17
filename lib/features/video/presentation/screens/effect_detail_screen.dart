@@ -7,12 +7,12 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../../../core/services/background_task_service.dart';
 import '../../../../core/services/video_cache_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../router/app_router.dart';
 import '../../data/models/wiro_effect_type.dart';
 import '../../data/models/wiro_model_type.dart';
-import '../../data/services/wiro_service.dart';
 
 /// Effect detail screen for configuring and generating videos
 class EffectDetailScreen extends ConsumerStatefulWidget {
@@ -139,52 +139,73 @@ class _EffectDetailScreenState extends ConsumerState<EffectDetailScreen> {
     });
 
     try {
-      final wiroService = ref.read(wiroServiceProvider);
+      final taskService = ref.read(backgroundTaskServiceProvider);
+      final videoModeStr = _videoMode == WiroVideoMode.pro ? 'pro' : 'std';
       
-      // Call appropriate Wiro API based on model type
-      final response = await switch (widget.modelType) {
-        WiroModelType.textAnimations => wiroService.runTextAnimation(
-            caption: _captionController.text.trim(),
-            effectType: widget.effectType,
-            videoMode: _videoMode,
-          ),
-        WiroModelType.productAds => wiroService.runProductAds(
-            inputImage: _productImage!,
-            effectType: widget.effectType,
-            videoMode: _videoMode,
-          ),
-        WiroModelType.productAdsWithCaption => wiroService.runProductAdsWithCaption(
-            inputImage: _productImage!,
-            caption: _captionController.text.trim(),
-            effectType: widget.effectType,
-            videoMode: _videoMode,
-          ),
-        WiroModelType.productAdsWithLogo => wiroService.runProductAdsWithLogo(
-            productImage: _productImage!,
-            logoImage: _logoImage!,
-            effectType: widget.effectType,
-            videoMode: _videoMode,
-          ),
-      };
+      // Step 1: Prepare generation (check credits, deduct, get API credentials)
+      final prepareResult = await taskService.prepareGeneration(
+        modelType: widget.modelType.endpoint.replaceFirst('https://api.wiro.ai/v1/Run/', ''),
+        effectType: widget.effectType,
+        videoMode: videoModeStr,
+      );
 
       if (!mounted) return;
 
-      if (response.hasError) {
+      if (!prepareResult.success) {
         setState(() => _isGenerating = false);
-        
-        // Show error dialog
-        _showErrorDialog(response.errors.join('\n'));
+        _showErrorDialog(prepareResult.error ?? 'Failed to prepare generation');
         return;
       }
 
-      // Navigate to processing screen
-      context.pushReplacement(AppRoutes.videoProcessing, extra: {
-        'taskId': response.taskId,
-        'socketToken': response.socketAccessToken,
-        'modelType': widget.modelType,
-        'effectType': widget.effectType,
-        'effectLabel': widget.effectLabel,
-      });
+      // Step 2: Read image bytes
+      final productBytes = _productImage != null 
+          ? await _productImage!.readAsBytes() 
+          : null;
+      final logoBytes = _logoImage != null 
+          ? await _logoImage!.readAsBytes() 
+          : null;
+
+      // Step 3: Start generation (calls Wiro API directly)
+      final startResult = await taskService.startGeneration(
+        tempTaskId: prepareResult.tempTaskId!,
+        modelType: widget.modelType.endpoint.replaceFirst('https://api.wiro.ai/v1/Run/', ''),
+        effectType: widget.effectType,
+        videoMode: videoModeStr,
+        productImage: productBytes,
+        logoImage: logoBytes,
+        caption: _captionController.text.trim().isNotEmpty 
+            ? _captionController.text.trim() 
+            : null,
+      );
+
+      if (!mounted) return;
+
+      if (!startResult.success) {
+        setState(() => _isGenerating = false);
+        _showErrorDialog(startResult.error ?? 'Failed to start generation');
+        return;
+      }
+
+      // Success! Show success message and navigate to My Videos
+      setState(() => _isGenerating = false);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Video generation started! Check My Videos for progress.'),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+            action: SnackBarAction(
+              label: 'View',
+              textColor: Colors.white,
+              onPressed: () => context.go(AppRoutes.videos),
+            ),
+          ),
+        );
+        
+        // Navigate back or to My Videos
+        context.go(AppRoutes.videos);
+      }
     } catch (e) {
       if (mounted) {
         setState(() => _isGenerating = false);

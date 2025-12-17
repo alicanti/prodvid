@@ -59,8 +59,14 @@ function getCreditCost(videoMode: 'std' | 'pro'): number {
 }
 
 /**
+ * Initial credits for new users
+ */
+const INITIAL_CREDITS = 100;
+
+/**
  * Check and deduct user credits
- * Returns true if successful, throws error if insufficient credits
+ * Creates user with initial credits if not exists
+ * Returns balance info, throws error if insufficient credits
  */
 async function checkAndDeductCredits(
   userId: string,
@@ -71,15 +77,20 @@ async function checkAndDeductCredits(
   return db.runTransaction(async (transaction) => {
     const userDoc = await transaction.get(userRef);
     
+    let currentCredits: number;
+    
     if (!userDoc.exists) {
-      throw new functions.https.HttpsError(
-        'not-found',
-        'User not found'
-      );
+      // Create new user with initial credits
+      currentCredits = INITIAL_CREDITS;
+      transaction.set(userRef, {
+        credits: currentCredits,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    } else {
+      const userData = userDoc.data()!;
+      currentCredits = userData.credits ?? 0;
     }
-
-    const userData = userDoc.data()!;
-    const currentCredits = userData.credits ?? 0;
 
     if (currentCredits < amount) {
       throw new functions.https.HttpsError(
@@ -611,3 +622,265 @@ export const wiroCallback = functions.https.onRequest(async (req, res) => {
     res.status(500).send('Internal error');
   }
 });
+
+/**
+ * Prepare video generation - check credits, deduct, create task record
+ * Returns API credentials for Flutter to call Wiro directly
+ */
+export const prepareGeneration = functions
+  .runWith({
+    secrets: [wiroApiKey, wiroApiSecret],
+    timeoutSeconds: 30,
+    memory: '256MB',
+  })
+  .https.onCall(async (data, context) => {
+    // Require authentication
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        'unauthenticated',
+        'User must be authenticated'
+      );
+    }
+
+    const userId = context.auth.uid;
+    const { modelType, effectType, videoMode = 'std' } = data;
+
+    // Validate model type
+    const validatedModelType = validateModelType(modelType);
+
+    // Validate effect type is provided
+    if (!effectType) {
+      throw new functions.https.HttpsError(
+        'invalid-argument',
+        'effectType is required'
+      );
+    }
+
+    // Calculate credit cost
+    const creditCost = getCreditCost(videoMode);
+
+    // Check and deduct credits
+    let creditResult: { newBalance: number; previousBalance: number };
+    try {
+      creditResult = await checkAndDeductCredits(userId, creditCost);
+      console.log(`Deducted ${creditCost} credits from user ${userId}. Balance: ${creditResult.previousBalance} -> ${creditResult.newBalance}`);
+    } catch (error) {
+      throw error;
+    }
+
+    // Generate a temporary task ID for Firestore (will be updated with real one)
+    const tempTaskId = `pending_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+
+    // Create pending task record in Firestore
+    await db.collection('tasks').doc(tempTaskId).set({
+      tempId: tempTaskId,
+      userId,
+      modelType: validatedModelType,
+      effectType,
+      videoMode,
+      creditCost,
+      status: 'preparing',
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Return API credentials and task info
+    return {
+      success: true,
+      tempTaskId,
+      apiKey: wiroApiKey.value(),
+      apiSecret: wiroApiSecret.value(),
+      creditCost,
+      creditsRemaining: creditResult.newBalance,
+    };
+  });
+
+/**
+ * Update task with real Wiro task ID after generation starts
+ */
+export const updateTaskWithWiroId = functions
+  .runWith({
+    timeoutSeconds: 30,
+    memory: '256MB',
+  })
+  .https.onCall(async (data, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        'unauthenticated',
+        'User must be authenticated'
+      );
+    }
+
+    const userId = context.auth.uid;
+    const { tempTaskId, wiroTaskId, socketToken } = data;
+
+    if (!tempTaskId || !wiroTaskId) {
+      throw new functions.https.HttpsError(
+        'invalid-argument',
+        'tempTaskId and wiroTaskId are required'
+      );
+    }
+
+    // Get the temp task
+    const tempTaskRef = db.collection('tasks').doc(tempTaskId);
+    const tempTaskDoc = await tempTaskRef.get();
+
+    if (!tempTaskDoc.exists) {
+      throw new functions.https.HttpsError(
+        'not-found',
+        'Task not found'
+      );
+    }
+
+    const taskData = tempTaskDoc.data();
+    if (taskData?.userId !== userId) {
+      throw new functions.https.HttpsError(
+        'permission-denied',
+        'Not authorized to update this task'
+      );
+    }
+
+    // Create new document with real Wiro task ID
+    await db.collection('tasks').doc(wiroTaskId).set({
+      ...taskData,
+      taskId: wiroTaskId,
+      socketToken,
+      status: 'processing',
+      tempId: null,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    // Delete temp task
+    await tempTaskRef.delete();
+
+    return { success: true, taskId: wiroTaskId };
+  });
+
+/**
+ * Update task status from Flutter polling
+ */
+export const updateTaskStatus2 = functions
+  .runWith({
+    timeoutSeconds: 30,
+    memory: '256MB',
+  })
+  .https.onCall(async (data, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        'unauthenticated',
+        'User must be authenticated'
+      );
+    }
+
+    const userId = context.auth.uid;
+    const { taskId, status, outputs, videoUrl } = data;
+
+    if (!taskId || !status) {
+      throw new functions.https.HttpsError(
+        'invalid-argument',
+        'taskId and status are required'
+      );
+    }
+
+    // Get the task
+    const taskRef = db.collection('tasks').doc(taskId);
+    const taskDoc = await taskRef.get();
+
+    if (!taskDoc.exists) {
+      throw new functions.https.HttpsError(
+        'not-found',
+        'Task not found'
+      );
+    }
+
+    const taskData = taskDoc.data();
+    if (taskData?.userId !== userId) {
+      throw new functions.https.HttpsError(
+        'permission-denied',
+        'Not authorized to update this task'
+      );
+    }
+
+    // Update task
+    const updateData: Record<string, unknown> = {
+      status,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    if (outputs) {
+      updateData.outputs = outputs;
+    }
+    if (videoUrl) {
+      updateData.videoUrl = videoUrl;
+    }
+    if (status === 'completed' || status === 'failed' || status === 'cancelled') {
+      updateData.completedAt = admin.firestore.FieldValue.serverTimestamp();
+    }
+
+    await taskRef.update(updateData);
+
+    return { success: true };
+  });
+
+/**
+ * Refund credits when task fails or is cancelled
+ */
+export const refundTaskCredits = functions
+  .runWith({
+    timeoutSeconds: 30,
+    memory: '256MB',
+  })
+  .https.onCall(async (data, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        'unauthenticated',
+        'User must be authenticated'
+      );
+    }
+
+    const userId = context.auth.uid;
+    const { taskId } = data;
+
+    if (!taskId) {
+      throw new functions.https.HttpsError(
+        'invalid-argument',
+        'taskId is required'
+      );
+    }
+
+    // Get the task
+    const taskRef = db.collection('tasks').doc(taskId);
+    const taskDoc = await taskRef.get();
+
+    if (!taskDoc.exists) {
+      throw new functions.https.HttpsError(
+        'not-found',
+        'Task not found'
+      );
+    }
+
+    const taskData = taskDoc.data();
+    if (taskData?.userId !== userId) {
+      throw new functions.https.HttpsError(
+        'permission-denied',
+        'Not authorized'
+      );
+    }
+
+    // Check if already refunded
+    if (taskData?.refunded) {
+      return { success: true, alreadyRefunded: true };
+    }
+
+    // Refund credits
+    const creditCost = taskData?.creditCost || 0;
+    if (creditCost > 0) {
+      await refundCredits(userId, creditCost);
+      await taskRef.update({ 
+        refunded: true,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+
+    return { success: true, refundedCredits: creditCost };
+  });

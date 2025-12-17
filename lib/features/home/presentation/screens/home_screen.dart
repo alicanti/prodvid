@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/video_cache_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/optimized_video_cover.dart';
@@ -22,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // Curated effect collections with badges
   late final List<_EffectCollection> _collections;
   late final List<_FeaturedEffect> _heroEffects;
-  
+
   final PageController _heroPageController = PageController();
   Timer? _autoScrollTimer;
   int _currentHeroPage = 0;
@@ -32,10 +34,10 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _collections = _buildCollections();
     _heroEffects = _buildHeroEffects();
-    
+
     // Preload videos in the background for smooth playback
     _preloadVideos();
-    
+
     // Start auto-scroll timer (every 2 seconds)
     _startAutoScroll();
   }
@@ -397,7 +399,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
         body: Transform.translate(
           offset: const Offset(0, -overlapHeight),
-          child: Container(
+          child: DecoratedBox(
             decoration: BoxDecoration(
               color: AppColors.backgroundDark,
               borderRadius: const BorderRadius.only(
@@ -406,7 +408,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.4),
+                  color: Colors.black.withValues(alpha: 0.4),
                   blurRadius: 20,
                   offset: const Offset(0, -8),
                 ),
@@ -447,10 +449,7 @@ class _HomeScreenState extends State<HomeScreen> {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Colors.black.withOpacity(0.6),
-                Colors.transparent,
-              ],
+              colors: [Colors.black.withValues(alpha: 0.6), Colors.transparent],
             ),
           ),
           child: Row(
@@ -458,21 +457,18 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               ShaderMask(
                 shaderCallback: (bounds) => const LinearGradient(
-                  colors: [
-                    Color(0xFF00D9FF),
-                    Color(0xFF00FF88),
-                  ],
+                  colors: [Color(0xFF00D9FF), Color(0xFF00FF88)],
                 ).createShader(bounds),
                 child: Text(
                   'ProdVid',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                        letterSpacing: -0.5,
-                      ),
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                    letterSpacing: -0.5,
+                  ),
                 ),
               ),
-              const _CreditsBadge(credits: 150),
+              const _CreditsBadge(),
             ],
           ),
         ),
@@ -502,7 +498,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildCollectionSection(_EffectCollection collection, int sectionIndex) {
+  Widget _buildCollectionSection(
+    _EffectCollection collection,
+    int sectionIndex,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       child: Column(
@@ -517,9 +516,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   collection.title,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
                 ),
                 TextButton(
                   onPressed: () => context.go('/templates'),
@@ -533,12 +532,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-          )
-              .animate()
-              .fadeIn(
-                delay: Duration(milliseconds: 100 * sectionIndex),
-                duration: 400.ms,
-              ),
+          ).animate().fadeIn(
+            delay: Duration(milliseconds: 100 * sectionIndex),
+            duration: 400.ms,
+          ),
 
           const SizedBox(height: 6),
 
@@ -552,18 +549,22 @@ class _HomeScreenState extends State<HomeScreen> {
               itemBuilder: (context, index) {
                 final featured = collection.effects[index];
                 return Padding(
-                  padding: EdgeInsets.only(
-                    right: index < collection.effects.length - 1 ? 6 : 0,
-                  ),
-                  child: _EffectCarouselCard(
-                    key: ValueKey('${collection.title}_${_getEffectValue(featured.effect)}'),
-                    featured: featured,
-                    onTap: () => _onEffectTap(featured),
-                  ),
-                )
+                      padding: EdgeInsets.only(
+                        right: index < collection.effects.length - 1 ? 6 : 0,
+                      ),
+                      child: _EffectCarouselCard(
+                        key: ValueKey(
+                          '${collection.title}_${_getEffectValue(featured.effect)}',
+                        ),
+                        featured: featured,
+                        onTap: () => _onEffectTap(featured),
+                      ),
+                    )
                     .animate()
                     .fadeIn(
-                      delay: Duration(milliseconds: 100 * sectionIndex + 50 * index),
+                      delay: Duration(
+                        milliseconds: 100 * sectionIndex + 50 * index,
+                      ),
                       duration: 400.ms,
                     )
                     .slideX(begin: 0.2);
@@ -593,14 +594,14 @@ enum EffectBadge {
   final IconData icon;
 }
 
-/// Credits badge widget for app bar
-class _CreditsBadge extends StatelessWidget {
-  const _CreditsBadge({required this.credits});
-
-  final int credits;
+/// Credits badge widget for app bar - uses real-time credit data from Firestore
+class _CreditsBadge extends ConsumerWidget {
+  const _CreditsBadge();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final creditsAsync = ref.watch(userCreditsProvider);
+
     return GestureDetector(
       onTap: () {
         // TODO: Navigate to credits/subscription page
@@ -642,19 +643,34 @@ class _CreditsBadge extends StatelessWidget {
                 ],
               ),
               child: const Center(
-                child: Text(
-                  '⚡',
-                  style: TextStyle(fontSize: 10),
-                ),
+                child: Text('⚡', style: TextStyle(fontSize: 10)),
               ),
             ),
             const SizedBox(width: 6),
-            Text(
-              '$credits',
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFFFFD700),
+            creditsAsync.when(
+              data: (credits) => Text(
+                '$credits',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFFFFD700),
+                ),
+              ),
+              loading: () => const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Color(0xFFFFD700),
+                ),
+              ),
+              error: (_, __) => const Text(
+                '?',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFFFFD700),
+                ),
               ),
             ),
             const SizedBox(width: 4),
@@ -773,7 +789,8 @@ class _FullscreenHeroCard extends StatelessWidget {
           if (coverUrl != null)
             OptimizedVideoCover(
               videoUrl: coverUrl,
-              uniqueId: 'hero_fullscreen_${featured.model.name}_${_getEffectValue()}',
+              uniqueId:
+                  'hero_fullscreen_${featured.model.name}_${_getEffectValue()}',
               fallbackGradient: _getNeonGradient(),
               borderRadius: 0,
             )
@@ -887,7 +904,6 @@ class _FullscreenHeroCard extends StatelessWidget {
               ],
             ),
           ),
-
         ],
       ),
     );
@@ -983,7 +999,8 @@ class _EffectCarouselCard extends StatelessWidget {
               if (coverUrl != null)
                 OptimizedVideoCover(
                   videoUrl: coverUrl,
-                  uniqueId: 'carousel_${featured.model.name}_${_getEffectValue()}',
+                  uniqueId:
+                      'carousel_${featured.model.name}_${_getEffectValue()}',
                   fallbackGradient: _getGradient(),
                   borderRadius: 0,
                 )
@@ -1099,4 +1116,3 @@ class _EffectCarouselCard extends StatelessWidget {
     );
   }
 }
-

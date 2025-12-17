@@ -1,15 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/services/auth_service.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// User profile screen matching Stitch design - prodvid_user_profile
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
+  void _copyUserId(BuildContext context, String userId) {
+    Clipboard.setData(ClipboardData(text: userId));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('User ID copied to clipboard'),
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authService = ref.watch(authServiceProvider);
+    final userId = authService.userId ?? 'Unknown';
+    final creditsAsync = ref.watch(userCreditsProvider);
+
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
       body: Column(
@@ -33,21 +51,11 @@ class ProfileScreen extends StatelessWidget {
                       'Profile',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                            fontWeight: FontWeight.w700,
+                          ),
                     ),
                   ),
-                  TextButton(
-                    onPressed: () {},
-                    child: const Text(
-                      'Edit',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ),
+                  const SizedBox(width: 48), // Balance for back button
                 ],
               ),
             ),
@@ -65,290 +73,233 @@ class ProfileScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         // Avatar
-                        Stack(
-                              children: [
-                                Container(
-                                  width: 112,
-                                  height: 112,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: AppColors.surfaceDark,
-                                      width: 4,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withValues(
-                                          alpha: 0.3,
-                                        ),
-                                        blurRadius: 20,
-                                      ),
-                                    ],
-                                  ),
-                                  child: const ClipOval(
-                                    child: DecoratedBox(
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                          colors: [
-                                            Color(0xFF667eea),
-                                            Color(0xFF764ba2),
-                                          ],
-                                        ),
-                                      ),
-                                      child: Icon(
-                                        Icons.person,
-                                        size: 48,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
+                        Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.surfaceDark,
+                              width: 4,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.3),
+                                blurRadius: 20,
+                              ),
+                            ],
+                          ),
+                          child: const ClipOval(
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    Color(0xFF667eea),
+                                    Color(0xFF764ba2),
+                                  ],
                                 ),
-                                // Edit badge
-                                Positioned(
-                                  right: 0,
-                                  bottom: 0,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.primary,
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: AppColors.backgroundDark,
-                                        width: 4,
-                                      ),
-                                    ),
-                                    child: const Icon(
-                                      Icons.edit,
-                                      size: 14,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )
-                            .animate()
-                            .fadeIn(duration: 400.ms)
-                            .scale(begin: const Offset(0.9, 0.9)),
+                              ),
+                              child: Icon(
+                                Icons.person,
+                                size: 48,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ).animate().fadeIn(duration: 400.ms).scale(
+                              begin: const Offset(0.9, 0.9),
+                            ),
 
                         const SizedBox(height: 16),
 
-                        // Name
+                        // Anonymous User label
                         Text(
-                          'Alex Johnson',
-                          style: Theme.of(context).textTheme.headlineSmall
+                          'Anonymous User',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
                               ?.copyWith(fontWeight: FontWeight.w800),
                         ).animate().fadeIn(delay: 100.ms),
 
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 12),
 
-                        // Email
-                        const Text(
-                          'alex.j@example.com',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.textSecondaryDark,
-                          ),
-                        ).animate().fadeIn(delay: 150.ms),
-
-                        const SizedBox(height: 8),
-
-                        // Pro badge
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(9999),
-                          ),
-                          child: const Text(
-                            'PRO MEMBER',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.primary,
-                              letterSpacing: 1,
+                        // User ID with copy button
+                        GestureDetector(
+                          onTap: () => _copyUserId(context, userId),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceDark,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: AppColors.borderDark),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.fingerprint,
+                                  size: 18,
+                                  color: AppColors.textSecondaryDark,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  userId.length > 16
+                                      ? '${userId.substring(0, 8)}...${userId.substring(userId.length - 6)}'
+                                      : userId,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: 'monospace',
+                                    color: AppColors.textSecondaryDark,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Icon(
+                                  Icons.copy,
+                                  size: 16,
+                                  color: AppColors.primary,
+                                ),
+                              ],
                             ),
                           ),
-                        ).animate().fadeIn(delay: 200.ms),
+                        ).animate().fadeIn(delay: 150.ms),
                       ],
                     ),
                   ),
 
                   const SizedBox(height: 16),
 
-                  // Usage Statistics
+                  // Credits Card
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Usage Statistics',
-                          style: Theme.of(context).textTheme.titleLarge
+                          'Credits',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge
                               ?.copyWith(fontWeight: FontWeight.w700),
                         ),
 
                         const SizedBox(height: 12),
 
                         // Credits card
-                        DecoratedBox(
+                        Container(
+                          padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
-                            color: AppColors.surfaceDark,
+                            gradient: const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Color(0xFF1a1f2e),
+                                Color(0xFF0f1318),
+                              ],
+                            ),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(color: AppColors.borderDark),
                           ),
-                          child: Column(
+                          child: Row(
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.all(20),
+                              // Credit icon
+                              Container(
+                                width: 56,
+                                height: 56,
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      AppColors.primary,
+                                      AppColors.cyan,
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppColors.primary.withValues(alpha: 0.4),
+                                      blurRadius: 12,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: const Icon(
+                                  Icons.diamond,
+                                  color: Colors.white,
+                                  size: 28,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     const Text(
-                                      'CURRENT PLAN',
+                                      'Available Credits',
                                       style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
                                         color: AppColors.textSecondaryDark,
-                                        letterSpacing: 1,
                                       ),
                                     ),
                                     const SizedBox(height: 4),
-                                    Text(
-                                      'Monthly Credits',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleLarge
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                    ),
-                                    const SizedBox(height: 16),
-
-                                    // Progress
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                          '85',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headlineMedium
-                                              ?.copyWith(
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        const Padding(
-                                          padding: EdgeInsets.only(
-                                            bottom: 4,
-                                          ),
-                                          child: Text(
-                                            '/ 100 Used',
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              color:
-                                                  AppColors.textSecondaryDark,
+                                    creditsAsync.when(
+                                      data: (credits) => Text(
+                                        '$credits',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headlineMedium
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.w800,
+                                              color: Colors.white,
                                             ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-
-                                    const SizedBox(height: 12),
-
-                                    // Progress bar
-                                    Container(
-                                      height: 10,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.surfaceCard,
-                                        borderRadius: BorderRadius.circular(
-                                          9999,
+                                      ),
+                                      loading: () => const SizedBox(
+                                        height: 24,
+                                        width: 24,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
                                         ),
                                       ),
-                                      child: FractionallySizedBox(
-                                        alignment: Alignment.centerLeft,
-                                        widthFactor: 0.85,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            color: AppColors.primary,
-                                            borderRadius: BorderRadius.circular(
-                                              9999,
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: AppColors.primary
-                                                    .withValues(alpha: 0.5),
-                                                blurRadius: 10,
-                                              ),
-                                            ],
-                                          ),
+                                      error: (_, __) => const Text(
+                                        '—',
+                                        style: TextStyle(
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.w800,
                                         ),
-                                      ),
-                                    ),
-
-                                    const SizedBox(height: 8),
-
-                                    const Text(
-                                      'Resets in 5 days',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: AppColors.slate500,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-
-                              // Upgrade banner
+                              // Buy credits button
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 12,
+                                  horizontal: 16,
+                                  vertical: 10,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primary.withValues(
-                                    alpha: 0.05,
-                                  ),
-                                  border: const Border(
-                                    top: BorderSide(
-                                      color: AppColors.borderDark,
-                                    ),
-                                  ),
-                                  borderRadius: const BorderRadius.vertical(
-                                    bottom: Radius.circular(15),
-                                  ),
+                                  color: AppColors.primary.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(20),
                                 ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Text(
-                                      'Need more credits?',
+                                    Icon(
+                                      Icons.add,
+                                      size: 18,
+                                      color: AppColors.primary,
+                                    ),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      'Buy',
                                       style: TextStyle(
                                         fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: AppColors.slate400,
-                                      ),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        // TODO: Navigate to paywall when designed
-                                      },
-                                      child: const Text(
-                                        'Upgrade Plan',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w700,
-                                          color: AppColors.primary,
-                                        ),
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.primary,
                                       ),
                                     ),
                                   ],
@@ -356,7 +307,37 @@ class ProfileScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                        ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.1),
+                        ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
+
+                        const SizedBox(height: 12),
+
+                        // Credit info
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceDark.withValues(alpha: 0.5),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline,
+                                size: 18,
+                                color: AppColors.textSecondaryDark,
+                              ),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Standard video: 45 credits • Pro video: 80 credits',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: AppColors.textSecondaryDark,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ).animate().fadeIn(delay: 250.ms),
                       ],
                     ),
                   ),
@@ -370,8 +351,10 @@ class ProfileScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Account',
-                          style: Theme.of(context).textTheme.titleLarge
+                          'Settings',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge
                               ?.copyWith(fontWeight: FontWeight.w700),
                         ),
 
@@ -386,29 +369,19 @@ class ProfileScreen extends StatelessWidget {
                           child: Column(
                             children: [
                               _SettingsItem(
-                                icon: Icons.credit_card,
-                                iconColor: AppColors.primary,
-                                iconBgColor: const Color(0xFF222B3D),
-                                title: 'Subscription',
-                                subtitle: 'Manage plan & billing',
-                                onTap: () {
-                                  // TODO: Navigate to paywall when designed
-                                },
-                              ),
-                              _SettingsItem(
                                 icon: Icons.movie_filter,
                                 iconColor: AppColors.purple,
                                 iconBgColor: const Color(0xFF222B3D),
-                                title: 'History',
+                                title: 'My Videos',
                                 subtitle: 'View past generations',
-                                onTap: () {},
+                                onTap: () => context.go('/videos'),
                               ),
                               _SettingsItem(
                                 icon: Icons.notifications,
                                 iconColor: AppColors.orange,
                                 iconBgColor: const Color(0xFF222B3D),
                                 title: 'Notifications',
-                                subtitle: 'Email & push preferences',
+                                subtitle: 'Push preferences',
                                 onTap: () {},
                               ),
                               _SettingsItem(
@@ -418,26 +391,62 @@ class ProfileScreen extends StatelessWidget {
                                 title: 'Support',
                                 subtitle: 'Get help & FAQs',
                                 onTap: () {},
+                              ),
+                              _SettingsItem(
+                                icon: Icons.privacy_tip_outlined,
+                                iconColor: AppColors.slate400,
+                                iconBgColor: const Color(0xFF222B3D),
+                                title: 'Privacy Policy',
+                                subtitle: 'Terms and conditions',
+                                onTap: () {},
                                 showDivider: false,
                               ),
                             ],
                           ),
-                        ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1),
+                        ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.1),
                       ],
                     ),
                   ),
 
                   const SizedBox(height: 32),
 
-                  // Logout button
+                  // Delete account button
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: () {
-                          // Handle logout
-                          context.go('/welcome');
+                        onTap: () async {
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              backgroundColor: AppColors.surfaceCard,
+                              title: const Text('Delete Account?'),
+                              content: const Text(
+                                'This will permanently delete your account and all data. This action cannot be undone.',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, false),
+                                  child: const Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: AppColors.error,
+                                  ),
+                                  child: const Text('Delete'),
+                                ),
+                              ],
+                            ),
+                          );
+
+                          if (confirm ?? false) {
+                            await authService.deleteAccount();
+                            if (context.mounted) {
+                              context.go('/welcome');
+                            }
+                          }
                         },
                         borderRadius: BorderRadius.circular(16),
                         child: Container(
@@ -451,10 +460,10 @@ class ProfileScreen extends StatelessWidget {
                           child: const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.logout, color: AppColors.error),
+                              Icon(Icons.delete_forever, color: AppColors.error),
                               SizedBox(width: 8),
                               Text(
-                                'Log Out',
+                                'Delete Account',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,
@@ -465,14 +474,14 @@ class ProfileScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                    ).animate().fadeIn(delay: 500.ms),
+                    ).animate().fadeIn(delay: 400.ms),
                   ),
 
                   const SizedBox(height: 16),
 
                   // Version
                   const Text(
-                    'ProdVid v2.4.0',
+                    'ProdVid v1.0.0',
                     style: TextStyle(fontSize: 12, color: AppColors.slate600),
                   ),
                 ],
@@ -564,4 +573,3 @@ class _SettingsItem extends StatelessWidget {
     );
   }
 }
-

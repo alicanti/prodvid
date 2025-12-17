@@ -106,7 +106,8 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
     try {
       // Get download directory
       final directory = await getApplicationDocumentsDirectory();
-      final fileName = 'prodvid_${widget.taskId ?? DateTime.now().millisecondsSinceEpoch}.mp4';
+      final fileName =
+          'prodvid_${widget.taskId ?? DateTime.now().millisecondsSinceEpoch}.mp4';
       final filePath = '${directory.path}/$fileName';
 
       // Download with progress
@@ -158,15 +159,17 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
 
     try {
       if (localPath != null && File(localPath).existsSync()) {
-        await Share.shareXFiles([XFile(localPath)], text: 'Check out this video!');
+        await Share.shareXFiles([
+          XFile(localPath),
+        ], text: 'Check out this video!');
       } else {
         await Share.share(widget.videoUrl!, subject: 'Check out this video!');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Share failed: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Share failed: $e')));
       }
     }
   }
@@ -212,8 +215,8 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
                       'Your Video',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                   TextButton(
@@ -250,8 +253,8 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
                   Text(
                     'Video generated!',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ).animate().fadeIn(delay: 200.ms),
 
                   const SizedBox(height: 4),
@@ -277,7 +280,7 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
 
                   // Share button
                   OutlinedButton(
-                    onPressed: () => _shareVideo(),
+                    onPressed: _shareVideo,
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 56),
                       side: const BorderSide(color: AppColors.borderDark),
@@ -305,9 +308,7 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
                   const SizedBox(height: 24),
 
                   // Copy link
-                  _buildCopyLinkCard()
-                      .animate()
-                      .fadeIn(delay: 400.ms),
+                  _buildCopyLinkCard().animate().fadeIn(delay: 400.ms),
 
                   const SizedBox(height: 24),
 
@@ -338,35 +339,35 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
                           icon: Icons.camera_alt,
                           label: 'Instagram',
                           gradient: AppColors.instagramGradient,
-                          onTap: () => _shareVideo(),
+                          onTap: _shareVideo,
                         ),
                         const SizedBox(width: 16),
                         _ShareButton(
                           icon: Icons.music_note,
                           label: 'TikTok',
                           color: Colors.black,
-                          onTap: () => _shareVideo(),
+                          onTap: _shareVideo,
                         ),
                         const SizedBox(width: 16),
                         _ShareButton(
                           icon: Icons.smart_display,
                           label: 'Shorts',
                           color: Colors.red,
-                          onTap: () => _shareVideo(),
+                          onTap: _shareVideo,
                         ),
                         const SizedBox(width: 16),
                         _ShareButton(
                           icon: Icons.chat,
                           label: 'Message',
                           color: AppColors.success,
-                          onTap: () => _shareVideo(),
+                          onTap: _shareVideo,
                         ),
                         const SizedBox(width: 16),
                         _ShareButton(
                           icon: Icons.more_horiz,
                           label: 'More',
                           color: AppColors.slate400,
-                          onTap: () => _shareVideo(),
+                          onTap: _shareVideo,
                         ),
                       ],
                     ),
@@ -395,7 +396,7 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withValues(alpha: 0.3),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -428,14 +429,14 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
                     child: AnimatedOpacity(
                       opacity: _isPlaying ? 0.0 : 1.0,
                       duration: const Duration(milliseconds: 200),
-                      child: Container(
-                        color: Colors.black.withOpacity(0.3),
+                      child: ColoredBox(
+                        color: Colors.black.withValues(alpha: 0.3),
                         child: Center(
                           child: Container(
                             width: 64,
                             height: 64,
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: 0.2),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -511,7 +512,7 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
             Icon(
               Icons.error_outline,
               size: 48,
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withValues(alpha: 0.7),
             ),
             const SizedBox(height: 16),
             const Text(
@@ -562,7 +563,7 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
               child: Container(
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(9999),
                 ),
                 child: FractionallySizedBox(
@@ -587,7 +588,7 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                   ),
                 ),
                 Text(
@@ -595,7 +596,7 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                   ),
                 ),
               ],
@@ -624,7 +625,7 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
               widthFactor: _downloadProgress,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
@@ -687,11 +688,7 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
               color: AppColors.surfaceCard,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(
-              Icons.link,
-              color: AppColors.slate400,
-              size: 20,
-            ),
+            child: const Icon(Icons.link, color: AppColors.slate400, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -752,7 +749,7 @@ class _ShareButton extends StatelessWidget {
               borderRadius: BorderRadius.circular(9999),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
+                  color: Colors.black.withValues(alpha: 0.2),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),

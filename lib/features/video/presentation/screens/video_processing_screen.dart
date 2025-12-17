@@ -38,7 +38,7 @@ class _VideoProcessingScreenState extends ConsumerState<VideoProcessingScreen>
   StreamSubscription<WiroTaskDetail>? _statusSubscription;
 
   String _statusMessage = 'Starting...';
-  double _progress = 0.0;
+  double _progress = 0;
   bool _isComplete = false;
   bool _hasError = false;
   String? _errorMessage;
@@ -66,17 +66,8 @@ class _VideoProcessingScreenState extends ConsumerState<VideoProcessingScreen>
     final wiroService = ref.read(wiroServiceProvider);
 
     _statusSubscription = wiroService
-        .pollTaskStatus(
-          taskId: widget.taskId,
-          pollInterval: const Duration(seconds: 2),
-        )
-        .listen(
-          _onStatusUpdate,
-          onError: _onError,
-          onDone: () {
-            // Polling complete
-          },
-        );
+        .pollTaskStatus(taskId: widget.taskId)
+        .listen(_onStatusUpdate, onError: _onError);
   }
 
   void _onStatusUpdate(WiroTaskDetail task) {
@@ -90,12 +81,40 @@ class _VideoProcessingScreenState extends ConsumerState<VideoProcessingScreen>
 
         if (task.isSuccess) {
           _videoUrl = task.videoUrl;
+          if (_videoUrl == null) {
+            _hasError = true;
+            _errorMessage = 'No video output found';
+          }
         } else {
           _hasError = true;
-          _errorMessage = task.debugError ?? 'Video generation failed';
+          _errorMessage = task.debugError ?? 'Video generation was cancelled';
         }
       }
     });
+  }
+
+  double _calculateProgress(WiroTaskStatus? status) {
+    if (status == null) return 0;
+    switch (status) {
+      case WiroTaskStatus.queue:
+        return 0.1;
+      case WiroTaskStatus.accept:
+        return 0.2;
+      case WiroTaskStatus.assign:
+        return 0.25;
+      case WiroTaskStatus.preprocessStart:
+        return 0.35;
+      case WiroTaskStatus.preprocessEnd:
+        return 0.45;
+      case WiroTaskStatus.start:
+        return 0.6;
+      case WiroTaskStatus.output:
+        return 0.85;
+      case WiroTaskStatus.postprocessEnd:
+        return 1;
+      case WiroTaskStatus.cancel:
+        return 0;
+    }
   }
 
   void _onError(Object error) {
@@ -106,31 +125,6 @@ class _VideoProcessingScreenState extends ConsumerState<VideoProcessingScreen>
     });
   }
 
-  double _calculateProgress(WiroTaskStatus? status) {
-    if (status == null) return 0.0;
-
-    switch (status) {
-      case WiroTaskStatus.queue:
-        return 0.1;
-      case WiroTaskStatus.accept:
-        return 0.15;
-      case WiroTaskStatus.assign:
-        return 0.2;
-      case WiroTaskStatus.preprocessStart:
-        return 0.3;
-      case WiroTaskStatus.preprocessEnd:
-        return 0.4;
-      case WiroTaskStatus.start:
-        return 0.5;
-      case WiroTaskStatus.output:
-        return 0.8;
-      case WiroTaskStatus.postprocessEnd:
-        return 1.0;
-      case WiroTaskStatus.cancel:
-        return _progress;
-    }
-  }
-
   Future<void> _cancelTask() async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -138,7 +132,7 @@ class _VideoProcessingScreenState extends ConsumerState<VideoProcessingScreen>
         backgroundColor: AppColors.surfaceCard,
         title: const Text('Cancel Generation?'),
         content: const Text(
-          'Your credits will be refunded if the task is still queued.',
+          'Are you sure you want to cancel the video generation?',
         ),
         actions: [
           TextButton(
@@ -153,7 +147,7 @@ class _VideoProcessingScreenState extends ConsumerState<VideoProcessingScreen>
       ),
     );
 
-    if (confirmed == true) {
+    if (confirmed ?? false) {
       try {
         final wiroService = ref.read(wiroServiceProvider);
         await wiroService.cancelTask(taskId: widget.taskId);
@@ -161,10 +155,19 @@ class _VideoProcessingScreenState extends ConsumerState<VideoProcessingScreen>
           context.pop();
         }
       } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to cancel: $e')),
-          );
+        // Try kill if cancel fails
+        try {
+          final wiroService = ref.read(wiroServiceProvider);
+          await wiroService.killTask(taskId: widget.taskId);
+          if (mounted) {
+            context.pop();
+          }
+        } catch (e2) {
+          if (mounted) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text('Failed to cancel: $e2')));
+          }
         }
       }
     }
@@ -172,13 +175,10 @@ class _VideoProcessingScreenState extends ConsumerState<VideoProcessingScreen>
 
   void _viewResult() {
     if (_videoUrl != null) {
-      context.pushReplacement('/video-export', extra: {
-        'videoUrl': _videoUrl,
-        'modelType': widget.modelType,
-        'effectType': widget.effectType,
-        'effectLabel': widget.effectLabel,
-        'taskId': widget.taskId,
-      });
+      context.pushReplacement(
+        '/video-export',
+        extra: {'videoUrl': _videoUrl, 'taskId': widget.taskId},
+      );
     }
   }
 
@@ -212,14 +212,14 @@ class _VideoProcessingScreenState extends ConsumerState<VideoProcessingScreen>
               Text(
                 widget.effectLabel,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+                  fontWeight: FontWeight.w700,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
                 widget.modelType.label,
-                style: TextStyle(
+                style: const TextStyle(
                   color: AppColors.textSecondaryDark,
                   fontSize: 14,
                 ),
@@ -246,7 +246,7 @@ class _VideoProcessingScreenState extends ConsumerState<VideoProcessingScreen>
         height: 120,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: AppColors.error.withOpacity(0.1),
+          color: AppColors.error.withValues(alpha: 0.1),
         ),
         child: const Icon(
           Icons.error_outline,
@@ -264,8 +264,8 @@ class _VideoProcessingScreenState extends ConsumerState<VideoProcessingScreen>
           shape: BoxShape.circle,
           gradient: LinearGradient(
             colors: [
-              AppColors.primary.withOpacity(0.2),
-              AppColors.cyan.withOpacity(0.2),
+              AppColors.primary.withValues(alpha: 0.2),
+              AppColors.cyan.withValues(alpha: 0.2),
             ],
           ),
         ),
@@ -290,13 +290,15 @@ class _VideoProcessingScreenState extends ConsumerState<VideoProcessingScreen>
               shape: BoxShape.circle,
               gradient: LinearGradient(
                 colors: [
-                  AppColors.primary.withOpacity(0.3),
-                  AppColors.cyan.withOpacity(0.3),
+                  AppColors.primary.withValues(alpha: 0.3),
+                  AppColors.cyan.withValues(alpha: 0.3),
                 ],
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withOpacity(0.3 * _pulseController.value),
+                  color: AppColors.primary.withValues(
+                    alpha: 0.3 * _pulseController.value,
+                  ),
                   blurRadius: 30,
                   spreadRadius: 10,
                 ),
@@ -344,7 +346,7 @@ class _VideoProcessingScreenState extends ConsumerState<VideoProcessingScreen>
           const SizedBox(height: 12),
           Text(
             '${(_progress * 100).toInt()}%',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
               color: AppColors.textSecondaryDark,
             ),
@@ -390,10 +392,7 @@ class _VideoProcessingScreenState extends ConsumerState<VideoProcessingScreen>
                 SizedBox(width: 8),
                 Text(
                   'View Video',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                 ),
               ],
             ),
@@ -403,4 +402,3 @@ class _VideoProcessingScreenState extends ConsumerState<VideoProcessingScreen>
     );
   }
 }
-
