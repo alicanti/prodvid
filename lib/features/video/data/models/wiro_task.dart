@@ -172,6 +172,8 @@ class WiroRunTaskResponse {
     required this.socketAccessToken,
     required this.result,
     this.errors = const [],
+    this.creditsUsed = 0,
+    this.creditsRemaining = 0,
   });
 
   factory WiroRunTaskResponse.fromJson(Map<String, dynamic> json) {
@@ -180,9 +182,12 @@ class WiroRunTaskResponse {
       socketAccessToken:
           json['socketAccessToken'] as String? ??
           json['socketaccesstoken'] as String? ??
+          json['socketToken'] as String? ??
           '',
-      result: json['result'] as bool? ?? false,
+      result: json['result'] as bool? ?? json['success'] as bool? ?? false,
       errors: (json['errors'] as List<dynamic>?)?.cast<String>() ?? [],
+      creditsUsed: (json['creditsUsed'] as num?)?.toInt() ?? 0,
+      creditsRemaining: (json['creditsRemaining'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -190,6 +195,8 @@ class WiroRunTaskResponse {
   final String socketAccessToken;
   final bool result;
   final List<String> errors;
+  final int creditsUsed;
+  final int creditsRemaining;
 
   bool get hasError => errors.isNotEmpty || !result;
 }

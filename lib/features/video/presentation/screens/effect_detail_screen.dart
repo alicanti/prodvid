@@ -2,17 +2,20 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../../core/services/video_cache_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../router/app_router.dart';
 import '../../data/models/wiro_effect_type.dart';
 import '../../data/models/wiro_model_type.dart';
+import '../../data/services/wiro_service.dart';
 
 /// Effect detail screen for configuring and generating videos
-class EffectDetailScreen extends StatefulWidget {
+class EffectDetailScreen extends ConsumerStatefulWidget {
   const EffectDetailScreen({
     required this.modelType, required this.effectType, required this.effectLabel, super.key,
   });
@@ -22,10 +25,10 @@ class EffectDetailScreen extends StatefulWidget {
   final String effectLabel;
 
   @override
-  State<EffectDetailScreen> createState() => _EffectDetailScreenState();
+  ConsumerState<EffectDetailScreen> createState() => _EffectDetailScreenState();
 }
 
-class _EffectDetailScreenState extends State<EffectDetailScreen> {
+class _EffectDetailScreenState extends ConsumerState<EffectDetailScreen> {
   final _captionController = TextEditingController();
   File? _productImage;
   File? _logoImage;
@@ -135,23 +138,76 @@ class _EffectDetailScreenState extends State<EffectDetailScreen> {
       _isGenerating = true;
     });
 
-    // TODO: Implement actual generation with WiroService
-    // For now, simulate and navigate to export
-    await Future<void>.delayed(const Duration(seconds: 2));
+    try {
+      final wiroService = ref.read(wiroServiceProvider);
+      
+      // Call appropriate Wiro API based on model type
+      final response = await switch (widget.modelType) {
+        WiroModelType.textAnimations => wiroService.runTextAnimation(
+            caption: _captionController.text.trim(),
+            effectType: widget.effectType,
+            videoMode: _videoMode,
+          ),
+        WiroModelType.productAds => wiroService.runProductAds(
+            inputImage: _productImage!,
+            effectType: widget.effectType,
+            videoMode: _videoMode,
+          ),
+        WiroModelType.productAdsWithCaption => wiroService.runProductAdsWithCaption(
+            inputImage: _productImage!,
+            caption: _captionController.text.trim(),
+            effectType: widget.effectType,
+            videoMode: _videoMode,
+          ),
+        WiroModelType.productAdsWithLogo => wiroService.runProductAdsWithLogo(
+            productImage: _productImage!,
+            logoImage: _logoImage!,
+            effectType: widget.effectType,
+            videoMode: _videoMode,
+          ),
+      };
 
-    if (mounted) {
-      setState(() {
-        _isGenerating = false;
-      });
+      if (!mounted) return;
 
-      // Navigate to export/processing screen
-      context.push('/video-export', extra: {
+      if (response.hasError) {
+        setState(() => _isGenerating = false);
+        
+        // Show error dialog
+        _showErrorDialog(response.errors.join('\n'));
+        return;
+      }
+
+      // Navigate to processing screen
+      context.pushReplacement(AppRoutes.videoProcessing, extra: {
+        'taskId': response.taskId,
+        'socketToken': response.socketAccessToken,
         'modelType': widget.modelType,
         'effectType': widget.effectType,
-        'caption': _captionController.text,
-        'videoMode': _videoMode,
+        'effectLabel': widget.effectLabel,
       });
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isGenerating = false);
+        _showErrorDialog(e.toString());
+      }
     }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.surfaceCard,
+        title: const Text('Generation Failed'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

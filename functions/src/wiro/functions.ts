@@ -1,11 +1,25 @@
 import * as functions from 'firebase-functions';
+import * as admin from 'firebase-admin';
 import { defineSecret } from 'firebase-functions/params';
 import { WiroClient } from './client';
 import { WiroModelType, WIRO_MODEL_ENDPOINTS } from './types';
 
+// Initialize Firebase Admin if not already initialized
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
+
+const db = admin.firestore();
+
 // Define secrets for Wiro API credentials
 const wiroApiKey = defineSecret('WIRO_API_KEY');
 const wiroApiSecret = defineSecret('WIRO_API_SECRET');
+
+// Credit costs
+const CREDITS = {
+  STANDARD: 45,
+  PRO: 80,
+};
 
 /**
  * Create a Wiro client with credentials from Secret Manager
@@ -38,18 +52,132 @@ function validateModelType(modelType: string): WiroModelType {
 }
 
 /**
+ * Get credit cost based on video mode
+ */
+function getCreditCost(videoMode: 'std' | 'pro'): number {
+  return videoMode === 'pro' ? CREDITS.PRO : CREDITS.STANDARD;
+}
+
+/**
+ * Check and deduct user credits
+ * Returns true if successful, throws error if insufficient credits
+ */
+async function checkAndDeductCredits(
+  userId: string,
+  amount: number
+): Promise<{ newBalance: number; previousBalance: number }> {
+  const userRef = db.collection('users').doc(userId);
+  
+  return db.runTransaction(async (transaction) => {
+    const userDoc = await transaction.get(userRef);
+    
+    if (!userDoc.exists) {
+      throw new functions.https.HttpsError(
+        'not-found',
+        'User not found'
+      );
+    }
+
+    const userData = userDoc.data()!;
+    const currentCredits = userData.credits ?? 0;
+
+    if (currentCredits < amount) {
+      throw new functions.https.HttpsError(
+        'resource-exhausted',
+        `Insufficient credits. Need ${amount}, have ${currentCredits}`
+      );
+    }
+
+    const newBalance = currentCredits - amount;
+    transaction.update(userRef, {
+      credits: newBalance,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    return { newBalance, previousBalance: currentCredits };
+  });
+}
+
+/**
+ * Refund credits to user (in case of error)
+ */
+async function refundCredits(userId: string, amount: number): Promise<void> {
+  const userRef = db.collection('users').doc(userId);
+  await userRef.update({
+    credits: admin.firestore.FieldValue.increment(amount),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+}
+
+/**
+ * Create task record in Firestore
+ */
+async function createTaskRecord(
+  userId: string,
+  taskId: string,
+  socketToken: string,
+  modelType: WiroModelType,
+  effectType: string,
+  videoMode: 'std' | 'pro',
+  creditCost: number
+): Promise<void> {
+  await db.collection('tasks').doc(taskId).set({
+    userId,
+    taskId,
+    socketToken,
+    modelType,
+    effectType,
+    videoMode,
+    creditCost,
+    status: 'pending',
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  // Also add to user's tasks subcollection for easy querying
+  await db.collection('users').doc(userId).collection('tasks').doc(taskId).set({
+    taskId,
+    modelType,
+    effectType,
+    videoMode,
+    status: 'pending',
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+}
+
+/**
+ * Update task status in Firestore
+ */
+async function updateTaskStatus(
+  taskId: string,
+  status: string,
+  outputs?: Array<{ url: string; name: string }>
+): Promise<void> {
+  const updateData: Record<string, unknown> = {
+    status,
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  };
+
+  if (outputs) {
+    updateData.outputs = outputs;
+  }
+
+  if (status === 'completed' || status === 'failed') {
+    updateData.completedAt = admin.firestore.FieldValue.serverTimestamp();
+  }
+
+  await db.collection('tasks').doc(taskId).update(updateData);
+}
+
+/**
  * Run a Wiro video generation task
- * Supports all 4 model types:
- * - wiro/3d-text-animations (caption only)
- * - wiro/product-ads (image only)
- * - wiro/product-ads-with-caption (image + caption)
- * - wiro/product-ads-with-logo (image + logo)
+ * Supports all 4 model types with multipart image upload
  */
 export const runWiroTask = functions
   .runWith({
     secrets: [wiroApiKey, wiroApiSecret],
-    timeoutSeconds: 60,
-    memory: '256MB',
+    timeoutSeconds: 120,
+    memory: '512MB',
   })
   .https.onCall(async (data, context) => {
     // Require authentication
@@ -60,7 +188,8 @@ export const runWiroTask = functions
       );
     }
 
-    const { modelType, effectType, videoMode, inputImage, logoImage, caption } = data;
+    const userId = context.auth.uid;
+    const { modelType, effectType, videoMode = 'std', inputImage, logoImage, caption } = data;
 
     // Validate model type
     const validatedModelType = validateModelType(modelType);
@@ -112,15 +241,17 @@ export const runWiroTask = functions
         break;
     }
 
-    // TODO: Check user credits before proceeding
-    // const userId = context.auth.uid;
-    // const hasCredits = await checkUserCredits(userId);
-    // if (!hasCredits) {
-    //   throw new functions.https.HttpsError(
-    //     'resource-exhausted',
-    //     'Insufficient credits'
-    //   );
-    // }
+    // Calculate credit cost
+    const creditCost = getCreditCost(videoMode);
+
+    // Check and deduct credits
+    let creditResult: { newBalance: number; previousBalance: number };
+    try {
+      creditResult = await checkAndDeductCredits(userId, creditCost);
+      console.log(`Deducted ${creditCost} credits from user ${userId}. Balance: ${creditResult.previousBalance} -> ${creditResult.newBalance}`);
+    } catch (error) {
+      throw error; // Re-throw credit errors as-is
+    }
 
     try {
       const client = createWiroClient();
@@ -131,7 +262,7 @@ export const runWiroTask = functions
           response = await client.runTextAnimations(
             caption,
             effectType,
-            videoMode || 'std'
+            videoMode
           );
           break;
 
@@ -139,7 +270,7 @@ export const runWiroTask = functions
           response = await client.runProductAds(
             inputImage,
             effectType,
-            videoMode || 'std'
+            videoMode
           );
           break;
 
@@ -148,7 +279,7 @@ export const runWiroTask = functions
             inputImage,
             caption,
             effectType,
-            videoMode || 'std'
+            videoMode
           );
           break;
 
@@ -157,37 +288,45 @@ export const runWiroTask = functions
             inputImage,
             logoImage,
             effectType,
-            videoMode || 'std'
+            videoMode
           );
           break;
       }
 
       if (!response.result) {
+        // Refund credits on Wiro API error
+        await refundCredits(userId, creditCost);
+        console.log(`Refunded ${creditCost} credits to user ${userId} due to Wiro API error`);
+        
         throw new functions.https.HttpsError(
           'internal',
           response.errors.join(', ') || 'Failed to start task'
         );
       }
 
-      // TODO: Deduct credits from user
-      // await deductCredits(userId, calculateCredits(videoMode, effectType));
-
-      // TODO: Create task record in Firestore
-      // await admin.firestore().collection('tasks').doc(response.taskid).set({
-      //   userId: context.auth.uid,
-      //   modelType: validatedModelType,
-      //   effectType,
-      //   videoMode,
-      //   status: 'pending',
-      //   createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      // });
+      // Create task record in Firestore
+      await createTaskRecord(
+        userId,
+        response.taskid,
+        response.socketaccesstoken,
+        validatedModelType,
+        effectType,
+        videoMode,
+        creditCost
+      );
 
       return {
+        success: true,
         taskId: response.taskid,
-        socketAccessToken: response.socketaccesstoken,
-        result: response.result,
+        socketToken: response.socketaccesstoken,
+        creditsUsed: creditCost,
+        creditsRemaining: creditResult.newBalance,
       };
     } catch (error) {
+      // Refund credits on any error
+      await refundCredits(userId, creditCost);
+      console.log(`Refunded ${creditCost} credits to user ${userId} due to error: ${error}`);
+      
       console.error('Wiro runTask error:', error);
       throw new functions.https.HttpsError(
         'internal',
@@ -239,11 +378,34 @@ export const getWiroTaskDetail = functions
 
       const task = response.tasklist[0];
 
+      // Map status for Flutter
+      let mappedStatus = 'pending';
+      if (task?.status === 'task_postprocess_end') {
+        mappedStatus = 'completed';
+      } else if (task?.status === 'task_cancel') {
+        mappedStatus = 'cancelled';
+      } else if (task?.status.includes('task_')) {
+        mappedStatus = 'processing';
+      }
+
+      // Update task status in Firestore if completed
+      if (taskId && (mappedStatus === 'completed' || mappedStatus === 'cancelled')) {
+        const outputs = task?.outputs.map((output) => ({
+          url: output.url,
+          name: output.name,
+          contentType: output.contenttype,
+          size: output.size,
+        }));
+        await updateTaskStatus(taskId, mappedStatus, outputs);
+      }
+
       return {
+        success: true,
         id: task?.id,
         uuid: task?.uuid,
-        status: task?.status,
-        elapsedSeconds: task?.elapsedseconds,
+        status: mappedStatus,
+        rawStatus: task?.status,
+        elapsedSeconds: parseInt(task?.elapsedseconds || '0', 10),
         outputs: task?.outputs.map((output) => ({
           id: output.id,
           name: output.name,
@@ -292,6 +454,11 @@ export const killWiroTask = functions
       const client = createWiroClient();
       await client.killTask(taskId, socketToken);
 
+      // Update task status in Firestore
+      if (taskId) {
+        await updateTaskStatus(taskId, 'killed');
+      }
+
       return { success: true };
     } catch (error) {
       console.error('Wiro killTask error:', error);
@@ -320,6 +487,7 @@ export const cancelWiroTask = functions
       );
     }
 
+    const userId = context.auth.uid;
     const { taskId } = data;
 
     if (!taskId) {
@@ -330,8 +498,36 @@ export const cancelWiroTask = functions
     }
 
     try {
+      // Get task from Firestore to verify ownership and get credit info
+      const taskDoc = await db.collection('tasks').doc(taskId).get();
+      
+      if (!taskDoc.exists) {
+        throw new functions.https.HttpsError(
+          'not-found',
+          'Task not found'
+        );
+      }
+
+      const taskData = taskDoc.data()!;
+      
+      if (taskData.userId !== userId) {
+        throw new functions.https.HttpsError(
+          'permission-denied',
+          'Not authorized to cancel this task'
+        );
+      }
+
+      // Only refund if task is still pending
+      if (taskData.status === 'pending') {
+        await refundCredits(userId, taskData.creditCost);
+        console.log(`Refunded ${taskData.creditCost} credits to user ${userId} for cancelled task ${taskId}`);
+      }
+
       const client = createWiroClient();
       await client.cancelTask(taskId);
+
+      // Update task status in Firestore
+      await updateTaskStatus(taskId, 'cancelled');
 
       return { success: true };
     } catch (error) {
@@ -344,7 +540,35 @@ export const cancelWiroTask = functions
   });
 
 /**
- * Webhook callback for Wiro task completion (optional)
+ * Get user's credit balance
+ */
+export const getUserCredits = functions
+  .https.onCall(async (data, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        'unauthenticated',
+        'User must be authenticated'
+      );
+    }
+
+    const userId = context.auth.uid;
+    const userDoc = await db.collection('users').doc(userId).get();
+
+    if (!userDoc.exists) {
+      // Create user document with initial credits if doesn't exist
+      await db.collection('users').doc(userId).set({
+        credits: 100, // Initial free credits
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      return { credits: 100 };
+    }
+
+    return { credits: userDoc.data()?.credits ?? 0 };
+  });
+
+/**
+ * Webhook callback for Wiro task completion
  */
 export const wiroCallback = functions.https.onRequest(async (req, res) => {
   if (req.method !== 'POST') {
@@ -354,14 +578,32 @@ export const wiroCallback = functions.https.onRequest(async (req, res) => {
 
   try {
     const taskData = req.body;
-
     console.log('Wiro callback received:', JSON.stringify(taskData));
 
-    // TODO: Process callback
-    // 1. Find the associated video project in Firestore
-    // 2. Update the project status
-    // 3. Save the output video URL
-    // 4. Send push notification to user
+    const { taskid, status, outputs } = taskData;
+
+    if (!taskid) {
+      res.status(400).send('Missing taskid');
+      return;
+    }
+
+    // Map status
+    let mappedStatus = 'processing';
+    if (status === 'task_postprocess_end') {
+      mappedStatus = 'completed';
+    } else if (status === 'task_cancel') {
+      mappedStatus = 'cancelled';
+    }
+
+    // Update task in Firestore
+    await updateTaskStatus(taskid, mappedStatus, outputs);
+
+    // TODO: Send push notification to user
+    // const taskDoc = await db.collection('tasks').doc(taskid).get();
+    // if (taskDoc.exists) {
+    //   const userId = taskDoc.data()?.userId;
+    //   await sendPushNotification(userId, 'Video Ready!', 'Your video has been generated.');
+    // }
 
     res.status(200).send('OK');
   } catch (error) {

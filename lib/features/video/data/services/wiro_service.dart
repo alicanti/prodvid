@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -16,13 +19,34 @@ class WiroService {
   final FirebaseFunctions _functions = FirebaseFunctions.instance;
 
   // Cloud Function references
-  HttpsCallable get _runTaskFunction => _functions.httpsCallable('runWiroTask');
+  HttpsCallable get _runTaskFunction => _functions.httpsCallable(
+        'runWiroTask',
+        options: HttpsCallableOptions(timeout: const Duration(seconds: 120)),
+      );
   HttpsCallable get _getTaskDetailFunction =>
       _functions.httpsCallable('getWiroTaskDetail');
   HttpsCallable get _killTaskFunction =>
       _functions.httpsCallable('killWiroTask');
   HttpsCallable get _cancelTaskFunction =>
       _functions.httpsCallable('cancelWiroTask');
+  HttpsCallable get _getUserCreditsFunction =>
+      _functions.httpsCallable('getUserCredits');
+
+  /// Convert File to base64 string
+  Future<String> _fileToBase64(File file) async {
+    final bytes = await file.readAsBytes();
+    return base64Encode(bytes);
+  }
+
+  /// Get user's current credit balance
+  Future<int> getUserCredits() async {
+    try {
+      final result = await _getUserCreditsFunction.call<Map<String, dynamic>>();
+      return (result.data['credits'] as num?)?.toInt() ?? 0;
+    } on FirebaseFunctionsException catch (e) {
+      throw Exception(e.message ?? 'Failed to get credits');
+    }
+  }
 
   /// Start a 3D Text Animation task
   Future<WiroRunTaskResponse> runTextAnimation({
@@ -31,77 +55,103 @@ class WiroService {
     WiroVideoMode videoMode = WiroVideoMode.standard,
   }) async {
     return _runTask(
-      WiroTextAnimationsRequest(
-        caption: caption,
-        effectType: effectType,
-        videoMode: videoMode,
-      ),
+      modelType: 'wiro/3d-text-animations',
+      effectType: effectType,
+      videoMode: videoMode,
+      caption: caption,
     );
   }
 
   /// Start a Product Ads task (image only)
   Future<WiroRunTaskResponse> runProductAds({
-    required String inputImageUrl,
+    required File inputImage,
     required String effectType,
     WiroVideoMode videoMode = WiroVideoMode.standard,
   }) async {
+    final imageBase64 = await _fileToBase64(inputImage);
+    
     return _runTask(
-      WiroProductAdsRequest(
-        inputImageUrl: inputImageUrl,
-        effectType: effectType,
-        videoMode: videoMode,
-      ),
+      modelType: 'wiro/product-ads',
+      effectType: effectType,
+      videoMode: videoMode,
+      inputImage: imageBase64,
     );
   }
 
   /// Start a Product Ads with Caption task
   Future<WiroRunTaskResponse> runProductAdsWithCaption({
-    required String inputImageUrl,
+    required File inputImage,
     required String caption,
     required String effectType,
     WiroVideoMode videoMode = WiroVideoMode.standard,
   }) async {
+    final imageBase64 = await _fileToBase64(inputImage);
+    
     return _runTask(
-      WiroProductAdsCaptionRequest(
-        inputImageUrl: inputImageUrl,
-        caption: caption,
-        effectType: effectType,
-        videoMode: videoMode,
-      ),
+      modelType: 'wiro/product-ads-with-caption',
+      effectType: effectType,
+      videoMode: videoMode,
+      inputImage: imageBase64,
+      caption: caption,
     );
   }
 
   /// Start a Product Ads with Logo task
   Future<WiroRunTaskResponse> runProductAdsWithLogo({
-    required String productImageUrl,
-    required String logoImageUrl,
+    required File productImage,
+    required File logoImage,
     required String effectType,
     WiroVideoMode videoMode = WiroVideoMode.standard,
   }) async {
+    final productBase64 = await _fileToBase64(productImage);
+    final logoBase64 = await _fileToBase64(logoImage);
+    
     return _runTask(
-      WiroProductAdsLogoRequest(
-        productImageUrl: productImageUrl,
-        logoImageUrl: logoImageUrl,
-        effectType: effectType,
-        videoMode: videoMode,
-      ),
+      modelType: 'wiro/product-ads-with-logo',
+      effectType: effectType,
+      videoMode: videoMode,
+      inputImage: productBase64,
+      logoImage: logoBase64,
     );
   }
 
   /// Generic method to run any Wiro task
-  Future<WiroRunTaskResponse> _runTask(WiroRunTaskRequest request) async {
+  Future<WiroRunTaskResponse> _runTask({
+    required String modelType,
+    required String effectType,
+    required WiroVideoMode videoMode,
+    String? inputImage,
+    String? logoImage,
+    String? caption,
+  }) async {
     try {
-      final result = await _runTaskFunction.call<Map<String, dynamic>>(
-        request.toJson(),
-      );
+      final result = await _runTaskFunction.call<Map<String, dynamic>>({
+        'modelType': modelType,
+        'effectType': effectType,
+        'videoMode': videoMode == WiroVideoMode.pro ? 'pro' : 'std',
+        if (inputImage != null) 'inputImage': inputImage,
+        if (logoImage != null) 'logoImage': logoImage,
+        if (caption != null) 'caption': caption,
+      });
 
-      return WiroRunTaskResponse.fromJson(result.data);
+      final data = result.data;
+      
+      return WiroRunTaskResponse(
+        taskId: data['taskId'] as String? ?? '',
+        socketAccessToken: data['socketToken'] as String? ?? '',
+        result: data['success'] as bool? ?? false,
+        errors: [],
+        creditsUsed: (data['creditsUsed'] as num?)?.toInt() ?? 0,
+        creditsRemaining: (data['creditsRemaining'] as num?)?.toInt() ?? 0,
+      );
     } on FirebaseFunctionsException catch (e) {
       return WiroRunTaskResponse(
         taskId: '',
         socketAccessToken: '',
         result: false,
         errors: [e.message ?? 'Unknown error'],
+        creditsUsed: 0,
+        creditsRemaining: 0,
       );
     }
   }

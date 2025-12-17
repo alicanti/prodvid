@@ -14,6 +14,7 @@ import '../features/video/presentation/screens/effect_gallery_screen.dart';
 import '../features/video/presentation/screens/template_selection_screen.dart';
 import '../features/video/presentation/screens/video_creation_screen.dart';
 import '../features/video/presentation/screens/video_export_screen.dart';
+import '../features/video/presentation/screens/video_processing_screen.dart';
 
 /// Route names
 abstract class AppRoutes {
@@ -25,6 +26,7 @@ abstract class AppRoutes {
   static const String templates = '/templates';
   static const String effectDetail = '/effect-detail';
   static const String effectGallery = '/effect-gallery';
+  static const String videoProcessing = '/video-processing';
   static const String videoExport = '/video-export';
   static const String videos = '/videos';
   static const String profile = '/profile';
@@ -135,10 +137,32 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
 
+      // Video Processing (no nav bar - generation progress)
+      GoRoute(
+        path: AppRoutes.videoProcessing,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return VideoProcessingScreen(
+            taskId: extra?['taskId'] as String? ?? '',
+            socketToken: extra?['socketToken'] as String? ?? '',
+            modelType: extra?['modelType'] as WiroModelType? ??
+                WiroModelType.productAds,
+            effectType: extra?['effectType'] as String? ?? '',
+            effectLabel: extra?['effectLabel'] as String? ?? 'Effect',
+          );
+        },
+      ),
+
       // Video Export (no nav bar - full screen)
       GoRoute(
         path: AppRoutes.videoExport,
-        builder: (context, state) => const VideoExportScreen(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return VideoExportScreen(
+            videoUrl: extra?['videoUrl'] as String?,
+            taskId: extra?['taskId'] as String?,
+          );
+        },
       ),
     ],
 

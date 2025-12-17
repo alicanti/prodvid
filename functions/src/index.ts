@@ -14,10 +14,8 @@ export {
   killWiroTask,
   cancelWiroTask,
   wiroCallback,
+  getUserCredits,
 } from './wiro/functions';
-
-// TODO: Add credit management functions
-// export { checkCredits, deductCredits, addCredits } from './credits/functions';
 
 // TODO: Add RevenueCat webhook handler
 // export { revenuecatWebhook } from './revenuecat/functions';
