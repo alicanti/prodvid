@@ -22,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late final List<_EffectCollection> _collections;
   late final List<_FeaturedEffect> _heroEffects;
   
-  final PageController _heroPageController = PageController(viewportFraction: 0.92);
+  final PageController _heroPageController = PageController();
 
   @override
   void initState() {
@@ -450,22 +450,18 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHeroSlider(double height) {
-    return Container(
+    return SizedBox(
       height: height,
-      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 56),
+      width: double.infinity,
       child: PageView.builder(
         controller: _heroPageController,
-        clipBehavior: Clip.none,
         itemCount: _heroEffects.length,
         itemBuilder: (context, index) {
           final featured = _heroEffects[index];
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(4, 8, 4, 16),
-            child: _HeroEffectCard(
-              key: ValueKey('hero_${_getEffectValue(featured.effect)}'),
-              featured: featured,
-              onTap: () => _onEffectTap(featured),
-            ),
+          return _FullscreenHeroCard(
+            key: ValueKey('hero_${_getEffectValue(featured.effect)}'),
+            featured: featured,
+            onTap: () => _onEffectTap(featured),
           );
         },
       ),
@@ -680,9 +676,9 @@ class _FeaturedEffect {
 // WIDGETS
 // =============================================================================
 
-/// Hero card for featured effect - OPTIMIZED
-class _HeroEffectCard extends StatelessWidget {
-  const _HeroEffectCard({
+/// Fullscreen hero card for slider - covers entire top half
+class _FullscreenHeroCard extends StatelessWidget {
+  const _FullscreenHeroCard({
     required this.featured,
     required this.onTap,
     super.key,
@@ -748,180 +744,191 @@ class _HeroEffectCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        height: 220,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF00D9FF).withValues(alpha: 0.25),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // Optimized video background
-              if (coverUrl != null)
-                OptimizedVideoCover(
-                  videoUrl: coverUrl,
-                  uniqueId: 'hero_${featured.model.name}_${_getEffectValue()}',
-                  fallbackGradient: _getNeonGradient(),
-                  borderRadius: 0,
-                )
-              else
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: _getNeonGradient(),
-                    ),
-                  ),
-                ),
-
-              // Gradient overlay
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withValues(alpha: 0.8),
-                    ],
-                    stops: const [0.3, 1.0],
-                  ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Fullscreen video background
+          if (coverUrl != null)
+            OptimizedVideoCover(
+              videoUrl: coverUrl,
+              uniqueId: 'hero_fullscreen_${featured.model.name}_${_getEffectValue()}',
+              fallbackGradient: _getNeonGradient(),
+              borderRadius: 0,
+            )
+          else
+            DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: _getNeonGradient(),
                 ),
               ),
+            ),
 
-              // Badge
-              if (featured.badge != null)
-                Positioned(
-                  top: 12,
-                  left: 12,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: featured.badge!.color,
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: featured.badge!.color.withValues(alpha: 0.5),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          featured.badge!.icon,
-                          size: 14,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          featured.badge!.label,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+          // Gradient overlay for text readability
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black.withValues(alpha: 0.3),
+                  Colors.transparent,
+                  Colors.black.withValues(alpha: 0.8),
+                ],
+                stops: const [0.0, 0.4, 1.0],
+              ),
+            ),
+          ),
+
+          // Badge - positioned below status bar
+          if (featured.badge != null)
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 60,
+              left: 16,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
                 ),
-
-              // Content
-              Positioned(
-                left: 16,
-                right: 16,
-                bottom: 16,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                decoration: BoxDecoration(
+                  color: featured.badge!.color,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: featured.badge!.color.withValues(alpha: 0.5),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        featured.model.label,
-                        style: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
+                    Icon(
+                      featured.badge!.icon,
+                      size: 16,
+                      color: Colors.white,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(width: 6),
                     Text(
-                      _getEffectLabel(),
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
-                          ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF00D9FF), Color(0xFF00FF88)],
-                            ),
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF00D9FF).withValues(alpha: 0.4),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.play_arrow, size: 18, color: Colors.white),
-                              SizedBox(width: 4),
-                              Text(
-                                'Try Now',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                      featured.badge!.label,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        letterSpacing: 0.5,
+                      ),
                     ),
                   ],
                 ),
               ),
-            ],
+            ),
+
+          // Content at bottom
+          Positioned(
+            left: 20,
+            right: 20,
+            bottom: 24,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Model type tag
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    featured.model.label,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // Effect name
+                Text(
+                  _getEffectLabel(),
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                    height: 1.1,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                // Try Now button
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF00D9FF), Color(0xFF00FF88)],
+                    ),
+                    borderRadius: BorderRadius.circular(25),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF00D9FF).withValues(alpha: 0.4),
+                        blurRadius: 16,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.play_arrow, size: 22, color: Colors.white),
+                      SizedBox(width: 6),
+                      Text(
+                        'Try Now',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
+
+          // Swipe indicator
+          Positioned(
+            bottom: 8,
+            left: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.swipe,
+                  size: 16,
+                  color: Colors.white.withValues(alpha: 0.5),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'Swipe for more',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.white.withValues(alpha: 0.5),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
