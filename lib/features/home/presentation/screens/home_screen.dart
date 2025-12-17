@@ -357,22 +357,30 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Calculate hero height as half of screen height
+    final screenHeight = MediaQuery.of(context).size.height;
+    final heroHeight = screenHeight * 0.5;
+
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
       body: CustomScrollView(
         slivers: [
-          // App Bar
+          // Collapsible Hero Slider with AppBar
           SliverAppBar(
-            floating: true,
-            snap: true,
+            expandedHeight: heroHeight,
+            floating: false,
+            pinned: false, // Completely hides when scrolled
+            snap: false,
+            stretch: true,
             backgroundColor: AppColors.backgroundDark,
             elevation: 0,
-            toolbarHeight: 70,
+            toolbarHeight: 56,
+            // AppBar content (title + credits)
             title: ShaderMask(
               shaderCallback: (bounds) => const LinearGradient(
                 colors: [
-                  Color(0xFF00D9FF), // Electric Cyan
-                  Color(0xFF00FF88), // Neon Green
+                  Color(0xFF00D9FF),
+                  Color(0xFF00FF88),
                 ],
               ).createShader(bounds),
               child: Text(
@@ -385,15 +393,14 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             actions: const [
-              // Credits badge
               _CreditsBadge(credits: 150),
               SizedBox(width: 16),
             ],
-          ),
-
-          // Hero section
-          SliverToBoxAdapter(
-            child: _buildHeroSection(),
+            // Hero slider in flexible space
+            flexibleSpace: FlexibleSpaceBar(
+              background: _buildHeroSlider(heroHeight),
+              collapseMode: CollapseMode.parallax,
+            ),
           ),
 
           // Effect collections
@@ -442,30 +449,26 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHeroSection() {
+  Widget _buildHeroSlider(double height) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(0, 4, 0, 8),
-      child: SizedBox(
-        height: 230,
-        child: PageView.builder(
-          controller: _heroPageController,
-          clipBehavior: Clip.none,
-          itemCount: _heroEffects.length,
-          itemBuilder: (context, index) {
-            final featured = _heroEffects[index];
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(3, 0, 3, 10),
-              child: _HeroEffectCard(
-                key: ValueKey('hero_${_getEffectValue(featured.effect)}'),
-                featured: featured,
-                onTap: () => _onEffectTap(featured),
-              ),
-            );
-          },
-        ),
-      ).animate().fadeIn(duration: 400.ms).scale(
-            begin: const Offset(0.95, 0.95),
-          ),
+      height: height,
+      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 56),
+      child: PageView.builder(
+        controller: _heroPageController,
+        clipBehavior: Clip.none,
+        itemCount: _heroEffects.length,
+        itemBuilder: (context, index) {
+          final featured = _heroEffects[index];
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(4, 8, 4, 16),
+            child: _HeroEffectCard(
+              key: ValueKey('hero_${_getEffectValue(featured.effect)}'),
+              featured: featured,
+              onTap: () => _onEffectTap(featured),
+            ),
+          );
+        },
+      ),
     );
   }
 
