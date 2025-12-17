@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
@@ -23,6 +25,8 @@ class _HomeScreenState extends State<HomeScreen> {
   late final List<_FeaturedEffect> _heroEffects;
   
   final PageController _heroPageController = PageController();
+  Timer? _autoScrollTimer;
+  int _currentHeroPage = 0;
 
   @override
   void initState() {
@@ -32,6 +36,29 @@ class _HomeScreenState extends State<HomeScreen> {
     
     // Preload videos in the background for smooth playback
     _preloadVideos();
+    
+    // Start auto-scroll timer (every 2 seconds)
+    _startAutoScroll();
+  }
+
+  void _startAutoScroll() {
+    _autoScrollTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
+      if (_heroPageController.hasClients) {
+        _currentHeroPage = (_currentHeroPage + 1) % _heroEffects.length;
+        _heroPageController.animateToPage(
+          _currentHeroPage,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _autoScrollTimer?.cancel();
+    _heroPageController.dispose();
+    super.dispose();
   }
 
   /// Preload hero and first collection videos
@@ -319,12 +346,6 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
   }
 
-  @override
-  void dispose() {
-    _heroPageController.dispose();
-    super.dispose();
-  }
-
   void _onEffectTap(_FeaturedEffect featured) {
     final effectValue = _getEffectValue(featured.effect);
     final effectLabel = _getEffectLabel(featured.effect);
@@ -361,7 +382,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final screenHeight = MediaQuery.of(context).size.height;
     final heroHeight = screenHeight * 0.5;
     final statusBarHeight = MediaQuery.of(context).padding.top;
-    const overlapHeight = 40.0;
+    const overlapHeight = 30.0; // 10px padding below slider
 
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
@@ -400,7 +421,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 28),
                   ..._collections.map((collection) {
                     final index = _collections.indexOf(collection);
                     return _buildCollectionSection(collection, index);
@@ -815,11 +836,11 @@ class _FullscreenHeroCard extends StatelessWidget {
             ),
           ),
 
-          // Content at bottom
+          // Content at bottom - as low as possible
           Positioned(
             left: 20,
             right: 20,
-            bottom: 60,
+            bottom: 16,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
