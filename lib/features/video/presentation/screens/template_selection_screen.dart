@@ -197,7 +197,7 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 250),
                 curve: Curves.easeOutCubic,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 decoration: BoxDecoration(
                   gradient: isSelected
                       ? LinearGradient(
@@ -207,7 +207,7 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
                         )
                       : null,
                   color: isSelected ? null : const Color(0xFF1A1A2E),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isSelected
                         ? colors.first.withOpacity(0.5)
@@ -229,48 +229,32 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
                   children: [
                     // Icon container
                     Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
                         color: isSelected 
                             ? Colors.white.withOpacity(0.2)
                             : colors.first.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
                         _getModelIcon(model),
                         color: isSelected
                             ? Colors.white
                             : colors.first,
-                        size: 20,
+                        size: 16,
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 8),
                     // Text
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          _getModelShortName(model),
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: isSelected
-                                ? Colors.white
-                                : Colors.white.withOpacity(0.9),
-                          ),
-                        ),
-                        Text(
-                          _getModelEffectCount(model),
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                            color: isSelected
-                                ? Colors.white.withOpacity(0.7)
-                                : Colors.white.withOpacity(0.4),
-                          ),
-                        ),
-                      ],
+                    Text(
+                      _getModelShortName(model),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: isSelected
+                            ? Colors.white
+                            : Colors.white.withOpacity(0.9),
+                      ),
                     ),
                   ],
                 ),
