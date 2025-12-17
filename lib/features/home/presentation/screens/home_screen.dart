@@ -406,18 +406,25 @@ class _HomeScreenState extends State<HomeScreen> {
           // Content area - overlaps slider with rounded top corners
           SliverToBoxAdapter(
             child: Transform.translate(
-              offset: const Offset(0, -24),
+              offset: const Offset(0, -60),
               child: Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: AppColors.backgroundDark,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(24),
-                    topRight: Radius.circular(24),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(28),
+                    topRight: Radius.circular(28),
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, -10),
+                    ),
+                  ],
                 ),
                 child: Column(
                   children: [
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
                     ..._collections.map((collection) {
                       final index = _collections.indexOf(collection);
                       return _buildCollectionSection(collection, index);
@@ -792,11 +799,11 @@ class _FullscreenHeroCard extends StatelessWidget {
             ),
           ),
 
-          // Content at bottom
+          // Content at bottom - positioned higher for content overlap
           Positioned(
             left: 20,
             right: 20,
-            bottom: 24,
+            bottom: 80,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
