@@ -56,28 +56,54 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
           // App Bar
           SafeArea(
             bottom: false,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-              decoration: BoxDecoration(
-                color: AppColors.backgroundDark.withValues(alpha: 0.95),
-                border: const Border(bottom: BorderSide(color: AppColors.borderDark)),
-              ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
               child: Row(
                 children: [
-                  IconButton(
-                    onPressed: () => context.go('/home'),
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  ),
-                  Expanded(
-                    child: Text(
-                      'Select AI Effect',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
+                  // Back button
+                  GestureDetector(
+                    onTap: () => context.go('/home'),
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        color: Colors.white,
+                        size: 18,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 48),
+                  const SizedBox(width: 16),
+                  // Title
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ShaderMask(
+                          shaderCallback: (bounds) => const LinearGradient(
+                            colors: [Color(0xFF00D9FF), Color(0xFF00FF88)],
+                          ).createShader(bounds),
+                          child: Text(
+                            'Effects',
+                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          '${_filteredEffects.length} templates available',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white.withOpacity(0.5),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -150,76 +176,103 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
   }
 
   Widget _buildModelTabs() {
-    return Padding(
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: WiroModelType.values.map((model) {
           final isSelected = model == _selectedModel;
+          final colors = _getModelColors(model);
           final isLast = model == WiroModelType.values.last;
-          return Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(right: isLast ? 0 : 8),
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _selectedModel = model;
-                    _selectedCategory = null;
-                  });
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  decoration: BoxDecoration(
-                    gradient: isSelected
-                        ? LinearGradient(
-                            colors: [
-                              AppColors.primary,
-                              AppColors.primary.withValues(alpha: 0.8),
-                            ],
-                          )
-                        : null,
-                    color: isSelected ? null : AppColors.surfaceCard,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: isSelected
-                          ? AppColors.primary
-                          : AppColors.borderDark,
-                      width: isSelected ? 2 : 1,
-                    ),
-                    boxShadow: isSelected
-                        ? [
-                            BoxShadow(
-                              color: AppColors.primary.withValues(alpha: 0.3),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
-                            ),
-                          ]
-                        : null,
+          
+          return Padding(
+            padding: EdgeInsets.only(right: isLast ? 0 : 10),
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _selectedModel = model;
+                  _selectedCategory = null;
+                });
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeOutCubic,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  gradient: isSelected
+                      ? LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: colors,
+                        )
+                      : null,
+                  color: isSelected ? null : const Color(0xFF1A1A2E),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isSelected
+                        ? colors.first.withOpacity(0.5)
+                        : Colors.white.withOpacity(0.08),
+                    width: 1.5,
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: colors.first.withOpacity(0.4),
+                            blurRadius: 16,
+                            offset: const Offset(0, 6),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Icon container
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: isSelected 
+                            ? Colors.white.withOpacity(0.2)
+                            : colors.first.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(
                         _getModelIcon(model),
                         color: isSelected
                             ? Colors.white
-                            : AppColors.textSecondaryDark,
-                        size: 24,
+                            : colors.first,
+                        size: 20,
                       ),
-                      const SizedBox(height: 6),
-                      Text(
-                        _getModelShortName(model),
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight:
-                              isSelected ? FontWeight.w700 : FontWeight.w500,
-                          color: isSelected
-                              ? Colors.white
-                              : AppColors.textSecondaryDark,
+                    ),
+                    const SizedBox(width: 10),
+                    // Text
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          _getModelShortName(model),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: isSelected
+                                ? Colors.white
+                                : Colors.white.withOpacity(0.9),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                        Text(
+                          _getModelEffectCount(model),
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                            color: isSelected
+                                ? Colors.white.withOpacity(0.7)
+                                : Colors.white.withOpacity(0.4),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -229,7 +282,27 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
     );
   }
 
+  List<Color> _getModelColors(WiroModelType model) {
+    switch (model) {
+      case WiroModelType.textAnimations:
+        return [const Color(0xFFFF6B6B), const Color(0xFFFF8E53)]; // Red-Orange
+      case WiroModelType.productAds:
+        return [const Color(0xFF00D9FF), const Color(0xFF00FF88)]; // Cyan-Green
+      case WiroModelType.productAdsWithCaption:
+        return [const Color(0xFFBB86FC), const Color(0xFF6C63FF)]; // Purple
+      case WiroModelType.productAdsWithLogo:
+        return [const Color(0xFFFFBE0B), const Color(0xFFFF9500)]; // Yellow-Orange
+    }
+  }
+
+  String _getModelEffectCount(WiroModelType model) {
+    final count = WiroEffects.getEffectsForModel(model).length;
+    return '$count effects';
+  }
+
   Widget _buildCategoryChips() {
+    final colors = _getModelColors(_selectedModel);
+    
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -238,7 +311,7 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
           final isSelected = _selectedCategory == category ||
               (category == 'All' && _selectedCategory == null);
           return Padding(
-            padding: const EdgeInsets.only(right: 10),
+            padding: const EdgeInsets.only(right: 8),
             child: GestureDetector(
               onTap: () {
                 setState(() {
@@ -252,14 +325,22 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color:
-                      isSelected ? AppColors.primary : AppColors.surfaceCard,
+                  gradient: isSelected
+                      ? LinearGradient(colors: colors)
+                      : null,
+                  color: isSelected ? null : const Color(0xFF1A1A2E),
                   borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isSelected
+                        ? colors.first.withOpacity(0.5)
+                        : Colors.white.withOpacity(0.1),
+                  ),
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.3),
-                            blurRadius: 8,
+                            color: colors.first.withOpacity(0.3),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
                           ),
                         ]
                       : null,
@@ -267,9 +348,11 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
                 child: Text(
                   category,
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: isSelected ? Colors.white : Colors.white70,
+                    color: isSelected 
+                        ? Colors.white 
+                        : Colors.white.withOpacity(0.6),
                   ),
                 ),
               ),
