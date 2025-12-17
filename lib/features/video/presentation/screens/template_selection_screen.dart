@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
-import 'package:video_player/video_player.dart';
 
-import '../../../../core/services/video_cache_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/bottom_nav_bar.dart';
+import '../../../../core/widgets/optimized_video_cover.dart';
 import '../../data/models/wiro_effect_type.dart';
 import '../../data/models/wiro_model_type.dart';
 
@@ -355,9 +354,15 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
   }
 }
 
-class _EffectCard extends StatefulWidget {
+/// Optimized effect card that only loads video when visible
+/// Uses global video player pool to limit RAM usage
+class _EffectCard extends StatelessWidget {
   const _EffectCard({
-    required this.effect, required this.index, required this.modelType, required this.onTap, super.key,
+    required this.effect,
+    required this.index,
+    required this.modelType,
+    required this.onTap,
+    super.key,
   });
 
   final EffectOption effect;
@@ -365,82 +370,15 @@ class _EffectCard extends StatefulWidget {
   final WiroModelType modelType;
   final VoidCallback onTap;
 
-  @override
-  State<_EffectCard> createState() => _EffectCardState();
-}
-
-class _EffectCardState extends State<_EffectCard> {
-  VideoPlayerController? _controller;
-  bool _isInitialized = false;
-  bool _hasError = false;
-
-  EffectOption get effect => widget.effect;
-  int get index => widget.index;
-  WiroModelType get modelType => widget.modelType;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeVideo();
-  }
-
-  @override
-  void didUpdateWidget(covariant _EffectCard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Reinitialize video if effect changed
-    if (oldWidget.effect.value != widget.effect.value ||
-        oldWidget.modelType != widget.modelType) {
-      _disposeVideo();
-      _initializeVideo();
-    }
-  }
-
-  @override
-  void dispose() {
-    _disposeVideo();
-    super.dispose();
-  }
-
-  void _disposeVideo() {
-    _controller?.dispose();
-    _controller = null;
-    _isInitialized = false;
-    _hasError = false;
-  }
-
-  Future<void> _initializeVideo() async {
-    if (effect.coverUrl == null) {
-      if (mounted) setState(() => _hasError = true);
-      return;
-    }
-
-    try {
-      // Use cached video player for better performance
-      _controller = await CachedVideoPlayerController.create(effect.coverUrl!);
-      await _controller!.initialize();
-      _controller!.setLooping(true);
-      _controller!.setVolume(0);
-      _controller!.play();
-
-      if (mounted) {
-        setState(() => _isInitialized = true);
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _hasError = true);
-      }
-    }
-  }
-
   // Gradients for different effect categories
   List<Color> _getGradient() {
     final category = effect.category ?? '';
-    
+
     // Text Animations
     if (category.isEmpty && modelType == WiroModelType.textAnimations) {
       return [const Color(0xFF667eea), const Color(0xFF764ba2)];
     }
-    
+
     // Product Ads categories
     if (category.contains('Animate')) {
       return [const Color(0xFF00f2fe), const Color(0xFF4facfe)];
@@ -463,7 +401,7 @@ class _EffectCardState extends State<_EffectCard> {
     if (category.contains('Text')) {
       return [const Color(0xFFfa709a), const Color(0xFFfee140)];
     }
-    
+
     // Logo effects
     if (modelType == WiroModelType.productAdsWithLogo) {
       return [const Color(0xFF2c3e50), const Color(0xFF4ca1af)];
@@ -481,38 +419,25 @@ class _EffectCardState extends State<_EffectCard> {
     return gradients[index % gradients.length];
   }
 
-  IconData _getIcon() {
-    final label = effect.label.toLowerCase();
-    
-    if (label.contains('balloon')) return Icons.celebration;
-    if (label.contains('neon')) return Icons.lightbulb;
-    if (label.contains('water') || label.contains('splash')) return Icons.water_drop;
-    if (label.contains('fire') || label.contains('hot')) return Icons.local_fire_department;
-    if (label.contains('snow') || label.contains('winter')) return Icons.ac_unit;
-    if (label.contains('christmas') || label.contains('santa')) return Icons.card_giftcard;
-    if (label.contains('gold') || label.contains('golden')) return Icons.star;
-    if (label.contains('smoke') || label.contains('mist')) return Icons.cloud;
-    if (label.contains('car') || label.contains('road')) return Icons.directions_car;
-    if (label.contains('city') || label.contains('urban')) return Icons.location_city;
-    if (label.contains('beach') || label.contains('sea')) return Icons.beach_access;
-    if (label.contains('model') || label.contains('studio')) return Icons.person;
-    if (label.contains('text') || label.contains('font')) return Icons.text_fields;
-    if (label.contains('logo') || label.contains('brand')) return Icons.branding_watermark;
-    if (label.contains('billboard')) return Icons.dashboard;
-    if (label.contains('confetti')) return Icons.celebration;
-    if (label.contains('flower') || label.contains('petal')) return Icons.local_florist;
-    
-    return Icons.auto_awesome;
+  String _getCategoryShortName(String category) {
+    if (category.contains('Animate')) return 'ANIMATE';
+    if (category.contains('Scene')) return 'SCENE';
+    if (category.contains('Surreal')) return 'SURREAL';
+    if (category.contains('Model')) return 'MODEL';
+    if (category.contains('Christmas')) return 'XMAS';
+    if (category.contains('Black Friday')) return 'SALE';
+    if (category.contains('Text')) return 'TEXT';
+    return category.toUpperCase().substring(0, category.length.clamp(0, 6));
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: widget.onTap,
+      onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Effect Preview
+          // Effect Preview - uses optimized video cover
           Expanded(
             child: DecoratedBox(
               decoration: BoxDecoration(
@@ -530,15 +455,13 @@ class _EffectCardState extends State<_EffectCard> {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    // Video or gradient fallback
-                    if (_isInitialized && !_hasError && _controller != null)
-                      FittedBox(
-                        fit: BoxFit.cover,
-                        child: SizedBox(
-                          width: _controller!.value.size.width,
-                          height: _controller!.value.size.height,
-                          child: VideoPlayer(_controller!),
-                        ),
+                    // Optimized video cover with visibility detection
+                    if (effect.coverUrl != null)
+                      OptimizedVideoCover(
+                        videoUrl: effect.coverUrl!,
+                        uniqueId: '${modelType.name}_${effect.value}',
+                        fallbackGradient: _getGradient(),
+                        borderRadius: 0, // Already clipped by parent
                       )
                     else
                       DecoratedBox(
@@ -549,49 +472,14 @@ class _EffectCardState extends State<_EffectCard> {
                             colors: _getGradient(),
                           ),
                         ),
-                        child: Stack(
-                          children: [
-                            // Pattern overlay
-                            CustomPaint(
-                              size: Size.infinite,
-                              painter: _GridPatternPainter(),
-                            ),
-                            // Loading or icon
-                            Center(
-                              child: _hasError
-                                  ? Icon(
-                                      _getIcon(),
-                                      size: 36,
-                                      color: Colors.white.withValues(alpha: 0.8),
-                                    )
-                                  : SizedBox(
-                                      width: 24,
-                                      height: 24,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor: AlwaysStoppedAnimation<Color>(
-                                          Colors.white.withValues(alpha: 0.6),
-                                        ),
-                                      ),
-                                    ),
-                            ),
-                          ],
+                        child: Center(
+                          child: Icon(
+                            Icons.auto_awesome,
+                            size: 36,
+                            color: Colors.white.withValues(alpha: 0.6),
+                          ),
                         ),
                       ),
-
-                    // Bottom gradient overlay
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            Colors.black.withValues(alpha: 0.5),
-                          ],
-                        ),
-                      ),
-                    ),
 
                     // Category badge
                     if (effect.category != null)
@@ -618,25 +506,6 @@ class _EffectCardState extends State<_EffectCard> {
                           ),
                         ),
                       ),
-
-                    // Play icon overlay (only if not playing video)
-                    if (!_isInitialized || _hasError)
-                      Positioned(
-                        bottom: 8,
-                        right: 8,
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          child: const Icon(
-                            Icons.play_arrow,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ),
-                      ),
                   ],
                 ),
               ),
@@ -660,39 +529,4 @@ class _EffectCardState extends State<_EffectCard> {
       ),
     );
   }
-
-  String _getCategoryShortName(String category) {
-    if (category.contains('Animate')) return 'ANIMATE';
-    if (category.contains('Scene')) return 'SCENE';
-    if (category.contains('Surreal')) return 'SURREAL';
-    if (category.contains('Model')) return 'MODEL';
-    if (category.contains('Christmas')) return 'XMAS';
-    if (category.contains('Black Friday')) return 'SALE';
-    if (category.contains('Text')) return 'TEXT';
-    return category.toUpperCase().substring(0, category.length.clamp(0, 6));
-  }
-}
-
-/// Grid pattern painter for effect card backgrounds
-class _GridPatternPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.08)
-      ..strokeWidth = 1;
-
-    const spacing = 24.0;
-
-    // Draw diagonal lines
-    for (var i = -size.height; i < size.width + size.height; i += spacing) {
-      canvas.drawLine(
-        Offset(i, 0),
-        Offset(i + size.height, size.height),
-        paint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

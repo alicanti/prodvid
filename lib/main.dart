@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/services/video_player_manager.dart';
 import 'core/theme/app_theme.dart';
 import 'firebase_options.dart';
 import 'router/app_router.dart';
@@ -34,11 +35,50 @@ void main() async {
   runApp(const ProviderScope(child: ProdVidApp()));
 }
 
-class ProdVidApp extends ConsumerWidget {
+class ProdVidApp extends ConsumerStatefulWidget {
   const ProdVidApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProdVidApp> createState() => _ProdVidAppState();
+}
+
+class _ProdVidAppState extends ConsumerState<ProdVidApp>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    // Dispose all video players when app is closed
+    VideoPlayerManager.instance.disposeAll();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    switch (state) {
+      case AppLifecycleState.paused:
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.hidden:
+        // Pause all videos when app goes to background
+        VideoPlayerManager.instance.pauseAll();
+      case AppLifecycleState.resumed:
+        // Videos will resume when they become visible again
+        break;
+      case AppLifecycleState.detached:
+        // Dispose all videos when app is detached
+        VideoPlayerManager.instance.disposeAll();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
 
     return MaterialApp.router(

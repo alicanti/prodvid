@@ -11,8 +11,8 @@ class VideoCacheManager {
   static final CacheManager _instance = CacheManager(
     Config(
       key,
-      stalePeriod: const Duration(days: 7),
-      maxNrOfCacheObjects: 100,
+      stalePeriod: const Duration(days: 2), // Short stale period
+      maxNrOfCacheObjects: 20, // Limited cache for RAM optimization
       repo: JsonCacheInfoRepository(databaseName: key),
       fileService: HttpFileService(),
     ),

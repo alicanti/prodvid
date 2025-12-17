@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
-import 'package:video_player/video_player.dart';
 
 import '../../../../core/services/video_cache_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/bottom_nav_bar.dart';
+import '../../../../core/widgets/optimized_video_cover.dart';
 import '../../../video/data/models/wiro_effect_type.dart';
 import '../../../video/data/models/wiro_model_type.dart';
 
@@ -746,58 +746,20 @@ class _FeaturedEffect {
 // WIDGETS
 // =============================================================================
 
-/// Hero card for featured effect
-class _HeroEffectCard extends StatefulWidget {
+/// Hero card for featured effect - OPTIMIZED
+class _HeroEffectCard extends StatelessWidget {
   const _HeroEffectCard({
-    required this.featured, required this.onTap, super.key,
+    required this.featured,
+    required this.onTap,
+    super.key,
   });
 
   final _FeaturedEffect featured;
   final VoidCallback onTap;
 
-  @override
-  State<_HeroEffectCard> createState() => _HeroEffectCardState();
-}
-
-class _HeroEffectCardState extends State<_HeroEffectCard> {
-  VideoPlayerController? _controller;
-  bool _isInitialized = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeVideo();
-  }
-
-  @override
-  void dispose() {
-    _controller?.dispose();
-    super.dispose();
-  }
-
-  Future<void> _initializeVideo() async {
-    final coverUrl = _getCoverUrl();
-    if (coverUrl == null) return;
-
-    try {
-      // Use cached video player for better performance
-      _controller = await CachedVideoPlayerController.create(coverUrl);
-      await _controller!.initialize();
-      _controller!.setLooping(true);
-      _controller!.setVolume(0);
-      _controller!.play();
-
-      if (mounted) {
-        setState(() => _isInitialized = true);
-      }
-    } catch (e) {
-      debugPrint('Error initializing hero video: $e');
-    }
-  }
-
   String? _getCoverUrl() {
-    final effect = widget.featured.effect;
-    final model = widget.featured.model;
+    final effect = featured.effect;
+    final model = featured.model;
 
     String effectValue;
     if (effect is WiroProductAdsEffect) {
@@ -816,7 +778,7 @@ class _HeroEffectCardState extends State<_HeroEffectCard> {
   }
 
   String _getEffectLabel() {
-    final effect = widget.featured.effect;
+    final effect = featured.effect;
     if (effect is WiroProductAdsEffect) return effect.label;
     if (effect is WiroTextAnimationEffect) return effect.label;
     if (effect is WiroProductCaptionEffect) return effect.label;
@@ -824,9 +786,17 @@ class _HeroEffectCardState extends State<_HeroEffectCard> {
     return '';
   }
 
-  // Neon gradient for loading state
+  String _getEffectValue() {
+    final effect = featured.effect;
+    if (effect is WiroProductAdsEffect) return effect.value;
+    if (effect is WiroTextAnimationEffect) return effect.value;
+    if (effect is WiroProductCaptionEffect) return effect.value;
+    if (effect is WiroProductLogoEffect) return effect.value;
+    return '';
+  }
+
   List<Color> _getNeonGradient() {
-    switch (widget.featured.model) {
+    switch (featured.model) {
       case WiroModelType.textAnimations:
         return [const Color(0xFF00D9FF), const Color(0xFF00FF88)];
       case WiroModelType.productAds:
@@ -840,8 +810,10 @@ class _HeroEffectCardState extends State<_HeroEffectCard> {
 
   @override
   Widget build(BuildContext context) {
+    final coverUrl = _getCoverUrl();
+
     return GestureDetector(
-      onTap: widget.onTap,
+      onTap: onTap,
       child: Container(
         height: 220,
         decoration: BoxDecoration(
@@ -859,15 +831,13 @@ class _HeroEffectCardState extends State<_HeroEffectCard> {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              // Video background
-              if (_isInitialized && _controller != null)
-                FittedBox(
-                  fit: BoxFit.cover,
-                  child: SizedBox(
-                    width: _controller!.value.size.width,
-                    height: _controller!.value.size.height,
-                    child: VideoPlayer(_controller!),
-                  ),
+              // Optimized video background
+              if (coverUrl != null)
+                OptimizedVideoCover(
+                  videoUrl: coverUrl,
+                  uniqueId: 'hero_${featured.model.name}_${_getEffectValue()}',
+                  fallbackGradient: _getNeonGradient(),
+                  borderRadius: 0,
                 )
               else
                 DecoratedBox(
@@ -877,21 +847,6 @@ class _HeroEffectCardState extends State<_HeroEffectCard> {
                       end: Alignment.bottomRight,
                       colors: _getNeonGradient(),
                     ),
-                  ),
-                  child: Stack(
-                    children: [
-                      CustomPaint(
-                        size: Size.infinite,
-                        painter: _GridPatternPainter(),
-                      ),
-                      Center(
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation(
-                            Colors.white.withValues(alpha: 0.7),
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
                 ),
 
@@ -911,7 +866,7 @@ class _HeroEffectCardState extends State<_HeroEffectCard> {
               ),
 
               // Badge
-              if (widget.featured.badge != null)
+              if (featured.badge != null)
                 Positioned(
                   top: 12,
                   left: 12,
@@ -921,11 +876,11 @@ class _HeroEffectCardState extends State<_HeroEffectCard> {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: widget.featured.badge!.color,
+                      color: featured.badge!.color,
                       borderRadius: BorderRadius.circular(8),
                       boxShadow: [
                         BoxShadow(
-                          color: widget.featured.badge!.color.withValues(alpha: 0.5),
+                          color: featured.badge!.color.withValues(alpha: 0.5),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -935,13 +890,13 @@ class _HeroEffectCardState extends State<_HeroEffectCard> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          widget.featured.badge!.icon,
+                          featured.badge!.icon,
                           size: 14,
                           color: Colors.white,
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          widget.featured.badge!.label,
+                          featured.badge!.label,
                           style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
@@ -962,7 +917,6 @@ class _HeroEffectCardState extends State<_HeroEffectCard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Model type chip
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -973,7 +927,7 @@ class _HeroEffectCardState extends State<_HeroEffectCard> {
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        widget.featured.model.label,
+                        featured.model.label,
                         style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
@@ -1039,64 +993,20 @@ class _HeroEffectCardState extends State<_HeroEffectCard> {
   }
 }
 
-/// Carousel card for effect
-class _EffectCarouselCard extends StatefulWidget {
+/// Carousel card for effect - OPTIMIZED to use VideoPlayerManager
+class _EffectCarouselCard extends StatelessWidget {
   const _EffectCarouselCard({
-    required this.featured, required this.onTap, super.key,
+    required this.featured,
+    required this.onTap,
+    super.key,
   });
 
   final _FeaturedEffect featured;
   final VoidCallback onTap;
 
-  @override
-  State<_EffectCarouselCard> createState() => _EffectCarouselCardState();
-}
-
-class _EffectCarouselCardState extends State<_EffectCarouselCard> {
-  VideoPlayerController? _controller;
-  bool _isInitialized = false;
-  bool _hasError = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeVideo();
-  }
-
-  @override
-  void dispose() {
-    _controller?.dispose();
-    super.dispose();
-  }
-
-  Future<void> _initializeVideo() async {
-    final coverUrl = _getCoverUrl();
-    if (coverUrl == null) {
-      setState(() => _hasError = true);
-      return;
-    }
-
-    try {
-      // Use cached video player for better performance
-      _controller = await CachedVideoPlayerController.create(coverUrl);
-      await _controller!.initialize();
-      _controller!.setLooping(true);
-      _controller!.setVolume(0);
-      _controller!.play();
-
-      if (mounted) {
-        setState(() => _isInitialized = true);
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _hasError = true);
-      }
-    }
-  }
-
   String? _getCoverUrl() {
-    final effect = widget.featured.effect;
-    final model = widget.featured.model;
+    final effect = featured.effect;
+    final model = featured.model;
 
     String effectValue;
     if (effect is WiroProductAdsEffect) {
@@ -1115,7 +1025,7 @@ class _EffectCarouselCardState extends State<_EffectCarouselCard> {
   }
 
   String _getEffectLabel() {
-    final effect = widget.featured.effect;
+    final effect = featured.effect;
     if (effect is WiroProductAdsEffect) return effect.label;
     if (effect is WiroTextAnimationEffect) return effect.label;
     if (effect is WiroProductCaptionEffect) return effect.label;
@@ -1123,9 +1033,17 @@ class _EffectCarouselCardState extends State<_EffectCarouselCard> {
     return '';
   }
 
+  String _getEffectValue() {
+    final effect = featured.effect;
+    if (effect is WiroProductAdsEffect) return effect.value;
+    if (effect is WiroTextAnimationEffect) return effect.value;
+    if (effect is WiroProductCaptionEffect) return effect.value;
+    if (effect is WiroProductLogoEffect) return effect.value;
+    return '';
+  }
+
   List<Color> _getGradient() {
-    final model = widget.featured.model;
-    switch (model) {
+    switch (featured.model) {
       case WiroModelType.textAnimations:
         return [const Color(0xFF667eea), const Color(0xFF764ba2)];
       case WiroModelType.productAds:
@@ -1137,23 +1055,12 @@ class _EffectCarouselCardState extends State<_EffectCarouselCard> {
     }
   }
 
-  IconData _getIcon() {
-    switch (widget.featured.model) {
-      case WiroModelType.textAnimations:
-        return Icons.text_fields;
-      case WiroModelType.productAds:
-        return Icons.shopping_bag;
-      case WiroModelType.productAdsWithCaption:
-        return Icons.subtitles;
-      case WiroModelType.productAdsWithLogo:
-        return Icons.branding_watermark;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final coverUrl = _getCoverUrl();
+
     return GestureDetector(
-      onTap: widget.onTap,
+      onTap: onTap,
       child: Container(
         width: 150,
         decoration: BoxDecoration(
@@ -1171,15 +1078,13 @@ class _EffectCarouselCardState extends State<_EffectCarouselCard> {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              // Video or gradient background
-              if (_isInitialized && !_hasError && _controller != null)
-                FittedBox(
-                  fit: BoxFit.cover,
-                  child: SizedBox(
-                    width: _controller!.value.size.width,
-                    height: _controller!.value.size.height,
-                    child: VideoPlayer(_controller!),
-                  ),
+              // Optimized video cover using global player pool
+              if (coverUrl != null)
+                OptimizedVideoCover(
+                  videoUrl: coverUrl,
+                  uniqueId: 'carousel_${featured.model.name}_${_getEffectValue()}',
+                  fallbackGradient: _getGradient(),
+                  borderRadius: 0,
                 )
               else
                 DecoratedBox(
@@ -1189,32 +1094,6 @@ class _EffectCarouselCardState extends State<_EffectCarouselCard> {
                       end: Alignment.bottomRight,
                       colors: _getGradient(),
                     ),
-                  ),
-                  child: Stack(
-                    children: [
-                      CustomPaint(
-                        size: Size.infinite,
-                        painter: _GridPatternPainter(),
-                      ),
-                      Center(
-                        child: _hasError
-                            ? Icon(
-                                _getIcon(),
-                                size: 36,
-                                color: Colors.white.withValues(alpha: 0.8),
-                              )
-                            : SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white.withValues(alpha: 0.6),
-                                  ),
-                                ),
-                              ),
-                      ),
-                    ],
                   ),
                 ),
 
@@ -1234,7 +1113,7 @@ class _EffectCarouselCardState extends State<_EffectCarouselCard> {
               ),
 
               // Badge
-              if (widget.featured.badge != null)
+              if (featured.badge != null)
                 Positioned(
                   top: 8,
                   right: 8,
@@ -1244,11 +1123,11 @@ class _EffectCarouselCardState extends State<_EffectCarouselCard> {
                       vertical: 3,
                     ),
                     decoration: BoxDecoration(
-                      color: widget.featured.badge!.color,
+                      color: featured.badge!.color,
                       borderRadius: BorderRadius.circular(6),
                       boxShadow: [
                         BoxShadow(
-                          color: widget.featured.badge!.color.withValues(alpha: 0.5),
+                          color: featured.badge!.color.withValues(alpha: 0.5),
                           blurRadius: 6,
                           offset: const Offset(0, 2),
                         ),
@@ -1258,13 +1137,13 @@ class _EffectCarouselCardState extends State<_EffectCarouselCard> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          widget.featured.badge!.icon,
+                          featured.badge!.icon,
                           size: 10,
                           color: Colors.white,
                         ),
                         const SizedBox(width: 2),
                         Text(
-                          widget.featured.badge!.label,
+                          featured.badge!.label,
                           style: const TextStyle(
                             fontSize: 8,
                             fontWeight: FontWeight.w800,
@@ -1320,24 +1199,3 @@ class _EffectCarouselCardState extends State<_EffectCarouselCard> {
   }
 }
 
-/// Grid pattern painter for gradient backgrounds
-class _GridPatternPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.1)
-      ..strokeWidth = 1;
-
-    const double gridSize = 20;
-
-    for (double i = 0; i < size.width; i += gridSize) {
-      canvas.drawLine(Offset(i, 0), Offset(i, size.height), paint);
-    }
-    for (double i = 0; i < size.height; i += gridSize) {
-      canvas.drawLine(Offset(0, i), Offset(size.width, i), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
