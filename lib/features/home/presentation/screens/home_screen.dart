@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/services/video_cache_service.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/bottom_nav_bar.dart';
 import '../../../../core/widgets/optimized_video_cover.dart';
 import '../../../video/data/models/wiro_effect_type.dart';
 import '../../../video/data/models/wiro_model_type.dart';
@@ -479,21 +478,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
 
-      // Bottom navigation with center FAB
-      bottomNavigationBar: AppBottomNavBar(
-        currentIndex: 0,
-        onTap: (index) {
-          switch (index) {
-            case 1:
-              context.go('/templates');
-            case 2:
-              context.go('/videos'); // My Videos
-            case 3:
-              context.go('/profile');
-          }
-        },
-        onCreateTap: () => context.push('/templates'),
-      ),
+      // Nav bar provided by MainShell
+      extendBody: true,
     );
   }
 

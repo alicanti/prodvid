@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/widgets/bottom_nav_bar.dart';
 import '../features/home/presentation/screens/home_screen.dart';
 import '../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../features/onboarding/presentation/screens/welcome_screen.dart';
@@ -30,55 +31,84 @@ abstract class AppRoutes {
   static const String settings = '/settings';
 }
 
+/// Navigation shell key for persistent bottom nav
+final _shellNavigatorKey = GlobalKey<NavigatorState>();
+
 /// Router configuration provider
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: AppRoutes.splash,
     debugLogDiagnostics: true,
     routes: [
-      // Splash Screen
+      // Splash Screen (no nav bar)
       GoRoute(
         path: AppRoutes.splash,
         builder: (context, state) => const SplashScreen(),
       ),
 
-      // Welcome Screen
+      // Welcome Screen (no nav bar)
       GoRoute(
         path: AppRoutes.welcome,
         builder: (context, state) => const WelcomeScreen(),
       ),
 
-      // Onboarding
+      // Onboarding (no nav bar)
       GoRoute(
         path: AppRoutes.onboarding,
         builder: (context, state) => const OnboardingScreen(),
       ),
 
-      // Home / Dashboard
-      GoRoute(
-        path: AppRoutes.home,
-        builder: (context, state) => const HomeScreen(),
+      // Main app shell with persistent bottom nav bar
+      ShellRoute(
+        navigatorKey: _shellNavigatorKey,
+        builder: (context, state, child) {
+          return MainShell(
+            currentPath: state.uri.path,
+            child: child,
+          );
+        },
+        routes: [
+          // Home / Dashboard
+          GoRoute(
+            path: AppRoutes.home,
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: HomeScreenContent(),
+            ),
+          ),
+
+          // Template Selection (Effects)
+          GoRoute(
+            path: AppRoutes.templates,
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: TemplateSelectionScreenContent(),
+            ),
+          ),
+
+          // My Videos
+          GoRoute(
+            path: AppRoutes.videos,
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: MyVideosScreen(),
+            ),
+          ),
+
+          // Profile
+          GoRoute(
+            path: AppRoutes.profile,
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: ProfileScreenContent(),
+            ),
+          ),
+        ],
       ),
 
-      // Profile
-      GoRoute(
-        path: AppRoutes.profile,
-        builder: (context, state) => const ProfileScreen(),
-      ),
-
-      // Video Creation Flow
+      // Video Creation Flow (no nav bar - full screen)
       GoRoute(
         path: AppRoutes.create,
         builder: (context, state) => const VideoCreationScreen(),
       ),
 
-      // Template Selection
-      GoRoute(
-        path: AppRoutes.templates,
-        builder: (context, state) => const TemplateSelectionScreen(),
-      ),
-
-      // Effect Detail
+      // Effect Detail (no nav bar - full screen)
       GoRoute(
         path: AppRoutes.effectDetail,
         builder: (context, state) {
@@ -92,7 +122,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
 
-      // Effect Gallery (full screen swipe)
+      // Effect Gallery (no nav bar - full screen swipe)
       GoRoute(
         path: AppRoutes.effectGallery,
         builder: (context, state) {
@@ -105,77 +135,207 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
 
-      // Video Export
+      // Video Export (no nav bar - full screen)
       GoRoute(
         path: AppRoutes.videoExport,
         builder: (context, state) => const VideoExportScreen(),
-      ),
-
-      // My Videos (placeholder for now)
-      GoRoute(
-        path: AppRoutes.videos,
-        builder: (context, state) => const _MyVideosPlaceholder(),
       ),
     ],
 
     // Error handling
     errorBuilder: (context, state) => _ErrorScreen(error: state.error),
 
-    // Redirect logic - anonymous auth handled in splash
+    // Redirect logic
     redirect: (context, state) {
       return null;
     },
   );
 });
 
-/// Placeholder for My Videos screen
-class _MyVideosPlaceholder extends StatelessWidget {
-  const _MyVideosPlaceholder();
+/// Main shell with persistent bottom navigation
+class MainShell extends StatelessWidget {
+  const MainShell({
+    required this.currentPath,
+    required this.child,
+    super.key,
+  });
+
+  final String currentPath;
+  final Widget child;
+
+  int _getSelectedIndex() {
+    if (currentPath.startsWith('/home')) return 0;
+    if (currentPath.startsWith('/templates')) return 1;
+    if (currentPath.startsWith('/videos')) return 2;
+    if (currentPath.startsWith('/profile')) return 3;
+    return 0;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0F),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.video_library_rounded,
-              size: 80,
-              color: Colors.white.withOpacity(0.3),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'My Videos',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
+      body: child,
+      extendBody: true, // Allow content to extend behind nav bar
+      bottomNavigationBar: AppBottomNavBar(
+        currentIndex: _getSelectedIndex(),
+        onTap: (index) {
+          switch (index) {
+            case 0:
+              context.go(AppRoutes.home);
+            case 1:
+              context.go(AppRoutes.templates);
+            case 2:
+              context.go(AppRoutes.videos);
+            case 3:
+              context.go(AppRoutes.profile);
+          }
+        },
+        onCreateTap: () => context.push(AppRoutes.templates),
+      ),
+    );
+  }
+}
+
+/// Home screen content (without Scaffold/nav bar)
+class HomeScreenContent extends StatelessWidget {
+  const HomeScreenContent({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const HomeScreen();
+  }
+}
+
+/// Template selection content (without Scaffold/nav bar)
+class TemplateSelectionScreenContent extends StatelessWidget {
+  const TemplateSelectionScreenContent({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const TemplateSelectionScreen();
+  }
+}
+
+/// Profile screen content (without Scaffold/nav bar)
+class ProfileScreenContent extends StatelessWidget {
+  const ProfileScreenContent({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const ProfileScreen();
+  }
+}
+
+/// My Videos Screen
+class MyVideosScreen extends StatelessWidget {
+  const MyVideosScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      bottom: false,
+      child: Column(
+        children: [
+          // Header
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: [
+                ShaderMask(
+                  shaderCallback: (bounds) => const LinearGradient(
+                    colors: [Color(0xFF00D9FF), Color(0xFF00FF88)],
+                  ).createShader(bounds),
+                  child: Text(
+                    'My Videos',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
                   ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Your generated videos will appear here',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.white.withOpacity(0.5),
-                  ),
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton.icon(
-              onPressed: () => context.go('/templates'),
-              icon: const Icon(Icons.add),
-              label: const Text('Create Your First Video'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00D9FF),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
                 ),
+              ],
+            ),
+          ),
+
+          // Empty state
+          Expanded(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.05),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.video_library_rounded,
+                      size: 64,
+                      color: Colors.white.withOpacity(0.3),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'No videos yet',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Your generated videos will appear here',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.white.withOpacity(0.5),
+                        ),
+                  ),
+                  const SizedBox(height: 32),
+                  GestureDetector(
+                    onTap: () => context.go(AppRoutes.templates),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 14,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF00D9FF), Color(0xFF00FF88)],
+                        ),
+                        borderRadius: BorderRadius.circular(25),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF00D9FF).withOpacity(0.4),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.add, color: Colors.white),
+                          SizedBox(width: 8),
+                          Text(
+                            'Create Your First Video',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Extra padding for nav bar
+                  const SizedBox(height: 120),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

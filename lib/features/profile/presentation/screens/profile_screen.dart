@@ -3,7 +3,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/bottom_nav_bar.dart';
 
 /// User profile screen matching Stitch design - prodvid_user_profile
 class ProfileScreen extends StatelessWidget {
@@ -483,21 +482,8 @@ class ProfileScreen extends StatelessWidget {
         ],
       ),
 
-      // Bottom navigation
-      bottomNavigationBar: AppBottomNavBar(
-        currentIndex: 3, // Profile tab
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              context.go('/home');
-            case 1:
-              context.go('/templates');
-            case 2:
-              context.go('/videos');
-          }
-        },
-        onCreateTap: () => context.push('/templates'),
-      ),
+      // Nav bar provided by MainShell
+      extendBody: true,
     );
   }
 }

@@ -3,7 +3,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/widgets/bottom_nav_bar.dart';
 import '../../../../core/widgets/optimized_video_cover.dart';
 import '../../data/models/wiro_effect_type.dart';
 import '../../data/models/wiro_model_type.dart';
@@ -145,20 +144,8 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: AppBottomNavBar(
-        currentIndex: 1, // Effects tab
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              context.go('/home');
-            case 2:
-              context.go('/videos');
-            case 3:
-              context.go('/profile');
-          }
-        },
-        onCreateTap: () {}, // Already on effects page
-      ),
+      // Nav bar provided by MainShell
+      extendBody: true,
     );
   }
 

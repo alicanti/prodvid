@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1024, height=512">
+    <title>ProdVid Feature Graphic</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #101622;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .feature-graphic {
+            width: 1024px;
+            height: 512px;
+            background: linear-gradient(135deg, #101622 0%, #1C2433 50%, #192233 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 60px;
+        }
+
+        /* Animated Background Elements */
+        .bg-gradient-1 {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(19, 91, 236, 0.15) 0%, transparent 70%);
+            top: -200px;
+            right: -100px;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        .bg-gradient-2 {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%);
+            bottom: -150px;
+            left: -50px;
+            animation: pulse 4s ease-in-out infinite 1s;
+        }
+
+        .bg-gradient-3 {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(20, 184, 166, 0.08) 0%, transparent 70%);
+            top: 50%;
+            left: 40%;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+
+        /* Grid Pattern */
+        .grid-pattern {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0.5;
+        }
+
+        /* Content */
+        .content {
+            position: relative;
+            z-index: 10;
+            max-width: 480px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(19, 91, 236, 0.2) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 50px;
+            padding: 8px 16px;
+            margin-bottom: 24px;
+        }
+
+        .badge-icon {
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #8B5CF6, #135BEC);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .badge-icon svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .badge-text {
+            color: #B8C7E5;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .title {
+            font-size: 52px;
+            font-weight: 800;
+            color: #FFFFFF;
+            line-height: 1.1;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+
+        .title-gradient {
+            background: linear-gradient(135deg, #135BEC 0%, #4B83F0 50%, #8B5CF6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #92A4C9;
+            line-height: 1.5;
+            margin-bottom: 28px;
+            max-width: 380px;
+        }
+
+        .features {
+            display: flex;
+            gap: 20px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            background: rgba(16, 185, 129, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feature-icon svg {
+            width: 14px;
+            height: 14px;
+            color: #10B981;
+        }
+
+        .feature-text {
+            color: #CBD5E1;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Phone Mockup Section */
+        .mockup-section {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: -30px;
+        }
+
+        .phone {
+            width: 200px;
+            height: 400px;
+            background: linear-gradient(180deg, #232F48 0%, #1C2433 100%);
+            border-radius: 32px;
+            border: 3px solid #324467;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.05);
+        }
+
+        .phone-1 {
+            transform: translateX(30px) rotate(-5deg);
+            z-index: 1;
+        }
+
+        .phone-2 {
+            transform: translateX(-30px) rotate(5deg) scale(1.05);
+            z-index: 2;
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 24px;
+            background: #101622;
+            border-radius: 20px;
+            z-index: 5;
+        }
+
+        .phone-screen {
+            position: absolute;
+            inset: 3px;
+            border-radius: 29px;
+            overflow: hidden;
+            background: #101622;
+        }
+
+        /* Phone 1 Content - Product Input */
+        .phone-1 .screen-content {
+            padding: 50px 15px 15px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .product-card {
+            background: #232F48;
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 12px;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(135deg, #324467, #232F48);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-image::before {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
+        }
+
+        .product-title-placeholder {
+            height: 12px;
+            background: #3D4F70;
+            border-radius: 6px;
+            width: 70%;
+            margin-bottom: 8px;
+        }
+
+        .product-desc-placeholder {
+            height: 8px;
+            background: #324467;
+            border-radius: 4px;
+            width: 90%;
+        }
+
+        .upload-hint {
+            text-align: center;
+            color: #556987;
+            font-size: 10px;
+            margin-top: 8px;
+        }
+
+        /* Phone 2 Content - Video Output */
+        .phone-2 .screen-content {
+            padding: 50px 15px 15px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .video-preview {
+            flex: 1;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-preview::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, 
+                rgba(19, 91, 236, 0.2) 0%, 
+                rgba(139, 92, 246, 0.2) 50%,
+                rgba(20, 184, 166, 0.2) 100%);
+        }
+
+        .video-product {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
+            border-radius: 16px;
+            box-shadow: 
+                0 15px 40px rgba(245, 158, 11, 0.4),
+                0 0 60px rgba(245, 158, 11, 0.2);
+            animation: float 3s ease-in-out infinite;
+            position: relative;
+            z-index: 2;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(3deg); }
+        }
+
+        .video-particles {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #8B5CF6;
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+
+        .particle:nth-child(1) { top: 20%; left: 10%; animation: sparkle 2s infinite; }
+        .particle:nth-child(2) { top: 30%; right: 15%; animation: sparkle 2s infinite 0.3s; background: #135BEC; }
+        .particle:nth-child(3) { bottom: 25%; left: 20%; animation: sparkle 2s infinite 0.6s; background: #14B8A6; }
+        .particle:nth-child(4) { bottom: 40%; right: 20%; animation: sparkle 2s infinite 0.9s; }
+        .particle:nth-child(5) { top: 50%; left: 8%; animation: sparkle 2s infinite 1.2s; background: #F59E0B; }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+
+        .play-button {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #135BEC 0%, #4B83F0 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 20px rgba(19, 91, 236, 0.5);
+        }
+
+        .play-button svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
+            margin-left: 3px;
+        }
+
+        /* Arrow between phones */
+        .arrow-container {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+
+        .arrow {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #135BEC 0%, #8B5CF6 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(19, 91, 236, 0.4);
+        }
+
+        .arrow svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+
+        /* AI Label */
+        .ai-label {
+            position: absolute;
+            top: 40px;
+            right: 80px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.9), rgba(19, 91, 236, 0.9));
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+        }
+
+        .ai-label svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .ai-label span {
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Decorative elements */
+        .floating-element {
+            position: absolute;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .floating-1 {
+            width: 60px;
+            height: 60px;
+            top: 80px;
+            left: 440px;
+            transform: rotate(15deg);
+        }
+
+        .floating-2 {
+            width: 40px;
+            height: 40px;
+            bottom: 60px;
+            left: 500px;
+            transform: rotate(-10deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="feature-graphic">
+        <!-- Background Elements -->
+        <div class="bg-gradient-1"></div>
+        <div class="bg-gradient-2"></div>
+        <div class="bg-gradient-3"></div>
+        <div class="grid-pattern"></div>
+        <div class="floating-element floating-1"></div>
+        <div class="floating-element floating-2"></div>
+
+        <!-- AI Label -->
+        <div class="ai-label">
+            <svg viewBox="0 0 24 24" fill="white">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+            <span>AI Powered</span>
+        </div>
+
+        <!-- Left Content -->
+        <div class="content">
+            <div class="badge">
+                <div class="badge-icon">
+                    <svg viewBox="0 0 24 24" fill="white">
+                        <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                </div>
+                <span class="badge-text">E-COMMERCE VIDEO MAKER</span>
+            </div>
+
+            <h1 class="title">
+                Create <span class="title-gradient">Product Videos</span> in Seconds
+            </h1>
+
+            <p class="subtitle">
+                Transform your product photos into stunning marketing videos with AI-powered templates.
+            </p>
+
+            <div class="features">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                        </svg>
+                    </div>
+                    <span class="feature-text">100+ Templates</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                        </svg>
+                    </div>
+                    <span class="feature-text">No Editing Skills</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Mockup Section -->
+        <div class="mockup-section">
+            <!-- Phone 1 - Input -->
+            <div class="phone phone-1">
+                <div class="phone-notch"></div>
+                <div class="phone-screen">
+                    <div class="screen-content">
+                        <div class="product-card">
+                            <div class="product-image"></div>
+                            <div class="product-title-placeholder"></div>
+                            <div class="product-desc-placeholder"></div>
+                        </div>
+                        <div class="upload-hint">📷 Upload Photo</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Arrow -->
+            <div class="arrow-container">
+                <div class="arrow">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Phone 2 - Output -->
+            <div class="phone phone-2">
+                <div class="phone-notch"></div>
+                <div class="phone-screen">
+                    <div class="screen-content">
+                        <div class="video-preview">
+                            <div class="video-particles">
+                                <div class="particle"></div>
+                                <div class="particle"></div>
+                                <div class="particle"></div>
+                                <div class="particle"></div>
+                                <div class="particle"></div>
+                            </div>
+                            <div class="video-product"></div>
+                            <div class="play-button">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
