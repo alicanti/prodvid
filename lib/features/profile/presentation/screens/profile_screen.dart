@@ -485,14 +485,18 @@ class ProfileScreen extends StatelessWidget {
 
       // Bottom navigation
       bottomNavigationBar: AppBottomNavBar(
-        currentIndex: 2, // Profile tab
+        currentIndex: 3, // Profile tab
         onTap: (index) {
-          if (index == 0) {
-            context.go('/home');
-          } else if (index == 1) {
-            context.go('/templates');
+          switch (index) {
+            case 0:
+              context.go('/home');
+            case 1:
+              context.go('/templates');
+            case 2:
+              context.go('/videos');
           }
         },
+        onCreateTap: () => context.push('/templates'),
       ),
     );
   }

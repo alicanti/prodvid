@@ -479,32 +479,20 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
 
-      // Floating action button
-      floatingActionButton: Container(
-        margin: const EdgeInsets.only(bottom: 80),
-        child: FloatingActionButton.extended(
-          onPressed: () => context.push('/create'),
-          backgroundColor: AppColors.primary,
-          elevation: 8,
-          icon: const Icon(Icons.add_circle, color: Colors.white),
-          label: const Text(
-            'Create Video',
-            style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white),
-          ),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-
-      // Bottom navigation
+      // Bottom navigation with center FAB
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: 0,
         onTap: (index) {
-          if (index == 1) {
-            context.go('/templates');
-          } else if (index == 2) {
-            context.go('/profile');
+          switch (index) {
+            case 1:
+              context.go('/templates');
+            case 2:
+              context.go('/videos'); // My Videos
+            case 3:
+              context.go('/profile');
           }
         },
+        onCreateTap: () => context.push('/templates'),
       ),
     );
   }

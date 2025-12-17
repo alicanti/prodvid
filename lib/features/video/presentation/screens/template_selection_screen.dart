@@ -148,9 +148,16 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
       bottomNavigationBar: AppBottomNavBar(
         currentIndex: 1, // Effects tab
         onTap: (index) {
-          if (index == 0) context.go('/home');
-          if (index == 2) context.go('/profile');
+          switch (index) {
+            case 0:
+              context.go('/home');
+            case 2:
+              context.go('/videos');
+            case 3:
+              context.go('/profile');
+          }
         },
+        onCreateTap: () {}, // Already on effects page
       ),
     );
   }

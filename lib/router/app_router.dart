@@ -25,6 +25,7 @@ abstract class AppRoutes {
   static const String effectDetail = '/effect-detail';
   static const String effectGallery = '/effect-gallery';
   static const String videoExport = '/video-export';
+  static const String videos = '/videos';
   static const String profile = '/profile';
   static const String settings = '/settings';
 }
@@ -109,6 +110,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.videoExport,
         builder: (context, state) => const VideoExportScreen(),
       ),
+
+      // My Videos (placeholder for now)
+      GoRoute(
+        path: AppRoutes.videos,
+        builder: (context, state) => const _MyVideosPlaceholder(),
+      ),
     ],
 
     // Error handling
@@ -120,6 +127,59 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
   );
 });
+
+/// Placeholder for My Videos screen
+class _MyVideosPlaceholder extends StatelessWidget {
+  const _MyVideosPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF0A0A0F),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.video_library_rounded,
+              size: 80,
+              color: Colors.white.withOpacity(0.3),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'My Videos',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Your generated videos will appear here',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.white.withOpacity(0.5),
+                  ),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              onPressed: () => context.go('/templates'),
+              icon: const Icon(Icons.add),
+              label: const Text('Create Your First Video'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF00D9FF),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 /// Error Screen
 class _ErrorScreen extends StatelessWidget {
