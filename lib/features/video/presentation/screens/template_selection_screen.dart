@@ -269,19 +269,14 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
   List<Color> _getModelColors(WiroModelType model) {
     switch (model) {
       case WiroModelType.textAnimations:
-        return [const Color(0xFFFF6B6B), const Color(0xFFFF8E53)]; // Red-Orange
+        return [AppColors.error, AppColors.pink]; // Red-Pink
       case WiroModelType.productAds:
-        return [const Color(0xFF00D9FF), const Color(0xFF00FF88)]; // Cyan-Green
+        return [AppColors.primary, AppColors.cyan]; // Blue-Cyan
       case WiroModelType.productAdsWithCaption:
-        return [const Color(0xFFBB86FC), const Color(0xFF6C63FF)]; // Purple
+        return [AppColors.accent, const Color(0xFF7C3AED)]; // Purple
       case WiroModelType.productAdsWithLogo:
-        return [const Color(0xFFFFBE0B), const Color(0xFFFF9500)]; // Yellow-Orange
+        return [AppColors.orange, AppColors.warningDark]; // Orange
     }
-  }
-
-  String _getModelEffectCount(WiroModelType model) {
-    final count = WiroEffects.getEffectsForModel(model).length;
-    return '$count effects';
   }
 
   Widget _buildCategoryChips() {

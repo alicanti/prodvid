@@ -32,36 +32,26 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 50px;
+            padding: 0 60px;
         }
 
-        /* Animated Background Elements */
+        /* Background Elements */
         .bg-gradient-1 {
             position: absolute;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(19, 91, 236, 0.15) 0%, transparent 70%);
-            top: -200px;
-            right: -100px;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, rgba(19, 91, 236, 0.12) 0%, transparent 70%);
+            top: -250px;
+            right: -150px;
         }
 
         .bg-gradient-2 {
             position: absolute;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%);
-            bottom: -150px;
-            left: -50px;
-        }
-
-        .bg-gradient-3 {
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(20, 184, 166, 0.08) 0%, transparent 70%);
-            top: 50%;
-            left: 40%;
-            transform: translate(-50%, -50%);
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+            bottom: -200px;
+            left: -100px;
         }
 
         /* Grid Pattern */
@@ -69,17 +59,16 @@
             position: absolute;
             inset: 0;
             background-image: 
-                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-            background-size: 40px 40px;
-            opacity: 0.5;
+                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+            background-size: 50px 50px;
         }
 
         /* Content */
         .content {
             position: relative;
             z-index: 10;
-            max-width: 420px;
+            max-width: 440px;
         }
 
         .badge {
@@ -89,13 +78,13 @@
             background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(19, 91, 236, 0.2) 100%);
             border: 1px solid rgba(139, 92, 246, 0.3);
             border-radius: 50px;
-            padding: 8px 16px;
-            margin-bottom: 20px;
+            padding: 10px 18px;
+            margin-bottom: 24px;
         }
 
         .badge-icon {
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             background: linear-gradient(135deg, #8B5CF6, #135BEC);
             border-radius: 50%;
             display: flex;
@@ -110,18 +99,18 @@
 
         .badge-text {
             color: #B8C7E5;
-            font-size: 12px;
-            font-weight: 500;
+            font-size: 13px;
+            font-weight: 600;
             letter-spacing: 0.5px;
         }
 
         .title {
-            font-size: 46px;
+            font-size: 52px;
             font-weight: 800;
             color: #FFFFFF;
-            line-height: 1.1;
-            margin-bottom: 14px;
-            letter-spacing: -1px;
+            line-height: 1.05;
+            margin-bottom: 18px;
+            letter-spacing: -1.5px;
         }
 
         .title-gradient {
@@ -132,27 +121,27 @@
         }
 
         .subtitle {
-            font-size: 16px;
+            font-size: 17px;
             color: #92A4C9;
             line-height: 1.5;
-            margin-bottom: 24px;
-            max-width: 360px;
+            margin-bottom: 28px;
+            max-width: 380px;
         }
 
         .features {
             display: flex;
-            gap: 16px;
+            gap: 20px;
         }
 
         .feature-item {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .feature-icon {
-            width: 22px;
-            height: 22px;
+            width: 26px;
+            height: 26px;
             background: rgba(16, 185, 129, 0.15);
             border-radius: 50%;
             display: flex;
@@ -161,57 +150,46 @@
         }
 
         .feature-icon svg {
-            width: 12px;
-            height: 12px;
+            width: 14px;
+            height: 14px;
             color: #10B981;
         }
 
         .feature-text {
             color: #CBD5E1;
-            font-size: 13px;
+            font-size: 15px;
             font-weight: 500;
         }
 
-        /* Phone Mockup Section */
+        /* Phone Mockup */
         .mockup-section {
             position: relative;
             z-index: 10;
-            display: flex;
-            align-items: center;
-            margin-right: 20px;
         }
 
         .phone {
-            width: 180px;
-            height: 380px;
+            width: 280px;
+            height: 570px;
             background: #000000;
-            border-radius: 32px;
-            border: 4px solid #2a2a2a;
+            border-radius: 44px;
+            border: 6px solid #1a1a1a;
             position: relative;
             overflow: hidden;
             box-shadow: 
-                0 25px 50px rgba(0, 0, 0, 0.5),
+                0 40px 80px rgba(0, 0, 0, 0.6),
                 0 0 0 1px rgba(255, 255, 255, 0.1),
-                inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-        }
-
-        .phone-1 {
-            transform: translateX(40px) rotate(-8deg);
-            z-index: 1;
-        }
-
-        .phone-2 {
-            transform: translateX(-40px) rotate(8deg) scale(1.08);
-            z-index: 2;
+                inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+                0 0 100px rgba(19, 91, 236, 0.15);
+            transform: rotate(5deg) translateY(-10px);
         }
 
         .phone-notch {
             position: absolute;
-            top: 8px;
+            top: 12px;
             left: 50%;
             transform: translateX(-50%);
-            width: 70px;
-            height: 22px;
+            width: 100px;
+            height: 32px;
             background: #000000;
             border-radius: 20px;
             z-index: 5;
@@ -220,7 +198,7 @@
         .phone-screen {
             position: absolute;
             inset: 0;
-            border-radius: 28px;
+            border-radius: 38px;
             overflow: hidden;
         }
 
@@ -231,93 +209,67 @@
             object-position: top center;
         }
 
-        /* Arrow between phones */
-        .arrow-container {
+        /* Glow effect */
+        .phone-glow {
             position: absolute;
-            left: 50%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(19, 91, 236, 0.25) 0%, transparent 60%);
+            right: 0;
             top: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10;
-        }
-
-        .arrow {
-            width: 44px;
-            height: 44px;
-            background: linear-gradient(135deg, #135BEC 0%, #8B5CF6 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 30px rgba(19, 91, 236, 0.5);
-        }
-
-        .arrow svg {
-            width: 20px;
-            height: 20px;
-            fill: white;
+            transform: translateY(-50%);
+            z-index: 0;
         }
 
         /* AI Label */
         .ai-label {
             position: absolute;
-            top: 25px;
-            right: 50px;
+            top: 30px;
+            right: 60px;
             background: linear-gradient(135deg, rgba(139, 92, 246, 0.95), rgba(19, 91, 236, 0.95));
-            padding: 10px 18px;
-            border-radius: 20px;
+            padding: 12px 20px;
+            border-radius: 24px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+            gap: 10px;
+            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.4);
             z-index: 20;
         }
 
         .ai-label svg {
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
         }
 
         .ai-label span {
             color: white;
-            font-weight: 600;
-            font-size: 13px;
+            font-weight: 700;
+            font-size: 14px;
             letter-spacing: 0.5px;
         }
 
-        /* Decorative elements */
+        /* Floating elements */
         .floating-element {
             position: absolute;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
         }
 
         .floating-1 {
-            width: 50px;
-            height: 50px;
-            top: 100px;
-            left: 420px;
-            transform: rotate(15deg);
+            width: 60px;
+            height: 60px;
+            top: 120px;
+            left: 480px;
+            transform: rotate(12deg);
         }
 
         .floating-2 {
-            width: 35px;
-            height: 35px;
-            bottom: 80px;
-            left: 460px;
-            transform: rotate(-10deg);
-        }
-
-        /* Glow effect around phones */
-        .phone-glow {
-            position: absolute;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(19, 91, 236, 0.2) 0%, transparent 60%);
-            right: -50px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 0;
+            width: 40px;
+            height: 40px;
+            bottom: 100px;
+            left: 520px;
+            transform: rotate(-8deg);
         }
     </style>
 </head>
@@ -326,7 +278,6 @@
         <!-- Background Elements -->
         <div class="bg-gradient-1"></div>
         <div class="bg-gradient-2"></div>
-        <div class="bg-gradient-3"></div>
         <div class="grid-pattern"></div>
         <div class="floating-element floating-1"></div>
         <div class="floating-element floating-2"></div>
@@ -379,30 +330,12 @@
             </div>
         </div>
 
-        <!-- Right Mockup Section -->
+        <!-- Right Phone Mockup -->
         <div class="mockup-section">
-            <!-- Phone 1 -->
-            <div class="phone phone-1">
+            <div class="phone">
                 <div class="phone-notch"></div>
                 <div class="phone-screen">
-                    <img src="screenshot_1.png" alt="ProdVid App Screenshot 1">
-                </div>
-            </div>
-
-            <!-- Arrow -->
-            <div class="arrow-container">
-                <div class="arrow">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/>
-                    </svg>
-                </div>
-            </div>
-
-            <!-- Phone 2 -->
-            <div class="phone phone-2">
-                <div class="phone-notch"></div>
-                <div class="phone-screen">
-                    <img src="screenshot_2.png" alt="ProdVid App Screenshot 2">
+                    <img src="screenshot_2.png" alt="ProdVid App">
                 </div>
             </div>
         </div>
