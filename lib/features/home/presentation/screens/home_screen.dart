@@ -365,102 +365,97 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
-      body: Stack(
-        children: [
-          // Background slider (fixed at top)
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: heroHeight,
-            child: _buildHeroSlider(heroHeight),
+      body: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) => [
+          // Hero Slider as Sliver
+          SliverToBoxAdapter(
+            child: SizedBox(
+              height: heroHeight,
+              child: _buildHeroSlider(heroHeight),
+            ),
           ),
-
-          // Scrollable content with overlap
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                // Spacer for slider (minus overlap)
-                SizedBox(height: heroHeight - overlapHeight),
-
-                // Content area with rounded top corners
-                Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.backgroundDark,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(28),
-                      topRight: Radius.circular(28),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.4),
-                        blurRadius: 20,
-                        offset: const Offset(0, -8),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 20),
-                      ..._collections.map((collection) {
-                        final index = _collections.indexOf(collection);
-                        return _buildCollectionSection(collection, index);
-                      }),
-                      const SizedBox(height: 100),
-                    ],
-                  ),
+        ],
+        body: Transform.translate(
+          offset: const Offset(0, -overlapHeight),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.backgroundDark,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(28),
+                topRight: Radius.circular(28),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.4),
+                  blurRadius: 20,
+                  offset: const Offset(0, -8),
                 ),
               ],
             ),
-          ),
-
-          // Fixed AppBar overlay
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: EdgeInsets.only(
-                top: statusBarHeight + 8,
-                left: 16,
-                right: 16,
-                bottom: 8,
+            child: ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(28),
+                topRight: Radius.circular(28),
               ),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withOpacity(0.6),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: ListView(
+                padding: EdgeInsets.zero,
                 children: [
-                  ShaderMask(
-                    shaderCallback: (bounds) => const LinearGradient(
-                      colors: [
-                        Color(0xFF00D9FF),
-                        Color(0xFF00FF88),
-                      ],
-                    ).createShader(bounds),
-                    child: Text(
-                      'ProdVid',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
-                            letterSpacing: -0.5,
-                          ),
-                    ),
-                  ),
-                  const _CreditsBadge(credits: 150),
+                  const SizedBox(height: 20),
+                  ..._collections.map((collection) {
+                    final index = _collections.indexOf(collection);
+                    return _buildCollectionSection(collection, index);
+                  }),
+                  const SizedBox(height: 100),
                 ],
               ),
             ),
           ),
-        ],
+        ),
+      ),
+      // Fixed AppBar overlay
+      extendBodyBehindAppBar: true,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(56),
+        child: Container(
+          padding: EdgeInsets.only(
+            top: statusBarHeight + 8,
+            left: 16,
+            right: 16,
+            bottom: 8,
+          ),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.black.withOpacity(0.6),
+                Colors.transparent,
+              ],
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ShaderMask(
+                shaderCallback: (bounds) => const LinearGradient(
+                  colors: [
+                    Color(0xFF00D9FF),
+                    Color(0xFF00FF88),
+                  ],
+                ).createShader(bounds),
+                child: Text(
+                  'ProdVid',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        letterSpacing: -0.5,
+                      ),
+                ),
+              ),
+              const _CreditsBadge(credits: 150),
+            ],
+          ),
+        ),
       ),
 
       // Floating action button
