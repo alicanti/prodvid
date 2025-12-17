@@ -3,7 +3,6 @@ import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../services/video_player_manager.dart';
-import '../theme/app_colors.dart';
 
 /// An optimized video cover widget that:
 /// - Only loads video when visible on screen
@@ -57,7 +56,15 @@ class _OptimizedVideoCoverState extends State<OptimizedVideoCover> {
     }
   }
 
+  /// Check if the current controller is still valid
+  bool get _isControllerValid {
+    return _controller != null &&
+        VideoPlayerManager.instance.isControllerValid(widget.videoUrl);
+  }
+
   void _onVisibilityChanged(VisibilityInfo info) {
+    if (!mounted) return;
+
     final wasVisible = _isVisible;
     _isVisible = info.visibleFraction >= widget.visibilityThreshold;
 
@@ -66,18 +73,63 @@ class _OptimizedVideoCoverState extends State<OptimizedVideoCover> {
       _loadVideo();
     } else if (!_isVisible && wasVisible) {
       // Became invisible - pause but don't dispose
-      _controller?.pause();
+      _safePause();
+    }
+  }
+
+  /// Safely pause the controller if it's still valid
+  void _safePause() {
+    if (_isControllerValid) {
+      try {
+        _controller?.pause();
+      } catch (e) {
+        // Controller was disposed, clear reference
+        _clearController();
+      }
+    } else {
+      _clearController();
+    }
+  }
+
+  /// Safely play the controller if it's still valid
+  void _safePlay() {
+    if (_isControllerValid) {
+      try {
+        _controller?.play();
+      } catch (e) {
+        // Controller was disposed, clear reference
+        _clearController();
+      }
+    } else {
+      _clearController();
+    }
+  }
+
+  void _clearController() {
+    if (mounted) {
+      setState(() {
+        _controller = null;
+      });
+    } else {
+      _controller = null;
     }
   }
 
   Future<void> _loadVideo() async {
-    if (_isLoading || _controller != null) {
-      // Already loading or loaded - just play
-      if (_controller != null && widget.autoPlay) {
-        _controller!.play();
-      }
+    if (!mounted) return;
+
+    // If we have a valid controller, just play it
+    if (_isControllerValid) {
+      _safePlay();
       return;
     }
+
+    // Controller is gone, need to get a new one
+    if (_controller != null) {
+      _clearController();
+    }
+
+    if (_isLoading) return;
 
     _isLoading = true;
 
@@ -94,7 +146,7 @@ class _OptimizedVideoCoverState extends State<OptimizedVideoCover> {
         });
 
         if (widget.autoPlay && _isVisible) {
-          controller.play();
+          _safePlay();
         }
       } else {
         setState(() => _hasError = true);
@@ -132,8 +184,10 @@ class _OptimizedVideoCoverState extends State<OptimizedVideoCover> {
   }
 
   Widget _buildContent() {
-    final isReady =
-        _controller != null && _controller!.value.isInitialized && !_hasError;
+    // Check if controller is ready AND still valid
+    final isReady = _isControllerValid &&
+        _controller!.value.isInitialized &&
+        !_hasError;
 
     if (isReady) {
       return Stack(

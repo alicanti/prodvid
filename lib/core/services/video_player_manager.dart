@@ -24,12 +24,18 @@ class VideoPlayerManager {
   /// Pending video requests
   final Map<String, Completer<VideoPlayerController?>> _pending = {};
 
+  /// Disposed URLs tracking - to prevent using disposed controllers
+  final Set<String> _disposedUrls = {};
+
   /// Get or create a video controller for a URL
   /// Returns null if too many players are active and this one can't be prioritized
   Future<VideoPlayerController?> getController(
     String url, {
     bool highPriority = false,
   }) async {
+    // Clear from disposed tracking since we're requesting it fresh
+    _disposedUrls.remove(url);
+
     // If already pending, wait for it
     if (_pending.containsKey(url)) {
       return _pending[url]!.future;
@@ -85,20 +91,34 @@ class VideoPlayerManager {
     }
   }
 
+  /// Check if a controller for the given URL is still valid (not disposed)
+  bool isControllerValid(String url) {
+    return _controllers.containsKey(url) && !_disposedUrls.contains(url);
+  }
+
   /// Dispose a specific controller
   Future<void> _disposeController(String url) async {
     final managed = _controllers.remove(url);
     if (managed != null) {
-      await managed.controller.pause();
-      await managed.controller.dispose();
+      // Mark as disposed BEFORE actually disposing
+      _disposedUrls.add(url);
+      try {
+        await managed.controller.pause();
+        await managed.controller.dispose();
+      } catch (e) {
+        // Ignore errors during disposal
+        if (kDebugMode) {
+          print('VideoPlayerManager: Error disposing controller for $url: $e');
+        }
+      }
     }
   }
 
   /// Dispose all controllers
   Future<void> disposeAll() async {
-    for (final managed in _controllers.values) {
-      await managed.controller.pause();
-      await managed.controller.dispose();
+    final urls = _controllers.keys.toList();
+    for (final url in urls) {
+      await _disposeController(url);
     }
     _controllers.clear();
   }
@@ -111,8 +131,12 @@ class VideoPlayerManager {
 
   /// Pause all videos (useful when app goes to background)
   Future<void> pauseAll() async {
-    for (final managed in _controllers.values) {
-      await managed.controller.pause();
+    for (final entry in _controllers.entries) {
+      try {
+        await entry.value.controller.pause();
+      } catch (e) {
+        // Ignore errors - controller might be disposed
+      }
     }
   }
 
@@ -131,11 +155,9 @@ class _ManagedController {
   _ManagedController({
     required this.controller,
     required this.lastUsed,
-    this.isActive = true,
   });
 
   final VideoPlayerController controller;
   DateTime lastUsed;
-  bool isActive;
+  bool isActive = true;
 }
-
