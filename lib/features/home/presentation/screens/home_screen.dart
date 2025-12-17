@@ -403,18 +403,28 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
 
-          // Spacing below slider
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 16),
-          ),
-
-          // Content area
+          // Content area - overlaps slider with rounded top corners
           SliverToBoxAdapter(
-            child: Column(
-              children: _collections.map((collection) {
-                final index = _collections.indexOf(collection);
-                return _buildCollectionSection(collection, index);
-              }).toList(),
+            child: Transform.translate(
+              offset: const Offset(0, -24),
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: AppColors.backgroundDark,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(24),
+                    topRight: Radius.circular(24),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 16),
+                    ..._collections.map((collection) {
+                      final index = _collections.indexOf(collection);
+                      return _buildCollectionSection(collection, index);
+                    }),
+                  ],
+                ),
+              ),
             ),
           ),
 
