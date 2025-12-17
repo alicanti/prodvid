@@ -369,48 +369,76 @@ class _HomeScreenState extends State<HomeScreen> {
           SliverAppBar(
             expandedHeight: heroHeight,
             floating: false,
-            pinned: false, // Completely hides when scrolled
+            pinned: false,
             snap: false,
             stretch: true,
-            backgroundColor: AppColors.backgroundDark,
+            backgroundColor: Colors.transparent,
             elevation: 0,
             toolbarHeight: 56,
-            // AppBar content (title + credits)
-            title: ShaderMask(
-              shaderCallback: (bounds) => const LinearGradient(
-                colors: [
-                  Color(0xFF00D9FF),
-                  Color(0xFF00FF88),
-                ],
-              ).createShader(bounds),
-              child: Text(
-                'ProdVid',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                      letterSpacing: -0.5,
-                    ),
+            // AppBar with gradient background
+            flexibleSpace: FlexibleSpaceBar(
+              background: _buildHeroSlider(heroHeight),
+              collapseMode: CollapseMode.parallax,
+            ),
+            // Title with gradient backdrop
+            title: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.black.withValues(alpha: 0.6),
+                    Colors.black.withValues(alpha: 0.3),
+                    Colors.transparent,
+                  ],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: ShaderMask(
+                shaderCallback: (bounds) => const LinearGradient(
+                  colors: [
+                    Color(0xFF00D9FF),
+                    Color(0xFF00FF88),
+                  ],
+                ).createShader(bounds),
+                child: Text(
+                  'ProdVid',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        letterSpacing: -0.5,
+                      ),
+                ),
               ),
             ),
             actions: const [
               _CreditsBadge(credits: 150),
               SizedBox(width: 16),
             ],
-            // Hero slider in flexible space
-            flexibleSpace: FlexibleSpaceBar(
-              background: _buildHeroSlider(heroHeight),
-              collapseMode: CollapseMode.parallax,
-            ),
           ),
 
-          // Effect collections
-          ..._collections.asMap().entries.map((entry) {
-            final index = entry.key;
-            final collection = entry.value;
-            return SliverToBoxAdapter(
-              child: _buildCollectionSection(collection, index),
-            );
-          }),
+          // Content area with top radius
+          SliverToBoxAdapter(
+            child: Container(
+              decoration: const BoxDecoration(
+                color: AppColors.backgroundDark,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  topRight: Radius.circular(24),
+                ),
+              ),
+              child: Column(
+                children: [
+                  const SizedBox(height: 16),
+                  ..._collections.map((collection) {
+                    final index = _collections.indexOf(collection);
+                    return _buildCollectionSection(collection, index);
+                  }),
+                ],
+              ),
+            ),
+          ),
 
           // Bottom padding
           const SliverToBoxAdapter(
@@ -474,30 +502,18 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Section header
+          // Section header - title only, no subtitle
           Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 8, 2),
+            padding: const EdgeInsets.fromLTRB(12, 0, 8, 2),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      collection.title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                    ),
-                    const SizedBox(height: 1),
-                    Text(
-                      collection.subtitle,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.textSecondaryDark,
-                          ),
-                    ),
-                  ],
+                Text(
+                  collection.title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
                 ),
                 TextButton(
                   onPressed: () => context.go('/templates'),
@@ -781,50 +797,6 @@ class _FullscreenHeroCard extends StatelessWidget {
               ),
             ),
           ),
-
-          // Badge - positioned below status bar
-          if (featured.badge != null)
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 60,
-              left: 16,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: featured.badge!.color,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: featured.badge!.color.withValues(alpha: 0.5),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      featured.badge!.icon,
-                      size: 16,
-                      color: Colors.white,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      featured.badge!.label,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
 
           // Content at bottom
           Positioned(
