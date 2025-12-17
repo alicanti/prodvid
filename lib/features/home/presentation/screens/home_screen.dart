@@ -418,24 +418,27 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
 
-          // Content area with top radius
+          // Content area with top radius - overlaps slider
           SliverToBoxAdapter(
-            child: Container(
-              decoration: const BoxDecoration(
-                color: AppColors.backgroundDark,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  topRight: Radius.circular(24),
+            child: Transform.translate(
+              offset: const Offset(0, -32),
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: AppColors.backgroundDark,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(32),
+                    topRight: Radius.circular(32),
+                  ),
                 ),
-              ),
-              child: Column(
-                children: [
-                  const SizedBox(height: 16),
-                  ..._collections.map((collection) {
-                    final index = _collections.indexOf(collection);
-                    return _buildCollectionSection(collection, index);
-                  }),
-                ],
+                child: Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    ..._collections.map((collection) {
+                      final index = _collections.indexOf(collection);
+                      return _buildCollectionSection(collection, index);
+                    }),
+                  ],
+                ),
               ),
             ),
           ),
@@ -782,27 +785,33 @@ class _FullscreenHeroCard extends StatelessWidget {
               ),
             ),
 
-          // Gradient overlay for text readability
-          DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.black.withValues(alpha: 0.3),
-                  Colors.transparent,
-                  Colors.black.withValues(alpha: 0.8),
-                ],
-                stops: const [0.0, 0.4, 1.0],
+          // Top gradient for ProdVid logo area
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 140,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withValues(alpha: 0.7),
+                    Colors.black.withValues(alpha: 0.3),
+                    Colors.transparent,
+                  ],
+                  stops: const [0.0, 0.5, 1.0],
+                ),
               ),
             ),
           ),
 
-          // Content at bottom
+          // Content at bottom - positioned higher for content overlap
           Positioned(
             left: 20,
             right: 20,
-            bottom: 24,
+            bottom: 56,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -876,30 +885,6 @@ class _FullscreenHeroCard extends StatelessWidget {
             ),
           ),
 
-          // Swipe indicator
-          Positioned(
-            bottom: 8,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.swipe,
-                  size: 16,
-                  color: Colors.white.withValues(alpha: 0.5),
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  'Swipe for more',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.white.withValues(alpha: 0.5),
-                  ),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );
