@@ -7,11 +7,7 @@ import '../../../../core/widgets/primary_button.dart';
 
 /// Video export/share screen matching Stitch design - video_export/share
 class VideoExportScreen extends StatelessWidget {
-  const VideoExportScreen({
-    super.key,
-    this.videoUrl,
-    this.taskId,
-  });
+  const VideoExportScreen({super.key, this.videoUrl, this.taskId});
 
   final String? videoUrl;
   final String? taskId;
