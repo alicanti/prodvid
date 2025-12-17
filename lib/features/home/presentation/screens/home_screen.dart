@@ -23,7 +23,6 @@ class _HomeScreenState extends State<HomeScreen> {
   late final List<_FeaturedEffect> _heroEffects;
   
   final PageController _heroPageController = PageController(viewportFraction: 0.92);
-  int _currentHeroPage = 0;
 
   @override
   void initState() {
@@ -445,108 +444,40 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildHeroSection() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(0, 8, 0, 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Welcome text
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Discover Effects',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                      ),
-                ).animate().fadeIn(duration: 400.ms).slideX(begin: -0.1),
-                const SizedBox(height: 4),
-                Text(
-                  'Turn your products into viral videos',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: AppColors.textSecondaryDark,
-                      ),
-                ).animate().fadeIn(delay: 100.ms, duration: 400.ms).slideX(begin: -0.1),
-              ],
-            ),
+      padding: const EdgeInsets.fromLTRB(0, 4, 0, 8),
+      child: SizedBox(
+        height: 230,
+        child: PageView.builder(
+          controller: _heroPageController,
+          clipBehavior: Clip.none,
+          itemCount: _heroEffects.length,
+          itemBuilder: (context, index) {
+            final featured = _heroEffects[index];
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(3, 0, 3, 10),
+              child: _HeroEffectCard(
+                key: ValueKey('hero_${_getEffectValue(featured.effect)}'),
+                featured: featured,
+                onTap: () => _onEffectTap(featured),
+              ),
+            );
+          },
+        ),
+      ).animate().fadeIn(duration: 400.ms).scale(
+            begin: const Offset(0.95, 0.95),
           ),
-
-          const SizedBox(height: 20),
-
-          // Hero Slider - with extra padding for glow effect
-          SizedBox(
-            height: 240, // Extra height for glow
-            child: PageView.builder(
-              controller: _heroPageController,
-              clipBehavior: Clip.none, // Allow glow to overflow
-              itemCount: _heroEffects.length,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentHeroPage = index;
-                });
-              },
-              itemBuilder: (context, index) {
-                final featured = _heroEffects[index];
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(6, 0, 6, 20), // Bottom padding for glow
-                  child: _HeroEffectCard(
-                    key: ValueKey('hero_${_getEffectValue(featured.effect)}'),
-                    featured: featured,
-                    onTap: () => _onEffectTap(featured),
-                  ),
-                );
-              },
-            ),
-          ).animate().fadeIn(delay: 200.ms, duration: 500.ms).scale(
-                begin: const Offset(0.95, 0.95),
-              ),
-
-          const SizedBox(height: 16),
-
-          // Page indicator
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-              _heroEffects.length,
-              (index) => AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                width: _currentHeroPage == index ? 24 : 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: _currentHeroPage == index
-                      ? const Color(0xFF00D9FF)
-                      : AppColors.slate700,
-                  borderRadius: BorderRadius.circular(4),
-                  boxShadow: _currentHeroPage == index
-                      ? [
-                          BoxShadow(
-                            color: const Color(0xFF00D9FF).withValues(alpha: 0.5),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ]
-                      : null,
-                ),
-              ),
-            ),
-          ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
-        ],
-      ),
     );
   }
 
   Widget _buildCollectionSection(_EffectCollection collection, int sectionIndex) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 28),
+      margin: const EdgeInsets.only(bottom: 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Section header
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 2),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -560,7 +491,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             color: Colors.white,
                           ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 1),
                     Text(
                       collection.subtitle,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -588,20 +519,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 duration: 400.ms,
               ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 6),
 
           // Horizontal carousel
           SizedBox(
             height: 200,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               itemCount: collection.effects.length,
               itemBuilder: (context, index) {
                 final featured = collection.effects[index];
                 return Padding(
                   padding: EdgeInsets.only(
-                    right: index < collection.effects.length - 1 ? 12 : 0,
+                    right: index < collection.effects.length - 1 ? 6 : 0,
                   ),
                   child: _EffectCarouselCard(
                     key: ValueKey('${collection.title}_${_getEffectValue(featured.effect)}'),
