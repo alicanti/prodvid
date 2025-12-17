@@ -360,84 +360,105 @@ class _HomeScreenState extends State<HomeScreen> {
     // Calculate hero height as half of screen height
     final screenHeight = MediaQuery.of(context).size.height;
     final heroHeight = screenHeight * 0.5;
+    final statusBarHeight = MediaQuery.of(context).padding.top;
+    const overlapHeight = 40.0;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
-      body: CustomScrollView(
-        slivers: [
-          // Collapsible Hero Slider with AppBar
-          SliverAppBar(
-            expandedHeight: heroHeight,
-            floating: false,
-            pinned: false,
-            snap: false,
-            stretch: true,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            toolbarHeight: 56,
-            // AppBar with gradient background
-            flexibleSpace: FlexibleSpaceBar(
-              background: _buildHeroSlider(heroHeight),
-              collapseMode: CollapseMode.parallax,
-            ),
-            // Title - no gradient backdrop
-            title: ShaderMask(
-              shaderCallback: (bounds) => const LinearGradient(
-                colors: [
-                  Color(0xFF00D9FF),
-                  Color(0xFF00FF88),
-                ],
-              ).createShader(bounds),
-              child: Text(
-                'ProdVid',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                      letterSpacing: -0.5,
-                    ),
-              ),
-            ),
-            actions: const [
-              _CreditsBadge(credits: 150),
-              SizedBox(width: 16),
-            ],
+      body: Stack(
+        children: [
+          // Background slider (fixed at top)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: heroHeight,
+            child: _buildHeroSlider(heroHeight),
           ),
 
-          // Content area - overlaps slider with rounded top corners
-          SliverToBoxAdapter(
-            child: Transform.translate(
-              offset: const Offset(0, -60),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.backgroundDark,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(28),
-                    topRight: Radius.circular(28),
+          // Scrollable content with overlap
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                // Spacer for slider (minus overlap)
+                SizedBox(height: heroHeight - overlapHeight),
+
+                // Content area with rounded top corners
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.backgroundDark,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(28),
+                      topRight: Radius.circular(28),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.4),
+                        blurRadius: 20,
+                        offset: const Offset(0, -8),
+                      ),
+                    ],
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
-                      blurRadius: 20,
-                      offset: const Offset(0, -10),
-                    ),
-                  ],
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      ..._collections.map((collection) {
+                        final index = _collections.indexOf(collection);
+                        return _buildCollectionSection(collection, index);
+                      }),
+                      const SizedBox(height: 100),
+                    ],
+                  ),
                 ),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 20),
-                    ..._collections.map((collection) {
-                      final index = _collections.indexOf(collection);
-                      return _buildCollectionSection(collection, index);
-                    }),
-                  ],
-                ),
-              ),
+              ],
             ),
           ),
 
-          // Bottom padding
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 100),
+          // Fixed AppBar overlay
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              padding: EdgeInsets.only(
+                top: statusBarHeight + 8,
+                left: 16,
+                right: 16,
+                bottom: 8,
+              ),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withOpacity(0.6),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ShaderMask(
+                    shaderCallback: (bounds) => const LinearGradient(
+                      colors: [
+                        Color(0xFF00D9FF),
+                        Color(0xFF00FF88),
+                      ],
+                    ).createShader(bounds),
+                    child: Text(
+                      'ProdVid',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            letterSpacing: -0.5,
+                          ),
+                    ),
+                  ),
+                  const _CreditsBadge(credits: 150),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -799,11 +820,11 @@ class _FullscreenHeroCard extends StatelessWidget {
             ),
           ),
 
-          // Content at bottom - positioned higher for content overlap
+          // Content at bottom
           Positioned(
             left: 20,
             right: 20,
-            bottom: 80,
+            bottom: 60,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
