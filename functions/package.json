@@ -14,7 +14,7 @@
     "lint:fix": "eslint --ext .js,.ts . --fix"
   },
   "engines": {
-    "node": "18"
+    "node": "20"
   },
   "main": "lib/index.js",
   "dependencies": {
