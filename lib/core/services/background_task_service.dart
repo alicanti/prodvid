@@ -51,6 +51,7 @@ class BackgroundTaskService {
   
   final Map<String, Timer> _pollingTimers = {};
   final Map<String, _WiroCredentials> _credentials = {};
+  final Map<String, String> _lastKnownStatus = {};
 
   /// Prepare generation - deduct credits and get API credentials
   Future<PrepareGenerationResult> prepareGeneration({
@@ -112,10 +113,14 @@ class BackgroundTaskService {
     }
 
     try {
+      // Trim credentials to remove any whitespace/newlines
+      final apiKey = creds.apiKey.trim();
+      final apiSecret = creds.apiSecret.trim();
+      
       // Generate auth headers
       final nonce = (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
-      final signatureData = creds.apiSecret + nonce;
-      final signature = Hmac(sha256, utf8.encode(creds.apiKey))
+      final signatureData = apiSecret + nonce;
+      final signature = Hmac(sha256, utf8.encode(apiKey))
           .convert(utf8.encode(signatureData))
           .toString();
 
@@ -124,7 +129,7 @@ class BackgroundTaskService {
       final request = http.MultipartRequest('POST', Uri.parse(endpoint));
       
       request.headers.addAll({
-        'x-api-key': creds.apiKey,
+        'x-api-key': apiKey,
         'x-nonce': nonce,
         'x-signature': signature,
       });
@@ -133,11 +138,25 @@ class BackgroundTaskService {
       request.fields['effectType'] = effectType;
       request.fields['videoMode'] = videoMode;
 
-      if (caption != null) {
+      if (caption != null && caption.isNotEmpty) {
         request.fields['caption'] = caption;
       }
 
-      if (productImage != null) {
+      // Add images based on model type
+      if (productImage != null && logoImage != null) {
+        // For product-ads-with-logo: both images as inputImage array
+        request.files.add(http.MultipartFile.fromBytes(
+          'inputImage',
+          productImage,
+          filename: 'product.jpg',
+        ));
+        request.files.add(http.MultipartFile.fromBytes(
+          'inputImage',
+          logoImage,
+          filename: 'logo.png',
+        ));
+      } else if (productImage != null) {
+        // For product-ads and product-ads-with-caption: single image
         request.files.add(http.MultipartFile.fromBytes(
           'inputImage',
           productImage,
@@ -145,20 +164,16 @@ class BackgroundTaskService {
         ));
       }
 
-      if (logoImage != null) {
-        request.files.add(http.MultipartFile.fromBytes(
-          'inputImage',
-          logoImage,
-          filename: 'logo.png',
-        ));
-      }
-
       debugPrint('🚀 Starting Wiro generation: $endpoint');
+      debugPrint('📋 Model: $modelType, Effect: $effectType, Mode: $videoMode');
+      debugPrint('📋 Fields: ${request.fields}');
+      debugPrint('📋 Files: ${request.files.map((f) => '${f.field}:${f.filename}:${f.length}bytes').toList()}');
       
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
       debugPrint('📥 Wiro response: ${response.statusCode}');
+      debugPrint('📥 Wiro body: ${response.body}');
 
       if (response.statusCode != 200) {
         debugPrint('❌ Wiro error: ${response.body}');
@@ -166,13 +181,14 @@ class BackgroundTaskService {
         await _refundCredits(tempTaskId);
         return StartGenerationResult(
           success: false,
-          error: 'Wiro API error: ${response.statusCode}',
+          error: 'Wiro API error: ${response.statusCode} - ${response.body}',
         );
       }
 
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       
       if (data['result'] != true) {
+        debugPrint('❌ Wiro result false: ${data['errors']}');
         await _refundCredits(tempTaskId);
         return StartGenerationResult(
           success: false,
@@ -183,13 +199,13 @@ class BackgroundTaskService {
       final wiroTaskId = data['taskid'] as String;
       final socketToken = data['socketaccesstoken'] as String;
 
+      debugPrint('✅ Generation started: $wiroTaskId');
+
       // Update Firestore with real task ID
       await _updateTaskWithWiroId(tempTaskId, wiroTaskId, socketToken);
 
       // Start polling
       _startPolling(wiroTaskId, creds);
-
-      debugPrint('✅ Generation started: $wiroTaskId');
 
       return StartGenerationResult(
         success: true,
@@ -233,17 +249,21 @@ class BackgroundTaskService {
     }
 
     try {
+      // Trim credentials
+      final apiKey = creds.apiKey.trim();
+      final apiSecret = creds.apiSecret.trim();
+      
       // Generate auth headers
       final nonce = (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
-      final signatureData = creds.apiSecret + nonce;
-      final signature = Hmac(sha256, utf8.encode(creds.apiKey))
+      final signatureData = apiSecret + nonce;
+      final signature = Hmac(sha256, utf8.encode(apiKey))
           .convert(utf8.encode(signatureData))
           .toString();
 
       final response = await http.post(
         Uri.parse('https://api.wiro.ai/v1/Task/Detail'),
         headers: {
-          'x-api-key': creds.apiKey,
+          'x-api-key': apiKey,
           'x-nonce': nonce,
           'x-signature': signature,
           'Content-Type': 'application/json',
@@ -260,6 +280,7 @@ class BackgroundTaskService {
       final taskList = data['tasklist'] as List?;
       
       if (taskList == null || taskList.isEmpty) {
+        debugPrint('⚠️ Poll: no task found');
         return;
       }
 
@@ -267,24 +288,38 @@ class BackgroundTaskService {
       final status = task['status'] as String?;
       final outputs = task['outputs'] as List?;
 
-      debugPrint('📊 Task status: $status');
+      // Only log if status changed
+      final lastStatus = _lastKnownStatus[taskId];
+      if (status != lastStatus) {
+        debugPrint('📊 Task $taskId status: $status');
+        _lastKnownStatus[taskId] = status ?? 'unknown';
+      }
 
-      // Update Firestore
+      // Determine Firestore status
       String firestoreStatus = 'processing';
       String? videoUrl;
+      bool shouldUpdateFirestore = false;
 
       if (status == 'task_postprocess_end') {
         firestoreStatus = 'completed';
         if (outputs != null && outputs.isNotEmpty) {
-          videoUrl = (outputs[0] as Map<String, dynamic>)['url'] as String?;
+          final output = outputs[0] as Map<String, dynamic>;
+          videoUrl = output['url'] as String?;
+          debugPrint('✅ Video completed! URL: $videoUrl');
         }
+        shouldUpdateFirestore = true;
         _stopPolling(taskId);
       } else if (status == 'task_cancel') {
         firestoreStatus = 'cancelled';
+        debugPrint('🚫 Task cancelled');
+        shouldUpdateFirestore = true;
         _stopPolling(taskId);
       }
 
-      await _updateTaskStatus(taskId, firestoreStatus, outputs, videoUrl);
+      // Only update Firestore when status changes to completed or cancelled
+      if (shouldUpdateFirestore) {
+        await _updateTaskStatus(taskId, firestoreStatus, outputs, videoUrl);
+      }
 
     } catch (e) {
       debugPrint('⚠️ Poll error: $e');
@@ -296,6 +331,7 @@ class BackgroundTaskService {
     _pollingTimers[taskId]?.cancel();
     _pollingTimers.remove(taskId);
     _credentials.remove(taskId);
+    _lastKnownStatus.remove(taskId);
   }
 
   /// Cancel a task
@@ -304,16 +340,19 @@ class BackgroundTaskService {
     if (creds == null) return;
 
     try {
+      final apiKey = creds.apiKey.trim();
+      final apiSecret = creds.apiSecret.trim();
+      
       final nonce = (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
-      final signatureData = creds.apiSecret + nonce;
-      final signature = Hmac(sha256, utf8.encode(creds.apiKey))
+      final signatureData = apiSecret + nonce;
+      final signature = Hmac(sha256, utf8.encode(apiKey))
           .convert(utf8.encode(signatureData))
           .toString();
 
       await http.post(
         Uri.parse('https://api.wiro.ai/v1/Task/Cancel'),
         headers: {
-          'x-api-key': creds.apiKey,
+          'x-api-key': apiKey,
           'x-nonce': nonce,
           'x-signature': signature,
           'Content-Type': 'application/json',
@@ -354,6 +393,7 @@ class BackgroundTaskService {
     List<dynamic>? outputs,
     String? videoUrl,
   ) async {
+    debugPrint('📝 Updating Firestore: taskId=$taskId, status=$status, videoUrl=$videoUrl');
     try {
       final callable = _functions.httpsCallable('updateTaskStatus2');
       await callable.call<Map<String, dynamic>>({
@@ -362,6 +402,7 @@ class BackgroundTaskService {
         if (outputs != null) 'outputs': outputs,
         if (videoUrl != null) 'videoUrl': videoUrl,
       });
+      debugPrint('✅ Firestore updated successfully');
     } catch (e) {
       debugPrint('⚠️ Update status error: $e');
     }

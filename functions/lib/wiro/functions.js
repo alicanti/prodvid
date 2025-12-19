@@ -49,8 +49,8 @@ const wiroApiKey = (0, params_1.defineSecret)('WIRO_API_KEY');
 const wiroApiSecret = (0, params_1.defineSecret)('WIRO_API_SECRET');
 // Credit costs
 const CREDITS = {
-    STANDARD: 45,
-    PRO: 80,
+    STANDARD: 120,
+    PRO: 210,
 };
 /**
  * Create a Wiro client with credentials from Secret Manager
@@ -522,12 +522,12 @@ exports.prepareGeneration = functions
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
-    // Return API credentials and task info
+    // Return API credentials and task info (trim to remove any whitespace/newlines)
     return {
         success: true,
         tempTaskId,
-        apiKey: wiroApiKey.value(),
-        apiSecret: wiroApiSecret.value(),
+        apiKey: wiroApiKey.value().trim(),
+        apiSecret: wiroApiSecret.value().trim(),
         creditCost,
         creditsRemaining: creditResult.newBalance,
     };

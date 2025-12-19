@@ -678,16 +678,20 @@ class _EffectDetailScreenState extends ConsumerState<EffectDetailScreen> {
         Row(
           children: WiroVideoMode.values.map((mode) {
             final isSelected = _videoMode == mode;
+            final isStandard = mode == WiroVideoMode.standard;
+            final credits = isStandard ? 120 : 210;
+            
             return Expanded(
               child: Padding(
                 padding: EdgeInsets.only(
-                  right: mode == WiroVideoMode.standard ? 8 : 0,
+                  right: isStandard ? 8 : 0,
+                  left: isStandard ? 0 : 8,
                 ),
                 child: GestureDetector(
                   onTap: () => setState(() => _videoMode = mode),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
                     decoration: BoxDecoration(
                       color: isSelected
                           ? AppColors.primary
@@ -697,42 +701,77 @@ class _EffectDetailScreenState extends ConsumerState<EffectDetailScreen> {
                         color: isSelected
                             ? AppColors.primary
                             : AppColors.borderDark,
+                        width: isSelected ? 2 : 1,
                       ),
                     ),
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
+                        // Icon
                         Icon(
-                          mode == WiroVideoMode.standard
-                              ? Icons.sd
-                              : Icons.hd,
+                          isStandard ? Icons.sd : Icons.hd,
                           color: isSelected
                               ? Colors.white
                               : AppColors.textSecondaryDark,
-                          size: 24,
+                          size: 28,
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 8),
+                        // Label
                         Text(
                           mode.label,
                           style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
                             color: isSelected
                                 ? Colors.white
                                 : AppColors.textSecondaryDark,
                           ),
                         ),
-                        if (mode == WiroVideoMode.pro) ...[
-                          const SizedBox(height: 2),
-                          Text(
-                            'Better quality',
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: isSelected
-                                  ? Colors.white70
-                                  : AppColors.textSecondaryDark,
-                            ),
+                        const SizedBox(height: 4),
+                        // Description
+                        Text(
+                          isStandard ? 'Good quality' : 'Best quality',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: isSelected
+                                ? Colors.white70
+                                : AppColors.textSecondaryDark.withValues(alpha: 0.7),
                           ),
-                        ],
+                        ),
+                        const SizedBox(height: 8),
+                        // Credits badge
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? Colors.white.withValues(alpha: 0.2)
+                                : AppColors.backgroundDark,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.bolt,
+                                size: 14,
+                                color: isSelected
+                                    ? Colors.amber
+                                    : AppColors.textSecondaryDark,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                '$credits',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : AppColors.textSecondaryDark,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),

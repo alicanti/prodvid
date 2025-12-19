@@ -51,8 +51,8 @@ class ProfileScreen extends ConsumerWidget {
                       'Profile',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 48), // Balance for back button
@@ -67,27 +67,24 @@ class ProfileScreen extends ConsumerWidget {
               padding: const EdgeInsets.only(bottom: 100),
               child: Column(
                 children: [
-                  // Profile header
+                  // Profile header - compact
                   Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    child: Row(
                       children: [
                         // Avatar
                         Container(
-                          width: 100,
-                          height: 100,
+                          width: 64,
+                          height: 64,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: AppColors.surfaceDark,
-                              width: 4,
+                              width: 3,
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.3),
-                                blurRadius: 20,
-                              ),
-                            ],
                           ),
                           child: const ClipOval(
                             child: DecoratedBox(
@@ -103,246 +100,171 @@ class ProfileScreen extends ConsumerWidget {
                               ),
                               child: Icon(
                                 Icons.person,
-                                size: 48,
+                                size: 32,
                                 color: Colors.white,
                               ),
                             ),
                           ),
-                        ).animate().fadeIn(duration: 400.ms).scale(
-                              begin: const Offset(0.9, 0.9),
-                            ),
-
-                        const SizedBox(height: 16),
-
-                        // Anonymous User label
-                        Text(
-                          'Anonymous User',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineSmall
-                              ?.copyWith(fontWeight: FontWeight.w800),
-                        ).animate().fadeIn(delay: 100.ms),
-
-                        const SizedBox(height: 12),
-
-                        // User ID with copy button
-                        GestureDetector(
-                          onTap: () => _copyUserId(context, userId),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 10,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.surfaceDark,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: AppColors.borderDark),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.fingerprint,
-                                  size: 18,
-                                  color: AppColors.textSecondaryDark,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  userId.length > 16
-                                      ? '${userId.substring(0, 8)}...${userId.substring(userId.length - 6)}'
-                                      : userId,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    fontFamily: 'monospace',
-                                    color: AppColors.textSecondaryDark,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                const Icon(
-                                  Icons.copy,
-                                  size: 16,
-                                  color: AppColors.primary,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ).animate().fadeIn(delay: 150.ms),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Credits Card
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Credits',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge
-                              ?.copyWith(fontWeight: FontWeight.w700),
-                        ),
-
-                        const SizedBox(height: 12),
-
-                        // Credits card
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                Color(0xFF1a1f2e),
-                                Color(0xFF0f1318),
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: AppColors.borderDark),
-                          ),
-                          child: Row(
+                        ).animate().fadeIn(duration: 300.ms),
+                        const SizedBox(width: 16),
+                        // Name and ID
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Credit icon
-                              Container(
-                                width: 56,
-                                height: 56,
-                                decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [
-                                      AppColors.primary,
-                                      AppColors.cyan,
-                                    ],
-                                  ),
-                                  borderRadius: BorderRadius.circular(16),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: AppColors.primary.withValues(alpha: 0.4),
-                                      blurRadius: 12,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: const Icon(
-                                  Icons.diamond,
-                                  color: Colors.white,
-                                  size: 28,
-                                ),
+                              Text(
+                                'Anonymous User',
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.w700),
                               ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                              const SizedBox(height: 4),
+                              GestureDetector(
+                                onTap: () => _copyUserId(context, userId),
+                                child: Row(
                                   children: [
-                                    const Text(
-                                      'Available Credits',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: AppColors.textSecondaryDark,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    creditsAsync.when(
-                                      data: (credits) => Text(
-                                        '$credits',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headlineMedium
-                                            ?.copyWith(
-                                              fontWeight: FontWeight.w800,
-                                              color: Colors.white,
-                                            ),
-                                      ),
-                                      loading: () => const SizedBox(
-                                        height: 24,
-                                        width: 24,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                        ),
-                                      ),
-                                      error: (_, __) => const Text(
-                                        '—',
-                                        style: TextStyle(
-                                          fontSize: 28,
-                                          fontWeight: FontWeight.w800,
+                                    Flexible(
+                                      child: Text(
+                                        userId,
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          fontFamily: 'monospace',
+                                          color: AppColors.textSecondaryDark,
                                         ),
                                       ),
                                     ),
-                                  ],
-                                ),
-                              ),
-                              // Buy credits button
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 10,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: const Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.add,
-                                      size: 18,
+                                    const SizedBox(width: 6),
+                                    const Icon(
+                                      Icons.copy,
+                                      size: 14,
                                       color: AppColors.primary,
-                                    ),
-                                    SizedBox(width: 4),
-                                    Text(
-                                      'Buy',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.primary,
-                                      ),
                                     ),
                                   ],
                                 ),
                               ),
                             ],
                           ),
-                        ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
+                        ),
+                      ],
+                    ),
+                  ),
 
-                        const SizedBox(height: 12),
+                  const SizedBox(height: 8),
 
-                        // Credit info
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: AppColors.surfaceDark.withValues(alpha: 0.5),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Row(
-                            children: [
-                              Icon(
-                                Icons.info_outline,
-                                size: 18,
-                                color: AppColors.textSecondaryDark,
+                  // Credits Card - compact
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFF1a1f2e), Color(0xFF0f1318)],
+                        ),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: AppColors.borderDark),
+                      ),
+                      child: Row(
+                        children: [
+                          // Credit icon
+                          Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [AppColors.primary, AppColors.cyan],
                               ),
-                              SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  'Standard video: 45 credits • Pro video: 80 credits',
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(
+                              Icons.diamond,
+                              color: Colors.white,
+                              size: 22,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Available Credits',
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: AppColors.textSecondaryDark,
                                   ),
                                 ),
-                              ),
-                            ],
+                                creditsAsync.when(
+                                  data: (credits) => Text(
+                                    '$credits',
+                                    style: const TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w800,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  loading: () => const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                  error: (_, __) => const Text(
+                                    '—',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ).animate().fadeIn(delay: 250.ms),
-                      ],
-                    ),
+                          // Buy credits button
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.add,
+                                  size: 16,
+                                  color: AppColors.primary,
+                                ),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Buy',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ).animate().fadeIn(delay: 100.ms),
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 10),
+
+                  // Subscription Status
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: _SubscriptionStatusCard(),
+                  ),
+
+                  const SizedBox(height: 16),
 
                   // Account settings
                   Padding(
@@ -352,9 +274,7 @@ class ProfileScreen extends ConsumerWidget {
                       children: [
                         Text(
                           'Settings',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge
+                          style: Theme.of(context).textTheme.titleLarge
                               ?.copyWith(fontWeight: FontWeight.w700),
                         ),
 
@@ -427,7 +347,8 @@ class ProfileScreen extends ConsumerWidget {
                               ),
                               actions: [
                                 TextButton(
-                                  onPressed: () => Navigator.pop(context, false),
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
                                   child: const Text('Cancel'),
                                 ),
                                 TextButton(
@@ -460,7 +381,10 @@ class ProfileScreen extends ConsumerWidget {
                           child: const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.delete_forever, color: AppColors.error),
+                              Icon(
+                                Icons.delete_forever,
+                                color: AppColors.error,
+                              ),
                               SizedBox(width: 8),
                               Text(
                                 'Delete Account',
@@ -570,6 +494,145 @@ class _SettingsItem extends StatelessWidget {
             color: AppColors.borderDark.withValues(alpha: 0.5),
           ),
       ],
+    );
+  }
+}
+
+/// Subscription status card widget - compact version
+class _SubscriptionStatusCard extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final subscriptionAsync = ref.watch(userSubscriptionProvider);
+
+    return subscriptionAsync.when(
+      data: (isSubscribed) => Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: isSubscribed
+                ? [const Color(0xFF1a2f1a), const Color(0xFF0f1f0f)]
+                : [const Color(0xFF1a1f2e), const Color(0xFF0f1318)],
+          ),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isSubscribed
+                ? const Color(0xFF00FF88).withValues(alpha: 0.3)
+                : AppColors.borderDark,
+          ),
+        ),
+        child: Row(
+          children: [
+            // Status icon
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: isSubscribed
+                      ? [const Color(0xFF00FF88), const Color(0xFF00D9FF)]
+                      : [AppColors.slate600, AppColors.slate700],
+                ),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                isSubscribed ? Icons.verified : Icons.star_border,
+                color: Colors.white,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Subscription',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondaryDark,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isSubscribed
+                              ? const Color(0xFF00FF88)
+                              : AppColors.slate500,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        isSubscribed ? 'Active' : 'Passive',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: isSubscribed
+                              ? const Color(0xFF00FF88)
+                              : AppColors.textSecondaryDark,
+                        ),
+                      ),
+                      if (isSubscribed) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFFFD700), Color(0xFFFF8C00)],
+                            ),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Text(
+                            'PRO',
+                            style: TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            // Upgrade/Manage button
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: isSubscribed
+                    ? const Color(0xFF00FF88).withValues(alpha: 0.15)
+                    : AppColors.primary.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Text(
+                isSubscribed ? 'Manage' : 'Upgrade',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: isSubscribed
+                      ? const Color(0xFF00FF88)
+                      : AppColors.primary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ).animate().fadeIn(delay: 150.ms),
+      loading: () => const SizedBox(
+        height: 72,
+        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+      ),
+      error: (_, __) => const SizedBox.shrink(),
     );
   }
 }

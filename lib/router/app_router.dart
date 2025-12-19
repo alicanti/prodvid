@@ -445,14 +445,22 @@ class _VideoCardState extends State<_VideoCard> {
   }
 
   Future<void> _initializeVideo() async {
-    if (widget.video.videoUrl == null) return;
+    if (widget.video.videoUrl == null || widget.video.videoUrl!.isEmpty) return;
 
     try {
-      // Get cached file
-      final file = await VideoCacheManager.instance.getSingleFile(
-        widget.video.videoUrl!,
-      );
-      _controller = VideoPlayerController.file(file);
+      // Try cached file first, then fall back to network
+      try {
+        final file = await VideoCacheManager.instance.getSingleFile(
+          widget.video.videoUrl!,
+        );
+        _controller = VideoPlayerController.file(file);
+      } catch (_) {
+        // Fall back to network
+        _controller = VideoPlayerController.networkUrl(
+          Uri.parse(widget.video.videoUrl!),
+        );
+      }
+
       await _controller!.initialize();
       _controller!.setLooping(true);
       _controller!.setVolume(0);
@@ -484,174 +492,178 @@ class _VideoCardState extends State<_VideoCard> {
           );
         }
       },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // Video or placeholder
-            if (_isInitialized && _controller != null)
-              FittedBox(
-                fit: BoxFit.cover,
-                child: SizedBox(
-                  width: _controller!.value.size.width,
-                  height: _controller!.value.size.height,
-                  child: VideoPlayer(_controller!),
-                ),
-              )
-            else
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: widget.video.isPending
-                        ? [const Color(0xFF0A1628), const Color(0xFF0D2137)]
-                        : [
-                            Colors.black.withValues(alpha: 0.3),
-                            Colors.black.withValues(alpha: 0.5),
-                          ],
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          decoration: BoxDecoration(color: const Color(0xFF0A1628)),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Video or placeholder
+              if (_isInitialized && _controller != null)
+                SizedBox.expand(
+                  child: FittedBox(
+                    fit: BoxFit.cover,
+                    clipBehavior: Clip.hardEdge,
+                    child: SizedBox(
+                      width: _controller!.value.size.width,
+                      height: _controller!.value.size.height,
+                      child: VideoPlayer(_controller!),
+                    ),
                   ),
-                ),
-                child: Center(
-                  child: widget.video.isPending
-                      ? Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const SizedBox(
-                              width: 40,
-                              height: 40,
-                              child: CircularProgressIndicator(
-                                color: Color(0xFF00D9FF),
-                                strokeWidth: 2,
+                )
+              else
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: widget.video.isPending
+                          ? [const Color(0xFF0A1628), const Color(0xFF0D2137)]
+                          : [
+                              Colors.black.withValues(alpha: 0.3),
+                              Colors.black.withValues(alpha: 0.5),
+                            ],
+                    ),
+                  ),
+                  child: Center(
+                    child: widget.video.isPending
+                        ? Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const SizedBox(
+                                width: 40,
+                                height: 40,
+                                child: CircularProgressIndicator(
+                                  color: Color(0xFF00D9FF),
+                                  strokeWidth: 2,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              widget.video.status == 'preparing'
-                                  ? 'Starting...'
-                                  : 'Creating video...',
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.7),
-                                fontSize: 12,
+                              const SizedBox(height: 12),
+                              Text(
+                                widget.video.status == 'preparing'
+                                    ? 'Starting...'
+                                    : 'Creating video...',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.7),
+                                  fontSize: 12,
+                                ),
                               ),
-                            ),
-                          ],
-                        )
-                      : Icon(
-                          widget.video.isFailed
-                              ? Icons.error_outline
-                              : Icons.play_circle_outline,
-                          size: 48,
-                          color: Colors.white.withValues(alpha: 0.3),
-                        ),
+                            ],
+                          )
+                        : Icon(
+                            widget.video.isFailed
+                                ? Icons.error_outline
+                                : Icons.play_circle_outline,
+                            size: 48,
+                            color: Colors.white.withValues(alpha: 0.3),
+                          ),
+                  ),
                 ),
-              ),
 
-            // Gradient overlay
-            Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withValues(alpha: 0.8),
-                    ],
-                    stops: const [0.5, 1.0],
+              // Gradient overlay
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withValues(alpha: 0.8),
+                      ],
+                      stops: const [0.5, 1.0],
+                    ),
                   ),
                 ),
               ),
-            ),
 
-            // Status badge
-            Positioned(
-              top: 8,
-              right: 8,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: _getStatusColor(
-                    widget.video.status,
-                  ).withValues(alpha: 0.9),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  _getStatusText(widget.video.status),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-
-            // Video mode badge (PRO/STD)
-            if (widget.video.videoMode == 'pro')
+              // Status badge
               Positioned(
                 top: 8,
-                left: 8,
+                right: 8,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 3,
+                    horizontal: 8,
+                    vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFFFFD700), Color(0xFFFF8C00)],
-                    ),
-                    borderRadius: BorderRadius.circular(6),
+                    color: _getStatusColor(
+                      widget.video.status,
+                    ).withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text(
-                    'PRO',
-                    style: TextStyle(
+                  child: Text(
+                    _getStatusText(widget.video.status),
+                    style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 9,
-                      fontWeight: FontWeight.w800,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
               ),
 
-            // Title and date
-            Positioned(
-              left: 10,
-              right: 10,
-              bottom: 10,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    widget.video.displayName,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+              // Video mode badge (PRO/STD)
+              if (widget.video.videoMode == 'pro')
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 3,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  if (widget.video.createdAt != null)
-                    Text(
-                      _formatDate(widget.video.createdAt!),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFFFD700), Color(0xFFFF8C00)],
+                      ),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Text(
+                      'PRO',
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.6),
-                        fontSize: 11,
+                        color: Colors.white,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
-                ],
+                  ),
+                ),
+
+              // Title and date
+              Positioned(
+                left: 10,
+                right: 10,
+                bottom: 10,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      widget.video.displayName,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    if (widget.video.createdAt != null)
+                      Text(
+                        _formatDate(widget.video.createdAt!),
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.6),
+                          fontSize: 11,
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

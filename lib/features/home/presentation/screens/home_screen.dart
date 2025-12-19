@@ -43,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _startAutoScroll() {
-    _autoScrollTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
+    _autoScrollTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
       if (_heroPageController.hasClients) {
         _currentHeroPage = (_currentHeroPage + 1) % _heroEffects.length;
         _heroPageController.animateToPage(
@@ -601,6 +601,8 @@ class _CreditsBadge extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final creditsAsync = ref.watch(userCreditsProvider);
+    final subscriptionAsync = ref.watch(userSubscriptionProvider);
+    final isSubscribed = subscriptionAsync.valueOrNull ?? false;
 
     return GestureDetector(
       onTap: () {
@@ -610,33 +612,65 @@ class _CreditsBadge extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              const Color(0xFFFFD700).withValues(alpha: 0.15),
-              const Color(0xFFFFAA00).withValues(alpha: 0.15),
-            ],
+            colors: isSubscribed
+                ? [
+                    const Color(0xFF00FF88).withValues(alpha: 0.15),
+                    const Color(0xFF00D9FF).withValues(alpha: 0.15),
+                  ]
+                : [
+                    const Color(0xFFFFD700).withValues(alpha: 0.15),
+                    const Color(0xFFFFAA00).withValues(alpha: 0.15),
+                  ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: const Color(0xFFFFD700).withValues(alpha: 0.4),
+            color: isSubscribed
+                ? const Color(0xFF00FF88).withValues(alpha: 0.4)
+                : const Color(0xFFFFD700).withValues(alpha: 0.4),
           ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // PRO badge for subscribers
+            if (isSubscribed) ...[
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF00FF88), Color(0xFF00D9FF)],
+                  ),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Text(
+                  'PRO',
+                  style: TextStyle(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
             // Coin icon with glow
             Container(
               width: 20,
               height: 20,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
+                gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [Color(0xFFFFD700), Color(0xFFFFAA00)],
+                  colors: isSubscribed
+                      ? [const Color(0xFF00FF88), const Color(0xFF00D9FF)]
+                      : [const Color(0xFFFFD700), const Color(0xFFFFAA00)],
                 ),
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFFFD700).withValues(alpha: 0.5),
+                    color: isSubscribed
+                        ? const Color(0xFF00FF88).withValues(alpha: 0.5)
+                        : const Color(0xFFFFD700).withValues(alpha: 0.5),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
@@ -650,26 +684,32 @@ class _CreditsBadge extends ConsumerWidget {
             creditsAsync.when(
               data: (credits) => Text(
                 '$credits',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFFFFD700),
+                  color: isSubscribed
+                      ? const Color(0xFF00FF88)
+                      : const Color(0xFFFFD700),
                 ),
               ),
-              loading: () => const SizedBox(
+              loading: () => SizedBox(
                 width: 16,
                 height: 16,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Color(0xFFFFD700),
+                  color: isSubscribed
+                      ? const Color(0xFF00FF88)
+                      : const Color(0xFFFFD700),
                 ),
               ),
-              error: (_, __) => const Text(
+              error: (_, __) => Text(
                 '?',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFFFFD700),
+                  color: isSubscribed
+                      ? const Color(0xFF00FF88)
+                      : const Color(0xFFFFD700),
                 ),
               ),
             ),
@@ -677,7 +717,9 @@ class _CreditsBadge extends ConsumerWidget {
             Icon(
               Icons.add_circle,
               size: 16,
-              color: const Color(0xFFFFD700).withValues(alpha: 0.7),
+              color: isSubscribed
+                  ? const Color(0xFF00FF88).withValues(alpha: 0.7)
+                  : const Color(0xFFFFD700).withValues(alpha: 0.7),
             ),
           ],
         ),

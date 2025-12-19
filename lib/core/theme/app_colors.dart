@@ -59,6 +59,10 @@ abstract class AppColors {
   static const Color teal = Color(0xFF14B8A6);
   static const Color cyan = Color(0xFF06B6D4);
   static const Color pink = Color(0xFFEC4899);
+  
+  // Neon Colors
+  static const Color neonCyan = Color(0xFF00D9FF);
+  static const Color neonGreen = Color(0xFF00FF88);
 
   // Borders
   static const Color borderLight = Color(0xFFE2E8F0);

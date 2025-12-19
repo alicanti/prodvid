@@ -37,17 +37,43 @@ final authServiceProvider = Provider<AuthService>((ref) {
 final userCreditsProvider = StreamProvider<int>((ref) {
   final auth = ref.watch(firebaseAuthProvider);
   final firestore = ref.watch(firestoreProvider);
-  
+
   final user = auth.currentUser;
   if (user == null) {
     return Stream.value(0);
   }
-  
+
   return firestore
       .collection('users')
       .doc(user.uid)
       .snapshots()
       .map((doc) => (doc.data()?['credits'] as num?)?.toInt() ?? 0);
+});
+
+/// User subscription status provider - watches Firestore for subscription status
+final userSubscriptionProvider = StreamProvider<bool>((ref) {
+  final auth = ref.watch(firebaseAuthProvider);
+  final firestore = ref.watch(firestoreProvider);
+
+  final user = auth.currentUser;
+  if (user == null) {
+    return Stream.value(false);
+  }
+
+  return firestore.collection('users').doc(user.uid).snapshots().map((doc) {
+    final data = doc.data();
+    if (data == null) return false;
+
+    // Check if subscription is active
+    final isSubscribed = data['isSubscribed'] as bool? ?? false;
+    final subscriptionExpiry = data['subscriptionExpiry'] as Timestamp?;
+
+    if (!isSubscribed) return false;
+    if (subscriptionExpiry == null) return isSubscribed;
+
+    // Check if subscription hasn't expired
+    return subscriptionExpiry.toDate().isAfter(DateTime.now());
+  });
 });
 
 /// User video project model
@@ -64,13 +90,17 @@ class VideoProject {
   });
 
   factory VideoProject.fromFirestore(Map<String, dynamic> data) {
+    // Try to get videoUrl directly first, then fall back to extracting from outputs
+    final directVideoUrl = data['videoUrl'] as String?;
+    final extractedVideoUrl = _extractVideoUrl(data['outputs']);
+
     return VideoProject(
       taskId: data['taskId'] as String? ?? '',
       modelType: data['modelType'] as String? ?? '',
       effectType: data['effectType'] as String? ?? '',
       videoMode: data['videoMode'] as String? ?? 'std',
       status: data['status'] as String? ?? 'pending',
-      videoUrl: _extractVideoUrl(data['outputs']),
+      videoUrl: directVideoUrl ?? extractedVideoUrl,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
       completedAt: (data['completedAt'] as Timestamp?)?.toDate(),
     );
@@ -86,7 +116,8 @@ class VideoProject {
   final DateTime? completedAt;
 
   bool get isCompleted => status == 'completed';
-  bool get isPending => status == 'pending' || status == 'processing' || status == 'preparing';
+  bool get isPending =>
+      status == 'pending' || status == 'processing' || status == 'preparing';
   bool get isFailed => status == 'failed' || status == 'cancelled';
 
   /// Get display name from effect type (e.g., "smoky-pedestal" -> "Smoky Pedestal")
@@ -94,9 +125,11 @@ class VideoProject {
     return effectType
         .replaceAll('-', ' ')
         .split(' ')
-        .map((word) => word.isNotEmpty 
-            ? '${word[0].toUpperCase()}${word.substring(1)}'
-            : '')
+        .map(
+          (word) => word.isNotEmpty
+              ? '${word[0].toUpperCase()}${word.substring(1)}'
+              : '',
+        )
         .join(' ');
   }
 
@@ -117,21 +150,23 @@ class VideoProject {
 final userVideosProvider = StreamProvider<List<VideoProject>>((ref) {
   final auth = ref.watch(firebaseAuthProvider);
   final firestore = ref.watch(firestoreProvider);
-  
+
   final user = auth.currentUser;
   if (user == null) {
     return Stream.value([]);
   }
-  
+
   // Query the root tasks collection filtered by userId, ordered by creation date
   return firestore
       .collection('tasks')
       .where('userId', isEqualTo: user.uid)
       .orderBy('createdAt', descending: true)
       .snapshots()
-      .map((snapshot) => snapshot.docs
-          .map((doc) => VideoProject.fromFirestore(doc.data()))
-          .toList());
+      .map(
+        (snapshot) => snapshot.docs
+            .map((doc) => VideoProject.fromFirestore(doc.data()))
+            .toList(),
+      );
 });
 
 /// Authentication service for handling anonymous auth
@@ -151,14 +186,14 @@ class AuthService {
   String? get userId => _auth.currentUser?.uid;
 
   /// Sign in anonymously and create Firestore user document
-  /// 
+  ///
   /// Creates a new anonymous user if not already signed in.
   /// Also creates a Firestore document with initial credits.
   /// Returns the User object on success.
   Future<User?> signInAnonymously() async {
     try {
       User? user;
-      
+
       // If already signed in, use current user
       if (_auth.currentUser != null) {
         user = _auth.currentUser;

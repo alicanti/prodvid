@@ -95,9 +95,7 @@ class AppBottomNavBar extends StatelessWidget {
           // Center FAB - Create Video
           Positioned(
             top: -20,
-            child: _CreateButton(
-              onTap: onCreateTap ?? () {},
-            ),
+            child: _CreateButton(onTap: onCreateTap ?? () {}),
           ),
         ],
       ),
@@ -123,7 +121,8 @@ class _NavItem extends StatefulWidget {
   State<_NavItem> createState() => _NavItemState();
 }
 
-class _NavItemState extends State<_NavItem> with SingleTickerProviderStateMixin {
+class _NavItemState extends State<_NavItem>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
@@ -134,9 +133,10 @@ class _NavItemState extends State<_NavItem> with SingleTickerProviderStateMixin 
       duration: const Duration(milliseconds: 150),
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(begin: 1, end: 0.9).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1,
+      end: 0.9,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -158,10 +158,8 @@ class _NavItemState extends State<_NavItem> with SingleTickerProviderStateMixin 
       behavior: HitTestBehavior.opaque,
       child: AnimatedBuilder(
         animation: _scaleAnimation,
-        builder: (context, child) => Transform.scale(
-          scale: _scaleAnimation.value,
-          child: child,
-        ),
+        builder: (context, child) =>
+            Transform.scale(scale: _scaleAnimation.value, child: child),
         child: SizedBox(
           width: 56,
           child: Column(
@@ -180,7 +178,7 @@ class _NavItemState extends State<_NavItem> with SingleTickerProviderStateMixin 
                   boxShadow: widget.isSelected
                       ? [
                           BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.3),
+                            color: AppColors.neonCyan.withValues(alpha: 0.4),
                             blurRadius: 12,
                             spreadRadius: -2,
                           ),
@@ -191,7 +189,7 @@ class _NavItemState extends State<_NavItem> with SingleTickerProviderStateMixin 
                   widget.icon,
                   size: 24,
                   color: widget.isSelected
-                      ? AppColors.primary
+                      ? AppColors.neonCyan
                       : Colors.white.withValues(alpha: 0.5),
                 ),
               ),
@@ -201,9 +199,11 @@ class _NavItemState extends State<_NavItem> with SingleTickerProviderStateMixin 
                 duration: const Duration(milliseconds: 200),
                 style: TextStyle(
                   fontSize: 10,
-                  fontWeight: widget.isSelected ? FontWeight.w700 : FontWeight.w500,
+                  fontWeight: widget.isSelected
+                      ? FontWeight.w700
+                      : FontWeight.w500,
                   color: widget.isSelected
-                      ? AppColors.primary
+                      ? AppColors.neonCyan
                       : Colors.white.withValues(alpha: 0.5),
                 ),
                 child: Text(widget.label),
@@ -239,7 +239,7 @@ class _CreateButtonState extends State<_CreateButton>
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     )..repeat(reverse: true);
-    
+
     _pulseAnimation = Tween<double>(begin: 0.8, end: 1).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
@@ -287,8 +287,9 @@ class _CreateButtonState extends State<_CreateButton>
                 ),
                 // Pulse glow
                 BoxShadow(
-                  color: const Color(0xFF00FF88)
-                      .withValues(alpha: 0.3 * _pulseAnimation.value),
+                  color: const Color(
+                    0xFF00FF88,
+                  ).withValues(alpha: 0.3 * _pulseAnimation.value),
                   blurRadius: 30 * _pulseAnimation.value,
                   spreadRadius: 5 * _pulseAnimation.value,
                 ),

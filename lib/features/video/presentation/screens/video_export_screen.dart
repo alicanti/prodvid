@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
@@ -174,19 +173,6 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
     }
   }
 
-  void _copyLink() {
-    if (widget.videoUrl == null) return;
-
-    Clipboard.setData(ClipboardData(text: widget.videoUrl!));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Link copied to clipboard!'),
-        behavior: SnackBarBehavior.floating,
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
-
   String _formatDuration(Duration duration) {
     final minutes = duration.inMinutes;
     final seconds = duration.inSeconds % 60;
@@ -304,11 +290,6 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
                       ],
                     ),
                   ).animate().fadeIn(delay: 350.ms).slideY(begin: 0.2),
-
-                  const SizedBox(height: 24),
-
-                  // Copy link
-                  _buildCopyLinkCard().animate().fadeIn(delay: 400.ms),
 
                   const SizedBox(height: 24),
 
@@ -664,57 +645,6 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
       text: 'Save to Gallery',
       icon: Icons.download,
       onPressed: _downloadVideo,
-    );
-  }
-
-  Widget _buildCopyLinkCard() {
-    final displayUrl = widget.videoUrl != null && widget.videoUrl!.length > 40
-        ? '${widget.videoUrl!.substring(0, 40)}...'
-        : widget.videoUrl ?? 'No URL available';
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceDark,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderDark),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.surfaceCard,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(Icons.link, color: AppColors.slate400, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              displayUrl,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.white,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          TextButton(
-            onPressed: _copyLink,
-            child: const Text(
-              'Copy',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: AppColors.primary,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

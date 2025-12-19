@@ -17,8 +17,8 @@ const wiroApiSecret = defineSecret('WIRO_API_SECRET');
 
 // Credit costs
 const CREDITS = {
-  STANDARD: 45,
-  PRO: 80,
+  STANDARD: 120,
+  PRO: 210,
 };
 
 /**
@@ -684,12 +684,12 @@ export const prepareGeneration = functions
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    // Return API credentials and task info
+    // Return API credentials and task info (trim to remove any whitespace/newlines)
     return {
       success: true,
       tempTaskId,
-      apiKey: wiroApiKey.value(),
-      apiSecret: wiroApiSecret.value(),
+      apiKey: wiroApiKey.value().trim(),
+      apiSecret: wiroApiSecret.value().trim(),
       creditCost,
       creditsRemaining: creditResult.newBalance,
     };
