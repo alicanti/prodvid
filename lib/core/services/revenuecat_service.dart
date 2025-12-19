@@ -12,20 +12,20 @@ import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 class RevenueCatConfig {
   // Use your actual API key here - this is the test key provided
   static const String appleApiKey = 'test_FeNPhzckfUSRIHgmuWhkJDbrMJr';
-  
+
   // TODO: Add Google Play API key when ready
   static const String googleApiKey = '';
-  
+
   /// Entitlement ID for Pro subscription
   static const String proEntitlementId = 'Prodvid Pro';
-  
+
   /// Product IDs
   static const String creditsSmall = 'credits_3000';
   static const String creditsMedium = 'credits_7500';
   static const String creditsLarge = 'credits_15000';
-  static const String proWeekly = 'pro_weekly';
-  static const String proYearly = 'pro_yearly';
-  
+  static const String proWeekly = 'weekly.prodvid.app';
+  static const String proYearly = 'yearly.prodvid.app';
+
   /// Credit amounts for each product
   static const Map<String, int> productCredits = {
     creditsSmall: 3000,
@@ -38,10 +38,7 @@ class RevenueCatConfig {
 
 /// RevenueCat Service Provider
 final revenueCatServiceProvider = Provider<RevenueCatService>((ref) {
-  return RevenueCatService(
-    FirebaseAuth.instance,
-    FirebaseFirestore.instance,
-  );
+  return RevenueCatService(FirebaseAuth.instance, FirebaseFirestore.instance);
 });
 
 /// Customer info stream provider
@@ -55,7 +52,10 @@ final isProSubscriberProvider = StreamProvider<bool>((ref) {
   final customerInfo = ref.watch(customerInfoProvider);
   return customerInfo.when(
     data: (info) => Stream.value(
-      info?.entitlements.active.containsKey(RevenueCatConfig.proEntitlementId) ?? false,
+      info?.entitlements.active.containsKey(
+            RevenueCatConfig.proEntitlementId,
+          ) ??
+          false,
     ),
     loading: () => Stream.value(false),
     error: (_, __) => Stream.value(false),
@@ -74,10 +74,11 @@ class RevenueCatService {
 
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
-  
+
   final _customerInfoController = StreamController<CustomerInfo?>.broadcast();
-  Stream<CustomerInfo?> get customerInfoStream => _customerInfoController.stream;
-  
+  Stream<CustomerInfo?> get customerInfoStream =>
+      _customerInfoController.stream;
+
   bool _isInitialized = false;
 
   /// Initialize RevenueCat SDK
@@ -117,7 +118,7 @@ class RevenueCatService {
   void _onCustomerInfoUpdated(CustomerInfo customerInfo) {
     debugPrint('📱 Customer info updated');
     _customerInfoController.add(customerInfo);
-    
+
     // Sync subscription status with Firestore
     _syncSubscriptionStatus(customerInfo);
   }
@@ -135,8 +136,10 @@ class RevenueCatService {
       await _firestore.collection('users').doc(user.uid).update({
         'isSubscribed': isPro,
         'subscriptionExpiry': isPro
-            ? customerInfo.entitlements.active[RevenueCatConfig.proEntitlementId]
-                ?.expirationDate
+            ? customerInfo
+                  .entitlements
+                  .active[RevenueCatConfig.proEntitlementId]
+                  ?.expirationDate
             : null,
         'lastUpdated': FieldValue.serverTimestamp(),
       });
@@ -210,12 +213,12 @@ class RevenueCatService {
     try {
       final params = PurchaseParams.package(package);
       final result = await Purchases.purchase(params);
-      
+
       debugPrint('✅ Purchase successful: ${package.identifier}');
-      
+
       // Add credits for consumables
       await _addCreditsForPurchase(package.storeProduct.identifier);
-      
+
       return result;
     } on PlatformException catch (e) {
       final errorCode = PurchasesErrorHelper.getErrorCode(e);
@@ -272,10 +275,10 @@ class RevenueCatService {
       final customerInfo = await Purchases.restorePurchases();
       debugPrint('✅ Purchases restored');
       _customerInfoController.add(customerInfo);
-      
+
       // Sync with Firestore
       await _syncSubscriptionStatus(customerInfo);
-      
+
       return customerInfo;
     } catch (e) {
       debugPrint('❌ Error restoring purchases: $e');
@@ -290,17 +293,18 @@ class RevenueCatService {
         offering: offering,
         displayCloseButton: true,
       );
-      
+
       debugPrint('📱 Paywall result: $result');
-      
-      if (result == PaywallResult.purchased || result == PaywallResult.restored) {
+
+      if (result == PaywallResult.purchased ||
+          result == PaywallResult.restored) {
         // Refresh customer info
         final customerInfo = await getCustomerInfo();
         if (customerInfo != null) {
           await _syncSubscriptionStatus(customerInfo);
         }
       }
-      
+
       return result;
     } catch (e) {
       debugPrint('❌ Paywall error: $e');
@@ -315,7 +319,7 @@ class RevenueCatService {
         RevenueCatConfig.proEntitlementId,
         displayCloseButton: true,
       );
-      
+
       debugPrint('📱 Paywall if needed result: $result');
       return result;
     } catch (e) {
@@ -347,4 +351,3 @@ class RevenueCatService {
     _customerInfoController.close();
   }
 }
-
