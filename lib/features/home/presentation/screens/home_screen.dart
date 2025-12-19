@@ -605,9 +605,7 @@ class _CreditsBadge extends ConsumerWidget {
     final isSubscribed = subscriptionAsync.valueOrNull ?? false;
 
     return GestureDetector(
-      onTap: () {
-        // TODO: Navigate to credits/subscription page
-      },
+      onTap: () => context.push('/paywall'),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(

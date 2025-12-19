@@ -5,7 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/services/auth_service.dart';
+import '../../../../core/services/revenuecat_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../router/app_router.dart';
 
 /// User profile screen matching Stitch design - prodvid_user_profile
 class ProfileScreen extends ConsumerWidget {
@@ -222,33 +224,38 @@ class ProfileScreen extends ConsumerWidget {
                             ),
                           ),
                           // Buy credits button
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.add,
-                                  size: 16,
-                                  color: AppColors.primary,
+                          GestureDetector(
+                            onTap: () => context.push(AppRoutes.paywall),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withValues(
+                                  alpha: 0.15,
                                 ),
-                                SizedBox(width: 4),
-                                Text(
-                                  'Buy',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w700,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.add,
+                                    size: 16,
                                     color: AppColors.primary,
                                   ),
-                                ),
-                              ],
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'Buy',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],
@@ -295,6 +302,19 @@ class ProfileScreen extends ConsumerWidget {
                                 title: 'My Videos',
                                 subtitle: 'View past generations',
                                 onTap: () => context.go('/videos'),
+                              ),
+                              _SettingsItem(
+                                icon: Icons.credit_card,
+                                iconColor: AppColors.primary,
+                                iconBgColor: const Color(0xFF222B3D),
+                                title: 'Manage Subscription',
+                                subtitle: 'Billing & subscription',
+                                onTap: () {
+                                  final service = ref.read(
+                                    revenueCatServiceProvider,
+                                  );
+                                  service.presentCustomerCenter();
+                                },
                               ),
                               _SettingsItem(
                                 icon: Icons.notifications,
@@ -606,22 +626,34 @@ class _SubscriptionStatusCard extends ConsumerWidget {
               ),
             ),
             // Upgrade/Manage button
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(
-                color: isSubscribed
-                    ? const Color(0xFF00FF88).withValues(alpha: 0.15)
-                    : AppColors.primary.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Text(
-                isSubscribed ? 'Manage' : 'Upgrade',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
+            GestureDetector(
+              onTap: () {
+                if (isSubscribed) {
+                  ref.read(revenueCatServiceProvider).presentCustomerCenter();
+                } else {
+                  context.push(AppRoutes.paywall);
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
                   color: isSubscribed
-                      ? const Color(0xFF00FF88)
-                      : AppColors.primary,
+                      ? const Color(0xFF00FF88).withValues(alpha: 0.15)
+                      : AppColors.primary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(
+                  isSubscribed ? 'Manage' : 'Upgrade',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: isSubscribed
+                        ? const Color(0xFF00FF88)
+                        : AppColors.primary,
+                  ),
                 ),
               ),
             ),

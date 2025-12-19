@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/services/revenuecat_service.dart';
 import 'core/services/video_player_manager.dart';
 import 'core/theme/app_theme.dart';
 import 'firebase_options.dart';
@@ -31,6 +34,13 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Initialize RevenueCat
+  final revenueCatService = RevenueCatService(
+    FirebaseAuth.instance,
+    FirebaseFirestore.instance,
+  );
+  await revenueCatService.initialize();
 
   runApp(const ProviderScope(child: ProdVidApp()));
 }
