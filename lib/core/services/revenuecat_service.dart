@@ -209,15 +209,17 @@ class RevenueCatService {
   }
 
   /// Purchase a package
+  /// Note: Credits are added via RevenueCat webhook, not client-side
   Future<PurchaseResult?> purchasePackage(Package package) async {
     try {
       final params = PurchaseParams.package(package);
       final result = await Purchases.purchase(params);
 
       debugPrint('✅ Purchase successful: ${package.identifier}');
+      debugPrint('📡 Credits will be added via webhook');
 
-      // Add credits for consumables
-      await _addCreditsForPurchase(package.storeProduct.identifier);
+      // Credits are now handled by RevenueCat webhook (revenuecatWebhook Cloud Function)
+      // This ensures credits are added even if the app crashes after purchase
 
       return result;
     } on PlatformException catch (e) {
@@ -231,8 +233,15 @@ class RevenueCatService {
     }
   }
 
+  // ==========================================================================
+  // DEPRECATED: Credit handling is now done via RevenueCat webhooks
+  // These methods are kept for reference but not actively used
+  // ==========================================================================
+
+  /// @deprecated Use RevenueCat webhook instead (revenuecatWebhook Cloud Function)
   /// Add credits to user account for consumable purchases
-  Future<void> _addCreditsForPurchase(String productId) async {
+  @Deprecated('Credits are now handled via RevenueCat webhook')
+  Future<void> addCreditsForPurchase(String productId) async {
     final user = _auth.currentUser;
     if (user == null) return;
 
@@ -249,7 +258,9 @@ class RevenueCatService {
     }
   }
 
+  /// @deprecated Use RevenueCat webhook instead (revenuecatWebhook Cloud Function)
   /// Handle subscription renewal - reset credits
+  @Deprecated('Renewals are now handled via RevenueCat webhook')
   Future<void> handleSubscriptionRenewal(String productId) async {
     final user = _auth.currentUser;
     if (user == null) return;

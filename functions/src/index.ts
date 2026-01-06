@@ -21,6 +21,6 @@ export {
   refundTaskCredits,
 } from './wiro/functions';
 
-// TODO: Add RevenueCat webhook handler
-// export { revenuecatWebhook } from './revenuecat/functions';
+// RevenueCat webhook handler
+export { revenuecatWebhook } from './revenuecat/webhook';
 
