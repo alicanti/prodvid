@@ -10,8 +10,8 @@ import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 
 /// RevenueCat API Keys
 class RevenueCatConfig {
-  // Use your actual API key here - this is the test key provided
-  static const String appleApiKey = 'test_FeNPhzckfUSRIHgmuWhkJDbrMJr';
+  // Production Apple API Key from RevenueCat
+  static const String appleApiKey = 'appl_zgkeTghRVLdzNruXoZMrdLDBNup';
 
   // TODO: Add Google Play API key when ready
   static const String googleApiKey = '';
