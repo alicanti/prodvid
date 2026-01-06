@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
+import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/revenuecat_service.dart';
 import '../../../../core/theme/app_colors.dart';
 
@@ -604,13 +605,27 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
       final result = await service.purchasePackage(package);
 
       if (result != null && mounted) {
+        // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Purchase successful! 🎉'),
             behavior: SnackBarBehavior.floating,
           ),
         );
-        context.pop();
+
+        // Wait for Firestore to sync, then refresh credits provider
+        await Future<void>.delayed(const Duration(seconds: 2));
+        
+        // Invalidate the credits provider to force a refresh
+        ref.invalidate(userCreditsProvider);
+        ref.invalidate(userSubscriptionProvider);
+        
+        // Additional delay to ensure UI updates
+        await Future<void>.delayed(const Duration(seconds: 1));
+        
+        if (mounted) {
+          context.pop();
+        }
       }
     } on PlatformException catch (e) {
       if (mounted) {
@@ -645,6 +660,11 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
               behavior: SnackBarBehavior.floating,
             ),
           );
+          
+          // Refresh credits and subscription providers
+          await Future<void>.delayed(const Duration(seconds: 2));
+          ref.invalidate(userCreditsProvider);
+          ref.invalidate(userSubscriptionProvider);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
