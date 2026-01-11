@@ -1,5 +1,5 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:video_player/video_player.dart';
@@ -29,22 +29,21 @@ class _EffectGalleryScreenState extends State<EffectGalleryScreen>
   int _currentIndex = 0;
   bool _showSwipeHint = true;
 
-  // Video controllers for current, previous, and next
-  final Map<int, VideoPlayerController> _videoControllers = {};
+  // Only keep ONE video controller at a time to save memory
+  VideoPlayerController? _currentVideoController;
+  int? _loadedVideoIndex;
+  bool _isLoadingVideo = false;
 
   @override
   void initState() {
     super.initState();
 
-    // Hide status bar for immersive experience
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-
     _effects = WiroEffects.getEffectsForModel(widget.modelType);
     _currentIndex = widget.initialEffectIndex.clamp(0, _effects.length - 1);
     _pageController = PageController(initialPage: _currentIndex);
 
-    // Initialize videos for visible pages
-    _initializeVideosAround(_currentIndex);
+    // Initialize only the current video
+    _loadVideoForIndex(_currentIndex);
 
     // Hide swipe hint after 3 seconds
     Future.delayed(const Duration(seconds: 3), () {
@@ -56,83 +55,77 @@ class _EffectGalleryScreenState extends State<EffectGalleryScreen>
 
   @override
   void dispose() {
-    // Restore system UI
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-
     _pageController.dispose();
-    for (final controller in _videoControllers.values) {
-      controller.dispose();
-    }
+    _currentVideoController?.dispose();
     super.dispose();
   }
 
-  void _initializeVideosAround(int index) {
-    // Initialize current, previous, and next videos
-    for (var i = index - 1; i <= index + 1; i++) {
-      if (i >= 0 && i < _effects.length && !_videoControllers.containsKey(i)) {
-        _initializeVideo(i);
-      }
-    }
-
-    // Dispose videos that are far away
-    final keysToRemove = <int>[];
-    for (final key in _videoControllers.keys) {
-      if ((key - index).abs() > 2) {
-        keysToRemove.add(key);
-      }
-    }
-    for (final key in keysToRemove) {
-      _videoControllers[key]?.dispose();
-      _videoControllers.remove(key);
-    }
-  }
-
-  Future<void> _initializeVideo(int index) async {
+  Future<void> _loadVideoForIndex(int index) async {
+    if (_isLoadingVideo || _loadedVideoIndex == index) return;
     if (index < 0 || index >= _effects.length) return;
+
+    _isLoadingVideo = true;
+
+    // Dispose previous video
+    _currentVideoController?.dispose();
+    _currentVideoController = null;
+    _loadedVideoIndex = null;
 
     final effect = _effects[index];
     final coverUrl = widget.modelType.getCoverUrl(effect.value);
 
     try {
-      // Use cached video player for better performance
-      final controller = await CachedVideoPlayerController.create(coverUrl);
+      VideoPlayerController controller;
+      
+      // Try cached file first, then fall back to network
+      try {
+        final file = await VideoCacheManager.instance.getSingleFile(coverUrl);
+        controller = VideoPlayerController.file(file);
+      } catch (_) {
+        // Fall back to network
+        controller = VideoPlayerController.networkUrl(Uri.parse(coverUrl));
+      }
+      
       await controller.initialize();
       controller.setLooping(true);
       controller.setVolume(0);
 
-      if (index == _currentIndex) {
-        controller.play();
-      }
-
-      if (mounted) {
+      if (mounted && index == _currentIndex) {
         setState(() {
-          _videoControllers[index] = controller;
+          _currentVideoController = controller;
+          _loadedVideoIndex = index;
         });
+        controller.play();
+      } else {
+        // Index changed while loading, dispose
+        controller.dispose();
       }
     } catch (e) {
-      // Video failed to load, will show gradient fallback
+      debugPrint('Failed to load video: $e');
+    } finally {
+      _isLoadingVideo = false;
     }
   }
 
   void _onPageChanged(int index) {
-    // Pause old video
-    _videoControllers[_currentIndex]?.pause();
+    // Pause and dispose old video immediately
+    _currentVideoController?.pause();
+    _currentVideoController?.dispose();
+    _currentVideoController = null;
+    _loadedVideoIndex = null;
 
     setState(() {
       _currentIndex = index;
       _showSwipeHint = false;
     });
 
-    // Play new video
-    _videoControllers[index]?.play();
-
-    // Initialize videos around new index
-    _initializeVideosAround(index);
+    // Load new video
+    _loadVideoForIndex(index);
   }
 
   void _useTemplate() {
     final effect = _effects[_currentIndex];
-    context.pushReplacement('/effect-detail', extra: {
+    context.push('/effect-detail', extra: {
       'modelType': widget.modelType,
       'effectType': effect.value,
       'effectLabel': effect.label,
@@ -181,21 +174,23 @@ class _EffectGalleryScreenState extends State<EffectGalleryScreen>
             itemCount: _effects.length,
             itemBuilder: (context, index) {
               final effect = _effects[index];
-              final controller = _videoControllers[index];
-              final isInitialized =
-                  controller != null && controller.value.isInitialized;
+              // Only show video for current index
+              final isCurrentPage = index == _currentIndex;
+              final hasVideo = isCurrentPage && 
+                  _currentVideoController != null && 
+                  _currentVideoController!.value.isInitialized;
 
               return Stack(
                 fit: StackFit.expand,
                 children: [
                   // Video or gradient
-                  if (isInitialized)
+                  if (hasVideo)
                     FittedBox(
                       fit: BoxFit.cover,
                       child: SizedBox(
-                        width: controller.value.size.width,
-                        height: controller.value.size.height,
-                        child: VideoPlayer(controller),
+                        width: _currentVideoController!.value.size.width,
+                        height: _currentVideoController!.value.size.height,
+                        child: VideoPlayer(_currentVideoController!),
                       ),
                     )
                   else
@@ -208,21 +203,27 @@ class _EffectGalleryScreenState extends State<EffectGalleryScreen>
                         ),
                       ),
                       child: Center(
-                        child: SizedBox(
-                          width: 40,
-                          height: 40,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 3,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white.withValues(alpha: 0.7),
-                            ),
-                          ),
-                        ),
+                        child: isCurrentPage && _isLoadingVideo
+                            ? SizedBox(
+                                width: 40,
+                                height: 40,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 3,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white.withValues(alpha: 0.7),
+                                  ),
+                                ),
+                              )
+                            : Icon(
+                                Icons.play_circle_outline,
+                                size: 64,
+                                color: Colors.white.withValues(alpha: 0.5),
+                              ),
                       ),
                     ),
 
                   // Gradient overlays
-                  Container(
+                  DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
@@ -234,7 +235,7 @@ class _EffectGalleryScreenState extends State<EffectGalleryScreen>
                       ),
                     ),
                   ),
-                  Container(
+                  DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.bottomCenter,
@@ -441,35 +442,36 @@ class _EffectGalleryScreenState extends State<EffectGalleryScreen>
             ),
 
           // Side scroll indicator
-          Positioned(
-            right: 12,
-            top: 0,
-            bottom: 0,
-            child: Center(
-              child: Container(
-                width: 4,
-                height: 100,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-                child: Align(
-                  alignment: Alignment(
-                    0,
-                    -1 + (2 * _currentIndex / (_effects.length - 1).clamp(1, double.infinity)),
+          if (_effects.length > 1)
+            Positioned(
+              right: 12,
+              top: 0,
+              bottom: 0,
+              child: Center(
+                child: Container(
+                  width: 4,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(2),
                   ),
-                  child: Container(
-                    width: 4,
-                    height: 100 / _effects.length.clamp(1, 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(2),
+                  child: Align(
+                    alignment: Alignment(
+                      0,
+                      -1 + (2 * _currentIndex / (_effects.length - 1)),
+                    ),
+                    child: Container(
+                      width: 4,
+                      height: 100 / _effects.length.clamp(1, 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );

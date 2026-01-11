@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/background_task_service.dart';
 import '../../../../core/services/video_cache_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -60,8 +61,15 @@ class _EffectDetailScreenState extends ConsumerState<EffectDetailScreen> {
 
   Future<void> _initializeVideo() async {
     try {
-      // Use cached video player for better performance
-      _videoController = await CachedVideoPlayerController.create(_coverUrl);
+      // Try cached file first, then fall back to network
+      try {
+        final file = await VideoCacheManager.instance.getSingleFile(_coverUrl);
+        _videoController = VideoPlayerController.file(file);
+      } catch (_) {
+        // Fall back to network
+        _videoController = VideoPlayerController.networkUrl(Uri.parse(_coverUrl));
+      }
+      
       await _videoController!.initialize();
       _videoController!.setLooping(true);
       _videoController!.setVolume(0);
@@ -139,6 +147,13 @@ class _EffectDetailScreenState extends ConsumerState<EffectDetailScreen> {
     });
 
     try {
+      // Ensure user is authenticated
+      final authService = ref.read(authServiceProvider);
+      if (!authService.isSignedIn) {
+        debugPrint('🔐 User not signed in, signing in anonymously...');
+        await authService.signInAnonymously();
+      }
+      
       final taskService = ref.read(backgroundTaskServiceProvider);
       final videoModeStr = _videoMode == WiroVideoMode.pro ? 'pro' : 'std';
       

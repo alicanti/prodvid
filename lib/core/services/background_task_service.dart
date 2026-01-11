@@ -75,9 +75,17 @@ class BackgroundTaskService {
 
       // Store credentials for this task
       final tempTaskId = data['tempTaskId'] as String;
+      final receivedApiKey = data['apiKey'] as String;
+      final receivedApiSecret = data['apiSecret'] as String;
+      
+      debugPrint('📦 prepareGeneration response:');
+      debugPrint('📦 tempTaskId: $tempTaskId');
+      debugPrint('📦 apiKey length: ${receivedApiKey.length}');
+      debugPrint('📦 apiSecret length: ${receivedApiSecret.length}');
+      
       _credentials[tempTaskId] = _WiroCredentials(
-        apiKey: data['apiKey'] as String,
-        apiSecret: data['apiSecret'] as String,
+        apiKey: receivedApiKey,
+        apiSecret: receivedApiSecret,
       );
 
       return PrepareGenerationResult(
@@ -117,12 +125,18 @@ class BackgroundTaskService {
       final apiKey = creds.apiKey.trim();
       final apiSecret = creds.apiSecret.trim();
       
+      debugPrint('🔑 API Key length: ${apiKey.length}, first 8 chars: ${apiKey.substring(0, 8)}');
+      debugPrint('🔑 API Secret length: ${apiSecret.length}, first 8 chars: ${apiSecret.substring(0, 8)}');
+      
       // Generate auth headers
       final nonce = (DateTime.now().millisecondsSinceEpoch ~/ 1000).toString();
       final signatureData = apiSecret + nonce;
       final signature = Hmac(sha256, utf8.encode(apiKey))
           .convert(utf8.encode(signatureData))
           .toString();
+      
+      debugPrint('🔑 Nonce: $nonce');
+      debugPrint('🔑 Signature: $signature');
 
       // Build request based on model type
       final endpoint = _getEndpoint(modelType);
@@ -172,11 +186,13 @@ class BackgroundTaskService {
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
-      debugPrint('📥 Wiro response: ${response.statusCode}');
-      debugPrint('📥 Wiro body: ${response.body}');
+      debugPrint('📥 Wiro response status: ${response.statusCode}');
+      debugPrint('📥 Wiro response headers: ${response.headers}');
+      debugPrint('📥 Wiro response body: ${response.body}');
 
       if (response.statusCode != 200) {
-        debugPrint('❌ Wiro error: ${response.body}');
+        debugPrint('❌ Wiro HTTP error: ${response.statusCode}');
+        debugPrint('❌ Wiro error body: ${response.body}');
         // Refund credits on failure
         await _refundCredits(tempTaskId);
         return StartGenerationResult(
@@ -186,9 +202,12 @@ class BackgroundTaskService {
       }
 
       final data = jsonDecode(response.body) as Map<String, dynamic>;
+      debugPrint('📥 Wiro parsed response: $data');
       
       if (data['result'] != true) {
-        debugPrint('❌ Wiro result false: ${data['errors']}');
+        debugPrint('❌ Wiro result false');
+        debugPrint('❌ Wiro errors: ${data['errors']}');
+        debugPrint('❌ Full Wiro response: $data');
         await _refundCredits(tempTaskId);
         return StartGenerationResult(
           success: false,

@@ -403,13 +403,16 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen> {
   }
 
   void _onEffectSelected(EffectOption effect) {
-    // Navigate to effect detail page
+    // Find the index of this effect in the current model's effects
+    final effects = WiroEffects.getEffectsForModel(_selectedModel);
+    final index = effects.indexWhere((e) => e.value == effect.value);
+    
+    // Navigate to effect gallery (swipe view) at this effect's position
     context.push(
-      '/effect-detail',
+      '/effect-gallery',
       extra: {
         'modelType': _selectedModel,
-        'effectType': effect.value,
-        'effectLabel': effect.label,
+        'initialIndex': index >= 0 ? index : 0,
       },
     );
   }

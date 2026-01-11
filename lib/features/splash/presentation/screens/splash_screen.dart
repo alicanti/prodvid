@@ -73,18 +73,20 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       backgroundColor: AppColors.backgroundDark,
       body: Stack(
         children: [
-          // Ambient background glow
+          // Ambient background glow matching icon theme
           Center(
             child: Container(
-              width: 300,
-              height: 300,
+              width: 350,
+              height: 350,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    AppColors.primary.withValues(alpha: 0.1),
+                    const Color(0xFF00D9FF).withValues(alpha: 0.15),
+                    const Color(0xFF4AEADC).withValues(alpha: 0.05),
                     Colors.transparent,
                   ],
+                  stops: const [0.0, 0.5, 1.0],
                 ),
               ),
             ),
@@ -102,53 +104,27 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Logo container
+                      // Logo container with app icon
                       Container(
-                            width: 128,
-                            height: 128,
+                            width: 140,
+                            height: 140,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(24),
+                              borderRadius: BorderRadius.circular(28),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.primary.withValues(
-                                    alpha: 0.2,
+                                  color: const Color(0xFF00D9FF).withValues(
+                                    alpha: 0.3,
                                   ),
-                                  blurRadius: 32,
+                                  blurRadius: 40,
+                                  spreadRadius: 8,
                                 ),
                               ],
                             ),
                             child: ClipRRect(
-                              borderRadius: BorderRadius.circular(24),
-                              child: Stack(
-                                children: [
-                                  // Gradient background
-                                  Container(
-                                    decoration: const BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                        colors: [
-                                          Color(0xFF1a237e),
-                                          Color(0xFF311b92),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  // Overlay
-                                  Container(
-                                    color: AppColors.primary.withValues(
-                                      alpha: 0.2,
-                                    ),
-                                  ),
-                                  // Icon
-                                  const Center(
-                                    child: Icon(
-                                      Icons.smart_display_rounded,
-                                      size: 64,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
+                              borderRadius: BorderRadius.circular(28),
+                              child: Image.asset(
+                                'assets/icons/prodvid_icon_use.png',
+                                fit: BoxFit.cover,
                               ),
                             ),
                           )
@@ -216,7 +192,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                               widthFactor: _progress,
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: AppColors.primary,
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFF00D9FF),
+                                      Color(0xFF4AEADC),
+                                    ],
+                                  ),
                                   borderRadius: BorderRadius.circular(9999),
                                 ),
                               ),

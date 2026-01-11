@@ -16,15 +16,23 @@ const getWebhookSecret = (): string => {
 
 /**
  * Credit amounts for each product
+ * Update these IDs to match your RevenueCat product identifiers
  */
 const PRODUCT_CREDITS: Record<string, number> = {
-  // Consumables
+  // Consumables - $49.99, $99.99, $199.99
   'credits_3000': 3000,
   'credits_7500': 7500,
   'credits_15000': 15000,
+  // Alternative consumable IDs (add your actual RC product IDs here)
+  'com.prodvid.credits.3000': 3000,
+  'com.prodvid.credits.7500': 7500,
+  'com.prodvid.credits.15000': 15000,
   // Subscriptions (reset to this amount on each renewal)
   'weekly.prodvid.app': 1500,
   'yearly.prodvid.app': 10000,
+  // Alternative subscription IDs
+  'weekly_sub': 1500,
+  'yearly_sub': 10000,
 };
 
 /**
@@ -378,7 +386,9 @@ async function handleBillingIssue(event: RevenueCatEvent['event']): Promise<void
 /**
  * RevenueCat Webhook Handler
  */
-export const revenuecatWebhook = functions.https.onRequest(async (req, res) => {
+export const revenuecatWebhook = functions
+  .runWith({ timeoutSeconds: 60, memory: '256MB' })
+  .https.onRequest(async (req, res) => {
   // Only accept POST requests
   if (req.method !== 'POST') {
     res.status(405).send('Method not allowed');

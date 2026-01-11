@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:video_player/video_player.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import '../core/services/auth_service.dart';
 import '../core/services/video_cache_service.dart';
@@ -427,6 +428,7 @@ class MyVideosScreen extends ConsumerWidget {
 }
 
 /// Video card widget for displaying a single video project
+/// Only plays video when visible on screen to save memory
 class _VideoCard extends StatefulWidget {
   const _VideoCard({required this.video});
 
@@ -439,21 +441,45 @@ class _VideoCard extends StatefulWidget {
 class _VideoCardState extends State<_VideoCard> {
   VideoPlayerController? _controller;
   bool _isInitialized = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeVideo();
-  }
+  bool _isVisible = false;
+  bool _isLoading = false;
 
   @override
   void dispose() {
-    _controller?.dispose();
+    _disposeVideo();
     super.dispose();
   }
 
+  void _disposeVideo() {
+    _controller?.pause();
+    _controller?.dispose();
+    _controller = null;
+    _isInitialized = false;
+  }
+
+  void _onVisibilityChanged(VisibilityInfo info) {
+    final wasVisible = _isVisible;
+    _isVisible = info.visibleFraction > 0.5; // At least 50% visible
+
+    if (_isVisible && !wasVisible) {
+      // Became visible - load and play video
+      _initializeVideo();
+    } else if (!_isVisible && wasVisible) {
+      // Became invisible - dispose video to free memory
+      if (mounted) {
+        setState(() {
+          _disposeVideo();
+        });
+      }
+    }
+  }
+
   Future<void> _initializeVideo() async {
+    if (_isLoading || _isInitialized) return;
     if (widget.video.videoUrl == null || widget.video.videoUrl!.isEmpty) return;
+    if (!_isVisible) return;
+
+    _isLoading = true;
 
     try {
       // Try cached file first, then fall back to network
@@ -463,7 +489,7 @@ class _VideoCardState extends State<_VideoCard> {
         );
         _controller = VideoPlayerController.file(file);
       } catch (_) {
-        // Fall back to network
+        // Fall back to network (will also cache)
         _controller = VideoPlayerController.networkUrl(
           Uri.parse(widget.video.videoUrl!),
         );
@@ -473,38 +499,46 @@ class _VideoCardState extends State<_VideoCard> {
       _controller!.setLooping(true);
       _controller!.setVolume(0);
 
-      if (mounted) {
+      if (mounted && _isVisible) {
         setState(() {
           _isInitialized = true;
         });
         _controller!.play();
+      } else {
+        // Widget disposed or became invisible during loading
+        _controller?.dispose();
+        _controller = null;
       }
     } catch (e) {
-      // Failed to load video, show placeholder
       debugPrint('Failed to load video: $e');
+    } finally {
+      _isLoading = false;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        if (widget.video.isCompleted && widget.video.videoUrl != null) {
-          // Navigate to video export screen
-          context.push(
-            AppRoutes.videoExport,
-            extra: {
-              'videoUrl': widget.video.videoUrl,
-              'effectLabel': widget.video.displayName,
-            },
-          );
-        }
-      },
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          decoration: BoxDecoration(color: const Color(0xFF0A1628)),
-          child: Stack(
+    return VisibilityDetector(
+      key: Key('video-card-${widget.video.taskId}'),
+      onVisibilityChanged: _onVisibilityChanged,
+      child: GestureDetector(
+        onTap: () {
+          if (widget.video.isCompleted && widget.video.videoUrl != null) {
+            // Navigate to video export screen
+            context.push(
+              AppRoutes.videoExport,
+              extra: {
+                'videoUrl': widget.video.videoUrl,
+                'effectLabel': widget.video.displayName,
+              },
+            );
+          }
+        },
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            decoration: BoxDecoration(color: const Color(0xFF0A1628)),
+            child: Stack(
             fit: StackFit.expand,
             children: [
               // Video or placeholder
@@ -673,6 +707,7 @@ class _VideoCardState extends State<_VideoCard> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

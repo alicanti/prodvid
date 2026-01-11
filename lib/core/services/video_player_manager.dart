@@ -14,7 +14,8 @@ class VideoPlayerManager {
   static final VideoPlayerManager instance = VideoPlayerManager._();
 
   /// Maximum number of concurrent video players
-  static const int maxConcurrentPlayers = 10;
+  /// Keep this LOW to prevent out-of-memory crashes on mobile
+  static const int maxConcurrentPlayers = 3;
 
   /// Active video controllers (URL -> Controller)
   final LinkedHashMap<String, _ManagedController> _controllers =
