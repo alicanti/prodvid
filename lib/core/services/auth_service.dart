@@ -1,6 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'video_cache_service.dart';
+import 'video_player_manager.dart';
 
 /// Initial credits for new users
 const int initialCredits = 100;
@@ -35,45 +41,55 @@ final authServiceProvider = Provider<AuthService>((ref) {
 
 /// User credits provider - watches Firestore for real-time credit updates
 final userCreditsProvider = StreamProvider<int>((ref) {
-  final auth = ref.watch(firebaseAuthProvider);
+  // Watch auth state to rebuild when user changes
+  final authState = ref.watch(authStateProvider);
   final firestore = ref.watch(firestoreProvider);
 
-  final user = auth.currentUser;
-  if (user == null) {
-    return Stream.value(0);
-  }
-
-  return firestore
-      .collection('users')
-      .doc(user.uid)
-      .snapshots()
-      .map((doc) => (doc.data()?['credits'] as num?)?.toInt() ?? 0);
+  return authState.when(
+    data: (user) {
+      if (user == null) {
+        return Stream.value(0);
+      }
+      return firestore
+          .collection('users')
+          .doc(user.uid)
+          .snapshots()
+          .map((doc) => (doc.data()?['credits'] as num?)?.toInt() ?? 0);
+    },
+    loading: () => Stream.value(0),
+    error: (_, __) => Stream.value(0),
+  );
 });
 
 /// User subscription status provider - watches Firestore for subscription status
 final userSubscriptionProvider = StreamProvider<bool>((ref) {
-  final auth = ref.watch(firebaseAuthProvider);
+  // Watch auth state to rebuild when user changes
+  final authState = ref.watch(authStateProvider);
   final firestore = ref.watch(firestoreProvider);
 
-  final user = auth.currentUser;
-  if (user == null) {
-    return Stream.value(false);
-  }
+  return authState.when(
+    data: (user) {
+      if (user == null) {
+        return Stream.value(false);
+      }
+      return firestore.collection('users').doc(user.uid).snapshots().map((doc) {
+        final data = doc.data();
+        if (data == null) return false;
 
-  return firestore.collection('users').doc(user.uid).snapshots().map((doc) {
-    final data = doc.data();
-    if (data == null) return false;
+        // Check if subscription is active
+        final isSubscribed = data['isSubscribed'] as bool? ?? false;
+        final subscriptionExpiry = data['subscriptionExpiry'] as Timestamp?;
 
-    // Check if subscription is active
-    final isSubscribed = data['isSubscribed'] as bool? ?? false;
-    final subscriptionExpiry = data['subscriptionExpiry'] as Timestamp?;
+        if (!isSubscribed) return false;
+        if (subscriptionExpiry == null) return isSubscribed;
 
-    if (!isSubscribed) return false;
-    if (subscriptionExpiry == null) return isSubscribed;
-
-    // Check if subscription hasn't expired
-    return subscriptionExpiry.toDate().isAfter(DateTime.now());
-  });
+        // Check if subscription hasn't expired
+        return subscriptionExpiry.toDate().isAfter(DateTime.now());
+      });
+    },
+    loading: () => Stream.value(false),
+    error: (_, __) => Stream.value(false),
+  );
 });
 
 /// User video project model
@@ -148,25 +164,30 @@ class VideoProject {
 
 /// User videos provider - watches Firestore for user's video projects
 final userVideosProvider = StreamProvider<List<VideoProject>>((ref) {
-  final auth = ref.watch(firebaseAuthProvider);
+  // Watch auth state to rebuild when user changes
+  final authState = ref.watch(authStateProvider);
   final firestore = ref.watch(firestoreProvider);
 
-  final user = auth.currentUser;
-  if (user == null) {
-    return Stream.value([]);
-  }
-
-  // Query the root tasks collection filtered by userId, ordered by creation date
-  return firestore
-      .collection('tasks')
-      .where('userId', isEqualTo: user.uid)
-      .orderBy('createdAt', descending: true)
-      .snapshots()
-      .map(
-        (snapshot) => snapshot.docs
-            .map((doc) => VideoProject.fromFirestore(doc.data()))
-            .toList(),
-      );
+  return authState.when(
+    data: (user) {
+      if (user == null) {
+        return Stream.value([]);
+      }
+      // Query the root tasks collection filtered by userId, ordered by creation date
+      return firestore
+          .collection('tasks')
+          .where('userId', isEqualTo: user.uid)
+          .orderBy('createdAt', descending: true)
+          .snapshots()
+          .map(
+            (snapshot) => snapshot.docs
+                .map((doc) => VideoProject.fromFirestore(doc.data()))
+                .toList(),
+          );
+    },
+    loading: () => Stream.value([]),
+    error: (_, __) => Stream.value([]),
+  );
 });
 
 /// Authentication service for handling anonymous auth
@@ -246,13 +267,64 @@ class AuthService {
   }
 
   /// Delete account and all associated data
+  /// This completely resets the app to first-launch state
   Future<void> deleteAccount() async {
     final user = _auth.currentUser;
-    if (user != null) {
-      // Delete user document from Firestore
-      await _firestore.collection('users').doc(user.uid).delete();
-      // Delete Firebase Auth account
+    if (user == null) return;
+
+    final userId = user.uid;
+    debugPrint('🗑️ Starting account deletion for user: $userId');
+
+    try {
+      // STEP 1: Dispose all video players to prevent errors during navigation
+      debugPrint('🎬 Disposing all video players...');
+      await VideoPlayerManager.instance.disposeAll();
+
+      // STEP 2: Clear video cache from device
+      debugPrint('🗂️ Clearing video cache...');
+      await VideoCacheManager.clearCache();
+      VideoPreloader.clearTracking();
+
+      // STEP 3: Logout from RevenueCat
+      debugPrint('💳 Logging out from RevenueCat...');
+      try {
+        await Purchases.logOut();
+      } catch (e) {
+        // Ignore RevenueCat errors - user might not be logged in
+        debugPrint('⚠️ RevenueCat logout warning: $e');
+      }
+
+      // STEP 4: Delete all user's tasks (videos) from Firestore
+      debugPrint('📹 Deleting user videos...');
+      final tasksQuery = await _firestore
+          .collection('tasks')
+          .where('userId', isEqualTo: userId)
+          .get();
+      
+      final batch = _firestore.batch();
+      for (final doc in tasksQuery.docs) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
+      debugPrint('📹 Deleted ${tasksQuery.docs.length} video tasks');
+
+      // STEP 5: Delete user document from Firestore
+      debugPrint('👤 Deleting user document...');
+      await _firestore.collection('users').doc(userId).delete();
+
+      // STEP 6: Clear SharedPreferences (onboarding flag, etc.)
+      debugPrint('⚙️ Clearing local preferences...');
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+
+      // STEP 7: Delete Firebase Auth account (must be last)
+      debugPrint('🔐 Deleting Firebase Auth account...');
       await user.delete();
+
+      debugPrint('✅ Account deletion complete!');
+    } catch (e) {
+      debugPrint('❌ Error during account deletion: $e');
+      rethrow;
     }
   }
 

@@ -38,9 +38,11 @@ class _OptimizedVideoCoverState extends State<OptimizedVideoCover> {
   bool _isVisible = false;
   bool _isLoading = false;
   bool _hasError = false;
+  bool _disposed = false;
 
   @override
   void dispose() {
+    _disposed = true;
     _releaseVideo();
     super.dispose();
   }
@@ -50,7 +52,7 @@ class _OptimizedVideoCoverState extends State<OptimizedVideoCover> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.videoUrl != widget.videoUrl) {
       _releaseVideo();
-      if (_isVisible) {
+      if (_isVisible && !_disposed) {
         _loadVideo();
       }
     }
@@ -58,24 +60,29 @@ class _OptimizedVideoCoverState extends State<OptimizedVideoCover> {
 
   /// Check if the current controller is still valid and not disposed
   bool get _isControllerValid {
+    if (_disposed) return false;
     if (_controller == null) return false;
     
     // Check if manager still has this controller
-    if (!VideoPlayerManager.instance.isControllerValid(widget.videoUrl)) {
+    try {
+      if (!VideoPlayerManager.instance.isControllerValid(widget.videoUrl)) {
+        return false;
+      }
+    } catch (e) {
       return false;
     }
     
     // Try to access value - if disposed, this will throw
     try {
-      // ignore: unnecessary_null_comparison
-      return _controller!.value != null;
+      final value = _controller?.value;
+      return value != null && value.isInitialized;
     } catch (e) {
       return false;
     }
   }
 
   void _onVisibilityChanged(VisibilityInfo info) {
-    if (!mounted) return;
+    if (!mounted || _disposed) return;
 
     final wasVisible = _isVisible;
     _isVisible = info.visibleFraction >= widget.visibilityThreshold;
@@ -86,7 +93,7 @@ class _OptimizedVideoCoverState extends State<OptimizedVideoCover> {
     } else if (!_isVisible && wasVisible) {
       // Became invisible - release and clear
       _releaseVideo();
-      if (mounted) {
+      if (mounted && !_disposed) {
         setState(() {});
       }
     }
@@ -94,7 +101,7 @@ class _OptimizedVideoCoverState extends State<OptimizedVideoCover> {
 
   /// Safely play the controller if it's still valid
   void _safePlay() {
-    if (!_isControllerValid) {
+    if (_disposed || !_isControllerValid) {
       _clearController();
       return;
     }
@@ -108,17 +115,14 @@ class _OptimizedVideoCoverState extends State<OptimizedVideoCover> {
   }
 
   void _clearController() {
-    if (mounted) {
-      setState(() {
-        _controller = null;
-      });
-    } else {
-      _controller = null;
+    _controller = null;
+    if (mounted && !_disposed) {
+      setState(() {});
     }
   }
 
   Future<void> _loadVideo() async {
-    if (!mounted) return;
+    if (!mounted || _disposed) return;
 
     // If we have a valid controller, just play it
     if (_isControllerValid) {
@@ -139,7 +143,7 @@ class _OptimizedVideoCoverState extends State<OptimizedVideoCover> {
       final controller =
           await VideoPlayerManager.instance.getController(widget.videoUrl);
 
-      if (!mounted) return;
+      if (!mounted || _disposed) return;
 
       if (controller != null) {
         setState(() {
@@ -147,14 +151,14 @@ class _OptimizedVideoCoverState extends State<OptimizedVideoCover> {
           _hasError = false;
         });
 
-        if (widget.autoPlay && _isVisible) {
+        if (widget.autoPlay && _isVisible && !_disposed) {
           _safePlay();
         }
       } else {
         setState(() => _hasError = true);
       }
     } catch (e) {
-      if (mounted) {
+      if (mounted && !_disposed) {
         setState(() => _hasError = true);
       }
     } finally {
@@ -186,14 +190,20 @@ class _OptimizedVideoCoverState extends State<OptimizedVideoCover> {
   }
 
   Widget _buildContent() {
-    // Check if controller is ready AND still valid
-    if (!_isControllerValid || _hasError) {
+    // Check if disposed or controller is not valid
+    if (_disposed || _hasError) {
+      return _buildFallback();
+    }
+    
+    // Get controller reference locally to avoid race conditions
+    final controller = _controller;
+    if (controller == null) {
       return _buildFallback();
     }
     
     // Safe access to controller value
     try {
-      final value = _controller!.value;
+      final value = controller.value;
       if (!value.isInitialized) {
         return _buildFallback();
       }
@@ -207,7 +217,7 @@ class _OptimizedVideoCoverState extends State<OptimizedVideoCover> {
             child: SizedBox(
               width: value.size.width,
               height: value.size.height,
-              child: VideoPlayer(_controller!),
+              child: VideoPlayer(controller),
             ),
           ),
           // Subtle overlay for better text readability

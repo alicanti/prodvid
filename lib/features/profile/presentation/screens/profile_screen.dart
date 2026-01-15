@@ -387,6 +387,7 @@ class ProfileScreen extends ConsumerWidget {
                           if (confirm ?? false) {
                             await authService.deleteAccount();
                             if (context.mounted) {
+                              // Go to welcome screen - app behaves as freshly installed
                               context.go('/welcome');
                             }
                           }
