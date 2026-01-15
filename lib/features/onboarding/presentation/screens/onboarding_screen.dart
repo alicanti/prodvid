@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/services/auth_service.dart';
+import '../../../../core/services/revenuecat_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/page_indicator.dart';
 import '../../../../core/widgets/primary_button.dart';
@@ -66,6 +68,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       // Sign in anonymously
       final authService = ref.read(authServiceProvider);
       await authService.signInAnonymously();
+
+      // Show subscription paywall
+      if (mounted) {
+        final revenueCatService = ref.read(revenueCatServiceProvider);
+        final result = await revenueCatService.presentSubscriptionPaywall();
+        
+        // Show success feedback if purchased
+        if (mounted && (result == PaywallResult.purchased || result == PaywallResult.restored)) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('🎉 Welcome to ProdVid Pro!'),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Color(0xFF00FF88),
+            ),
+          );
+        }
+      }
 
       // Navigate to home
       if (mounted) {

@@ -8,7 +8,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/revenuecat_service.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../router/app_router.dart';
 
 /// User profile screen matching Stitch design - prodvid_user_profile
 class ProfileScreen extends ConsumerWidget {
@@ -219,7 +218,10 @@ class ProfileScreen extends ConsumerWidget {
                           ),
                           // Buy credits button
                           GestureDetector(
-                            onTap: () => context.push(AppRoutes.paywall),
+                            onTap: () async {
+                              final service = ref.read(revenueCatServiceProvider);
+                              await service.presentCreditsPaywall();
+                            },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 14,
@@ -630,11 +632,17 @@ class _SubscriptionStatusCard extends ConsumerWidget {
             ),
             // Upgrade/Manage button
             GestureDetector(
-              onTap: () {
+              onTap: () async {
+                final service = ref.read(revenueCatServiceProvider);
                 if (isSubscribed) {
-                  ref.read(revenueCatServiceProvider).presentCustomerCenter();
+                  final credits = ref.read(userCreditsProvider).valueOrNull ?? 0;
+                  if (credits < 210) {
+                    await service.presentCreditsPaywall();
+                  } else {
+                    await service.presentCustomerCenter();
+                  }
                 } else {
-                  context.push(AppRoutes.paywall);
+                  await service.presentSubscriptionPaywall();
                 }
               },
               child: Container(

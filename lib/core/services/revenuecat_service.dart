@@ -323,6 +323,28 @@ class RevenueCatService {
     }
   }
 
+  /// Present subscription paywall (default offering)
+  Future<PaywallResult> presentSubscriptionPaywall() async {
+    try {
+      final offerings = await getOfferings();
+      return presentPaywall(offering: offerings?.current);
+    } catch (e) {
+      debugPrint('❌ Subscription paywall error: $e');
+      return PaywallResult.error;
+    }
+  }
+
+  /// Present credits paywall
+  Future<PaywallResult> presentCreditsPaywall() async {
+    try {
+      final offerings = await getOfferings();
+      return presentPaywall(offering: offerings?.getOffering('credits'));
+    } catch (e) {
+      debugPrint('❌ Credits paywall error: $e');
+      return PaywallResult.error;
+    }
+  }
+
   /// Present Paywall if user doesn't have Pro entitlement
   Future<PaywallResult> presentPaywallIfNeeded() async {
     try {

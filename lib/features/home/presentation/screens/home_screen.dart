@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/services/auth_service.dart';
+import '../../../../core/services/revenuecat_service.dart';
 import '../../../../core/services/video_cache_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/optimized_video_cover.dart';
@@ -605,7 +606,14 @@ class _CreditsBadge extends ConsumerWidget {
     final isSubscribed = subscriptionAsync.valueOrNull ?? false;
 
     return GestureDetector(
-      onTap: () => context.push('/paywall'),
+      onTap: () async {
+        final service = ref.read(revenueCatServiceProvider);
+        if (isSubscribed) {
+          await service.presentCreditsPaywall();
+        } else {
+          await service.presentSubscriptionPaywall();
+        }
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(

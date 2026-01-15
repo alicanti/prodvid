@@ -20,8 +20,6 @@ import '../features/video/presentation/screens/template_selection_screen.dart';
 import '../features/video/presentation/screens/video_creation_screen.dart';
 import '../features/video/presentation/screens/video_export_screen.dart';
 import '../features/video/presentation/screens/video_processing_screen.dart';
-import '../features/subscription/presentation/screens/paywall_screen.dart';
-
 /// Route names
 abstract class AppRoutes {
   static const String splash = '/';
@@ -37,7 +35,6 @@ abstract class AppRoutes {
   static const String videos = '/videos';
   static const String profile = '/profile';
   static const String settings = '/settings';
-  static const String paywall = '/paywall';
 }
 
 /// Navigation shell key for persistent bottom nav
@@ -166,12 +163,6 @@ final routerProvider = Provider<GoRouter>((ref) {
             taskId: extra?['taskId'] as String?,
           );
         },
-      ),
-
-      // Paywall (no nav bar - full screen)
-      GoRoute(
-        path: AppRoutes.paywall,
-        builder: (context, state) => const PaywallScreen(),
       ),
     ],
 

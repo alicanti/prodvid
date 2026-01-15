@@ -5,10 +5,12 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/background_task_service.dart';
+import '../../../../core/services/revenuecat_service.dart';
 import '../../../../core/services/video_cache_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../router/app_router.dart';
@@ -152,6 +154,37 @@ class _EffectDetailScreenState extends ConsumerState<EffectDetailScreen> {
       if (!authService.isSignedIn) {
         debugPrint('🔐 User not signed in, signing in anonymously...');
         await authService.signInAnonymously();
+      }
+      
+      // Client-side credit check before API request
+      final credits = ref.read(userCreditsProvider).valueOrNull ?? 0;
+      final isSubscribed = ref.read(userSubscriptionProvider).valueOrNull ?? false;
+      final requiredCredits = _videoMode == WiroVideoMode.pro ? 210 : 70;
+      
+      if (credits < requiredCredits) {
+        // Show appropriate paywall
+        final service = ref.read(revenueCatServiceProvider);
+        final result = isSubscribed
+            ? await service.presentCreditsPaywall()
+            : await service.presentSubscriptionPaywall();
+        
+        if (result != PaywallResult.purchased && result != PaywallResult.restored) {
+          // User cancelled - stop generation
+          setState(() => _isGenerating = false);
+          return;
+        }
+        
+        // Wait for webhook to process credits
+        await Future<void>.delayed(const Duration(seconds: 2));
+        ref.invalidate(userCreditsProvider);
+        
+        // Re-check credits after purchase
+        final newCredits = ref.read(userCreditsProvider).valueOrNull ?? 0;
+        if (newCredits < requiredCredits) {
+          setState(() => _isGenerating = false);
+          _showErrorDialog('Insufficient credits. Please purchase more.');
+          return;
+        }
       }
       
       final taskService = ref.read(backgroundTaskServiceProvider);
