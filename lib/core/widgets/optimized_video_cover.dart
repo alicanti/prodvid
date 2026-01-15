@@ -56,10 +56,22 @@ class _OptimizedVideoCoverState extends State<OptimizedVideoCover> {
     }
   }
 
-  /// Check if the current controller is still valid
+  /// Check if the current controller is still valid and not disposed
   bool get _isControllerValid {
-    return _controller != null &&
-        VideoPlayerManager.instance.isControllerValid(widget.videoUrl);
+    if (_controller == null) return false;
+    
+    // Check if manager still has this controller
+    if (!VideoPlayerManager.instance.isControllerValid(widget.videoUrl)) {
+      return false;
+    }
+    
+    // Try to access value - if disposed, this will throw
+    try {
+      // ignore: unnecessary_null_comparison
+      return _controller!.value != null;
+    } catch (e) {
+      return false;
+    }
   }
 
   void _onVisibilityChanged(VisibilityInfo info) {
@@ -72,35 +84,25 @@ class _OptimizedVideoCoverState extends State<OptimizedVideoCover> {
       // Became visible - load video
       _loadVideo();
     } else if (!_isVisible && wasVisible) {
-      // Became invisible - pause but don't dispose
-      _safePause();
-    }
-  }
-
-  /// Safely pause the controller if it's still valid
-  void _safePause() {
-    if (_isControllerValid) {
-      try {
-        _controller?.pause();
-      } catch (e) {
-        // Controller was disposed, clear reference
-        _clearController();
+      // Became invisible - release and clear
+      _releaseVideo();
+      if (mounted) {
+        setState(() {});
       }
-    } else {
-      _clearController();
     }
   }
 
   /// Safely play the controller if it's still valid
   void _safePlay() {
-    if (_isControllerValid) {
-      try {
-        _controller?.play();
-      } catch (e) {
-        // Controller was disposed, clear reference
-        _clearController();
-      }
-    } else {
+    if (!_isControllerValid) {
+      _clearController();
+      return;
+    }
+    
+    try {
+      _controller?.play();
+    } catch (e) {
+      // Controller was disposed, clear reference
       _clearController();
     }
   }
@@ -185,11 +187,17 @@ class _OptimizedVideoCoverState extends State<OptimizedVideoCover> {
 
   Widget _buildContent() {
     // Check if controller is ready AND still valid
-    final isReady = _isControllerValid &&
-        _controller!.value.isInitialized &&
-        !_hasError;
-
-    if (isReady) {
+    if (!_isControllerValid || _hasError) {
+      return _buildFallback();
+    }
+    
+    // Safe access to controller value
+    try {
+      final value = _controller!.value;
+      if (!value.isInitialized) {
+        return _buildFallback();
+      }
+      
       return Stack(
         fit: StackFit.expand,
         children: [
@@ -197,8 +205,8 @@ class _OptimizedVideoCoverState extends State<OptimizedVideoCover> {
           FittedBox(
             fit: BoxFit.cover,
             child: SizedBox(
-              width: _controller!.value.size.width,
-              height: _controller!.value.size.height,
+              width: value.size.width,
+              height: value.size.height,
               child: VideoPlayer(_controller!),
             ),
           ),
@@ -217,9 +225,10 @@ class _OptimizedVideoCoverState extends State<OptimizedVideoCover> {
           ),
         ],
       );
+    } catch (e) {
+      // Controller was disposed during build
+      return _buildFallback();
     }
-
-    return _buildFallback();
   }
 
   Widget _buildFallback() {
