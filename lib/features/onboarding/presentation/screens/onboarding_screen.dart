@@ -1,8 +1,10 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -39,6 +41,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       );
     } else {
       _completeOnboarding();
+    }
+  }
+
+  Future<void> _openUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
     }
   }
 
@@ -141,30 +150,34 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   const SizedBox(height: 16),
 
                   // Terms and Privacy
-                  const Text.rich(
+                  Text.rich(
                     TextSpan(
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         color: AppColors.textTertiaryDark,
                       ),
                       children: [
-                        TextSpan(
+                        const TextSpan(
                           text: 'By continuing, you agree to our ',
                         ),
                         TextSpan(
                           text: 'Terms of Service',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: AppColors.primary,
                             fontWeight: FontWeight.w600,
                           ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () => _openUrl('https://prodvid-app.web.app/terms.html'),
                         ),
-                        TextSpan(text: ' and '),
+                        const TextSpan(text: ' and '),
                         TextSpan(
                           text: 'Privacy Policy',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: AppColors.primary,
                             fontWeight: FontWeight.w600,
                           ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () => _openUrl('https://prodvid-app.web.app/privacy.html'),
                         ),
                       ],
                     ),

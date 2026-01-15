@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/revenuecat_service.dart';
@@ -12,6 +13,13 @@ import '../../../../router/app_router.dart';
 /// User profile screen matching Stitch design - prodvid_user_profile
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
+
+  Future<void> _openUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
+    }
+  }
 
   void _copyUserId(BuildContext context, String userId) {
     Clipboard.setData(ClipboardData(text: userId));
@@ -333,12 +341,20 @@ class ProfileScreen extends ConsumerWidget {
                                 onTap: () {},
                               ),
                               _SettingsItem(
+                                icon: Icons.description_outlined,
+                                iconColor: AppColors.slate400,
+                                iconBgColor: const Color(0xFF222B3D),
+                                title: 'Terms of Service',
+                                subtitle: 'Usage terms',
+                                onTap: () => _openUrl('https://prodvid-app.web.app/terms.html'),
+                              ),
+                              _SettingsItem(
                                 icon: Icons.privacy_tip_outlined,
                                 iconColor: AppColors.slate400,
                                 iconBgColor: const Color(0xFF222B3D),
                                 title: 'Privacy Policy',
-                                subtitle: 'Terms and conditions',
-                                onTap: () {},
+                                subtitle: 'How we handle your data',
+                                onTap: () => _openUrl('https://prodvid-app.web.app/privacy.html'),
                                 showDivider: false,
                               ),
                             ],

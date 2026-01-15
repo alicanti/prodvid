@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - ProdVid</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00D9FF;
+            --secondary: #00FF88;
+            --bg-dark: #0A0E1A;
+            --bg-card: #111827;
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.7;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(0, 217, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(0, 255, 136, 0.08) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        header {
+            padding: 24px 40px;
+            display: flex;
+            justify-content: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 24px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .last-updated {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 48px;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 40px;
+            margin-bottom: 16px;
+            color: var(--primary);
+        }
+
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        ul {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            padding-left: 24px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight {
+            background: var(--bg-card);
+            border-left: 4px solid var(--primary);
+            padding: 16px 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 24px 0;
+        }
+
+        footer {
+            padding: 32px 20px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        .copyright {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 20px;
+            }
+
+            main {
+                padding: 40px 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+
+    <header>
+        <a href="/" class="logo">
+            <img src="icon.png" alt="ProdVid Logo">
+            <span class="logo-text">ProdVid</span>
+        </a>
+    </header>
+
+    <main>
+        <h1>Privacy Policy</h1>
+        <p class="last-updated">Last updated: January 15, 2026</p>
+
+        <p>At ProdVid, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application.</p>
+
+        <h2>Information We Collect</h2>
+        <p>We collect information that you provide directly to us:</p>
+        <ul>
+            <li><strong>Account Information:</strong> When you create an account, we collect your email address and authentication credentials.</li>
+            <li><strong>User Content:</strong> Photos and images you upload for video generation.</li>
+            <li><strong>Usage Data:</strong> Information about how you use the app, including features accessed and videos created.</li>
+            <li><strong>Device Information:</strong> Device type, operating system, and unique device identifiers.</li>
+        </ul>
+
+        <h2>How We Use Your Information</h2>
+        <p>We use the information we collect to:</p>
+        <ul>
+            <li>Provide, maintain, and improve our services</li>
+            <li>Process your video generation requests</li>
+            <li>Send you technical notices and support messages</li>
+            <li>Respond to your comments and questions</li>
+            <li>Monitor and analyze trends, usage, and activities</li>
+        </ul>
+
+        <div class="highlight">
+            <p><strong>Important:</strong> Your uploaded images are processed by our AI systems to generate videos. Images are temporarily stored during processing and are automatically deleted within 24 hours after video generation is complete.</p>
+        </div>
+
+        <h2>Data Storage and Security</h2>
+        <p>We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. Your data is stored securely using industry-standard encryption.</p>
+
+        <h2>Third-Party Services</h2>
+        <p>We may use third-party services that collect information used to identify you:</p>
+        <ul>
+            <li><strong>Firebase:</strong> For authentication, database, and analytics</li>
+            <li><strong>RevenueCat:</strong> For subscription and purchase management</li>
+            <li><strong>Wiro AI:</strong> For AI-powered video generation</li>
+            <li><strong>Apple App Store:</strong> For app distribution and in-app purchases</li>
+        </ul>
+
+        <h2>Your Rights</h2>
+        <p>You have the right to:</p>
+        <ul>
+            <li>Access your personal data</li>
+            <li>Correct inaccurate data</li>
+            <li>Request deletion of your data</li>
+            <li>Object to processing of your data</li>
+            <li>Export your data in a portable format</li>
+        </ul>
+
+        <h2>Children's Privacy</h2>
+        <p>Our service is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13.</p>
+
+        <h2>Changes to This Policy</h2>
+        <p>We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date.</p>
+
+        <h2>Contact Us</h2>
+        <p>If you have any questions about this Privacy Policy, please contact us at:</p>
+        <p><strong>Email:</strong> hello@alicantilki.com</p>
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="/">Home</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="terms.html">Terms of Service</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <p class="copyright">© 2026 ProdVid. All rights reserved.</p>
+    </footer>
+</body>
+</html>
+

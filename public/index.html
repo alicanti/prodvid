@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProdVid - AI Product Video Generator</title>
+    <meta name="description" content="Transform your product photos into stunning AI-generated videos. Create professional product ads in seconds.">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00D9FF;
+            --secondary: #00FF88;
+            --bg-dark: #0A0E1A;
+            --bg-card: #111827;
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.6);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(0, 217, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(139, 92, 246, 0.08) 0%, transparent 60%);
+            z-index: -1;
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Header */
+        header {
+            padding: 24px 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo img {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Main content */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .hero-icon {
+            font-size: 64px;
+            margin-bottom: 24px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tagline {
+            font-size: clamp(1.1rem, 3vw, 1.5rem);
+            color: var(--text-secondary);
+            max-width: 600px;
+            line-height: 1.6;
+            margin-bottom: 48px;
+        }
+
+        /* Features */
+        .features {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 48px;
+            max-width: 800px;
+        }
+
+        .feature {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            width: 220px;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .feature:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+        }
+
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .feature h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .feature p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* App Store Button */
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--bg-dark);
+            text-decoration: none;
+            padding: 16px 32px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 24px rgba(0, 217, 255, 0.3);
+        }
+
+        .download-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 32px rgba(0, 217, 255, 0.4);
+        }
+
+        .download-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Footer */
+        footer {
+            padding: 32px 20px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        .copyright {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                padding: 20px;
+            }
+
+            .features {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .feature {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .footer-links {
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+
+    <header>
+        <a href="/" class="logo">
+            <img src="icon.png" alt="ProdVid Logo">
+            <span class="logo-text">ProdVid</span>
+        </a>
+    </header>
+
+    <main>
+        <div class="hero-icon">🎬</div>
+        <h1>ProdVid</h1>
+        <p class="tagline">Transform your product photos into stunning AI-generated videos. Create professional product ads in seconds.</p>
+
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">✨</div>
+                <h3>AI-Powered</h3>
+                <p>Advanced AI transforms static images into dynamic video content</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🚀</div>
+                <h3>Fast Generation</h3>
+                <p>Create professional videos in under 2 minutes</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎨</div>
+                <h3>100+ Effects</h3>
+                <p>Choose from a wide variety of stunning visual effects</p>
+            </div>
+        </div>
+
+        <a href="https://apps.apple.com/app/prodvid" class="download-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+            </svg>
+            Download on App Store
+        </a>
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="terms.html">Terms of Service</a>
+            <a href="contact.html">Contact</a>
+        </div>
+        <p class="copyright">© 2026 ProdVid. All rights reserved.</p>
+    </footer>
+</body>
+</html>
+
