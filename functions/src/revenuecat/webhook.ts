@@ -386,9 +386,7 @@ async function handleBillingIssue(event: RevenueCatEvent['event']): Promise<void
 /**
  * RevenueCat Webhook Handler
  */
-export const revenuecatWebhook = functions
-  .runWith({ timeoutSeconds: 60, memory: '256MB' })
-  .https.onRequest(async (req, res) => {
+export const revenuecatWebhook = functions.https.onRequest(async (req, res) => {
   // Only accept POST requests
   if (req.method !== 'POST') {
     res.status(405).send('Method not allowed');
