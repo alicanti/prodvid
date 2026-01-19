@@ -8,6 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 
+import 'analytics_service.dart';
+
 /// RevenueCat API Keys
 class RevenueCatConfig {
   // Production Apple API Key from RevenueCat
@@ -298,8 +300,11 @@ class RevenueCatService {
   }
 
   /// Present RevenueCat Paywall
-  Future<PaywallResult> presentPaywall({Offering? offering}) async {
+  Future<PaywallResult> presentPaywall({Offering? offering, String paywallType = 'default'}) async {
     try {
+      // Log analytics: paywall view
+      await AnalyticsService().logPaywallView(paywallType: paywallType);
+
       final result = await RevenueCatUI.presentPaywall(
         offering: offering,
         displayCloseButton: true,
@@ -309,6 +314,19 @@ class RevenueCatService {
 
       if (result == PaywallResult.purchased ||
           result == PaywallResult.restored) {
+        // Log analytics: subscription/credit purchase
+        if (paywallType == 'subscription') {
+          await AnalyticsService().logSubscriptionPurchase(
+            productId: offering?.availablePackages.first.storeProduct.identifier ?? 'unknown',
+            offeringId: offering?.identifier ?? 'unknown',
+          );
+        } else if (paywallType == 'credits') {
+          await AnalyticsService().logCreditsPurchase(
+            productId: offering?.availablePackages.first.storeProduct.identifier ?? 'unknown',
+            credits: 0, // Credits determined by webhook
+          );
+        }
+
         // Refresh customer info
         final customerInfo = await getCustomerInfo();
         if (customerInfo != null) {
@@ -327,7 +345,7 @@ class RevenueCatService {
   Future<PaywallResult> presentSubscriptionPaywall() async {
     try {
       final offerings = await getOfferings();
-      return presentPaywall(offering: offerings?.current);
+      return presentPaywall(offering: offerings?.current, paywallType: 'subscription');
     } catch (e) {
       debugPrint('❌ Subscription paywall error: $e');
       return PaywallResult.error;
@@ -338,7 +356,7 @@ class RevenueCatService {
   Future<PaywallResult> presentCreditsPaywall() async {
     try {
       final offerings = await getOfferings();
-      return presentPaywall(offering: offerings?.getOffering('credits'));
+      return presentPaywall(offering: offerings?.getOffering('credits'), paywallType: 'credits');
     } catch (e) {
       debugPrint('❌ Credits paywall error: $e');
       return PaywallResult.error;

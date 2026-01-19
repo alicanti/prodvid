@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -7,6 +10,7 @@ import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../core/services/analytics_service.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/revenuecat_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -65,9 +69,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_onboardingCompleteKey, true);
 
+      // Request ATT permission (iOS only) - must be before RevenueCat paywall
+      if (Platform.isIOS) {
+        await AppTrackingTransparency.requestTrackingAuthorization();
+      }
+
       // Sign in anonymously
       final authService = ref.read(authServiceProvider);
       await authService.signInAnonymously();
+
+      // Log analytics event
+      await AnalyticsService().logOnboardingComplete();
 
       // Show subscription paywall
       if (mounted) {

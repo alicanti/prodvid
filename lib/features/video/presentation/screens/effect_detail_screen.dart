@@ -8,8 +8,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../../../core/services/analytics_service.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/background_task_service.dart';
+import '../../../../core/services/rate_service.dart';
 import '../../../../core/services/revenuecat_service.dart';
 import '../../../../core/services/video_cache_service.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -205,6 +207,12 @@ class _EffectDetailScreenState extends ConsumerState<EffectDetailScreen> {
         return;
       }
 
+      // Log analytics: generation started
+      await AnalyticsService().logVideoGenerationStarted(
+        effectType: widget.effectType,
+        videoMode: videoModeStr,
+      );
+
       // Step 2: Read image bytes
       final productBytes = _productImage != null 
           ? await _productImage!.readAsBytes() 
@@ -230,9 +238,23 @@ class _EffectDetailScreenState extends ConsumerState<EffectDetailScreen> {
 
       if (!startResult.success) {
         setState(() => _isGenerating = false);
+        // Log analytics: generation failed
+        await AnalyticsService().logVideoGenerationFailed(
+          effectType: widget.effectType,
+          error: startResult.error ?? 'Unknown error',
+        );
         _showErrorDialog(startResult.error ?? 'Failed to start generation');
         return;
       }
+
+      // Log analytics: generation success
+      await AnalyticsService().logVideoGenerationSuccess(
+        effectType: widget.effectType,
+        videoMode: videoModeStr,
+      );
+
+      // Show rate dialog after first successful generation
+      await RateService().checkAndShowRateDialog();
 
       // Success! Show success message and navigate to My Videos
       setState(() => _isGenerating = false);
@@ -257,6 +279,11 @@ class _EffectDetailScreenState extends ConsumerState<EffectDetailScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isGenerating = false);
+        // Log analytics: generation failed
+        await AnalyticsService().logVideoGenerationFailed(
+          effectType: widget.effectType,
+          error: e.toString(),
+        );
         _showErrorDialog(e.toString());
       }
     }
