@@ -425,13 +425,13 @@ exports.getUserCredits = functions
     const userId = context.auth.uid;
     const userDoc = await db.collection('users').doc(userId).get();
     if (!userDoc.exists) {
-        // Create user document with initial credits if doesn't exist
+        // Create user document without free credits (users must purchase)
         await db.collection('users').doc(userId).set({
-            credits: 100, // Initial free credits
+            credits: 0, // No free credits - users must purchase
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
-        return { credits: 100 };
+        return { credits: 0 };
     }
     return { credits: (_b = (_a = userDoc.data()) === null || _a === void 0 ? void 0 : _a.credits) !== null && _b !== void 0 ? _b : 0 };
 });
