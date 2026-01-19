@@ -54,35 +54,20 @@ class WelcomeScreen extends StatelessWidget {
                                 _StepCard(
                                   index: 0,
                                   title: '1. Upload Image',
-                                  icon: Icons.add_photo_alternate_rounded,
-                                  gradientColors: [
-                                    Color(0xFF667eea),
-                                    Color(0xFF764ba2),
-                                  ],
-                                  showUploadBadge: true,
+                                  imagePath: 'assets/images/upload.jpeg',
                                 ),
                                 SizedBox(width: 16),
                                 _StepCard(
                                   index: 1,
                                   title: '2. Select AI Effect',
-                                  icon: Icons.auto_awesome,
-                                  gradientColors: [
-                                    Color(0xFF4facfe),
-                                    Color(0xFF00f2fe),
-                                  ],
+                                  imagePath: 'assets/images/aieffect.jpeg',
                                   isHighlighted: true,
-                                  showMagicIcon: true,
                                 ),
                                 SizedBox(width: 16),
                                 _StepCard(
                                   index: 2,
                                   title: '3. Get Video Ad',
-                                  icon: Icons.play_circle_filled_rounded,
-                                  gradientColors: [
-                                    Color(0xFFfa709a),
-                                    Color(0xFFfee140),
-                                  ],
-                                  showPlayButton: true,
+                                  imagePath: 'assets/images/getvideoad.jpeg',
                                 ),
                               ],
                             )
@@ -178,120 +163,47 @@ class _StepCard extends StatelessWidget {
   const _StepCard({
     required this.index,
     required this.title,
-    required this.icon,
-    required this.gradientColors,
+    required this.imagePath,
     this.isHighlighted = false,
-    this.showUploadBadge = false,
-    this.showMagicIcon = false,
-    this.showPlayButton = false,
   });
 
   final int index;
   final String title;
-  final IconData icon;
-  final List<Color> gradientColors;
+  final String imagePath;
   final bool isHighlighted;
-  final bool showUploadBadge;
-  final bool showMagicIcon;
-  final bool showPlayButton;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Card with gradient
+        // Card with image
         Container(
           width: 160,
           height: 240,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: gradientColors,
-            ),
             border: isHighlighted
                 ? Border.all(
                     color: AppColors.primary.withValues(alpha: 0.5),
                     width: 2,
                   )
                 : null,
-            boxShadow: isHighlighted
-                ? [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.3),
-                      blurRadius: 15,
-                    ),
-                  ]
-                : null,
-          ),
-          child: Stack(
-            children: [
-              // Center icon
-              Center(
-                child: Icon(
-                  icon,
-                  size: 64,
-                  color: Colors.white.withValues(alpha: 0.9),
-                ),
+            boxShadow: [
+              BoxShadow(
+                color: isHighlighted
+                    ? AppColors.primary.withValues(alpha: 0.3)
+                    : Colors.black.withValues(alpha: 0.3),
+                blurRadius: 15,
               ),
-
-              // Upload badge
-              if (showUploadBadge)
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.3),
-                      borderRadius: BorderRadius.circular(9999),
-                    ),
-                    child: const Icon(
-                      Icons.upload_file,
-                      color: Colors.white,
-                      size: 14,
-                    ),
-                  ),
-                ),
-
-              // Magic sparkle overlay
-              if (showMagicIcon)
-                Positioned(
-                  top: 16,
-                  right: 16,
-                  child: const Icon(Icons.auto_awesome, color: Colors.white, size: 24)
-                      .animate(
-                        onPlay: (controller) =>
-                            controller.repeat(reverse: true),
-                      )
-                      .scale(
-                        begin: const Offset(1, 1),
-                        end: const Offset(1.2, 1.2),
-                        duration: 1000.ms,
-                      ),
-                ),
-
-              // Play button overlay
-              if (showPlayButton)
-                Positioned(
-                  bottom: 16,
-                  right: 16,
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(9999),
-                    ),
-                    child: const Icon(
-                      Icons.play_arrow,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
-                ),
             ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Image.asset(
+              imagePath,
+              fit: BoxFit.cover,
+            ),
           ),
         ),
 

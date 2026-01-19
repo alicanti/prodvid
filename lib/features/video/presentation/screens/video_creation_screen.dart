@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
@@ -244,22 +246,29 @@ class _ImagePreview extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Image placeholder (replace with actual image when available)
-        DecoratedBox(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFF4facfe), Color(0xFF00f2fe)],
-            ),
-          ),
-          child: Center(
-            child: Icon(
-              Icons.image,
-              size: 64,
-              color: Colors.white.withValues(alpha: 0.7),
-            ),
-          ),
+        // Display selected image
+        Image.file(
+          File(imageUrl),
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            // Fallback gradient if image fails to load
+            return DecoratedBox(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF4facfe), Color(0xFF00f2fe)],
+                ),
+              ),
+              child: Center(
+                child: Icon(
+                  Icons.image,
+                  size: 64,
+                  color: Colors.white.withValues(alpha: 0.7),
+                ),
+              ),
+            );
+          },
         ),
 
         // Gradient overlay
