@@ -8,8 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'video_cache_service.dart';
 import 'video_player_manager.dart';
 
-/// Initial credits for new users
-const int initialCredits = 100;
+/// Initial credits for new users (0 = no free credits, users must purchase)
+const int initialCredits = 0;
 
 /// Firebase Auth instance provider
 final firebaseAuthProvider = Provider<FirebaseAuth>((ref) {

@@ -151,9 +151,9 @@ class RevenueCatService {
           'lastUpdated': FieldValue.serverTimestamp(),
         });
       } else {
-        // Document doesn't exist, create with initial credits
+        // Document doesn't exist, create without free credits (users must purchase)
         await userRef.set({
-          'credits': 100, // Initial credits for new users
+          'credits': 0, // No free credits - users must purchase
           'isSubscribed': isPro,
           'subscriptionExpiry': isPro
               ? customerInfo
