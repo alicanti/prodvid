@@ -260,6 +260,17 @@ class AuthService {
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
+      debugPrint('📝 Created new user document with $initialCredits initial credits');
+    } else {
+      // Document exists but might not have credits (created by RevenueCat sync)
+      final data = userDoc.data();
+      if (data != null && !data.containsKey('credits')) {
+        await userRef.update({
+          'credits': initialCredits,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+        debugPrint('📝 Added $initialCredits initial credits to existing user document');
+      }
     }
   }
 

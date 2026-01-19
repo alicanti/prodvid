@@ -135,16 +135,37 @@ class RevenueCatService {
     );
 
     try {
-      await _firestore.collection('users').doc(user.uid).update({
-        'isSubscribed': isPro,
-        'subscriptionExpiry': isPro
-            ? customerInfo
-                  .entitlements
-                  .active[RevenueCatConfig.proEntitlementId]
-                  ?.expirationDate
-            : null,
-        'lastUpdated': FieldValue.serverTimestamp(),
-      });
+      final userRef = _firestore.collection('users').doc(user.uid);
+      final userDoc = await userRef.get();
+      
+      if (userDoc.exists) {
+        // Document exists, just update subscription status
+        await userRef.update({
+          'isSubscribed': isPro,
+          'subscriptionExpiry': isPro
+              ? customerInfo
+                    .entitlements
+                    .active[RevenueCatConfig.proEntitlementId]
+                    ?.expirationDate
+              : null,
+          'lastUpdated': FieldValue.serverTimestamp(),
+        });
+      } else {
+        // Document doesn't exist, create with initial credits
+        await userRef.set({
+          'credits': 100, // Initial credits for new users
+          'isSubscribed': isPro,
+          'subscriptionExpiry': isPro
+              ? customerInfo
+                    .entitlements
+                    .active[RevenueCatConfig.proEntitlementId]
+                    ?.expirationDate
+              : null,
+          'createdAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+        debugPrint('📝 Created new user document with 100 initial credits');
+      }
       debugPrint('✅ Subscription status synced to Firestore: isPro=$isPro');
     } catch (e) {
       debugPrint('❌ Error syncing subscription status: $e');
