@@ -78,13 +78,24 @@ final userSubscriptionProvider = StreamProvider<bool>((ref) {
 
         // Check if subscription is active
         final isSubscribed = data['isSubscribed'] as bool? ?? false;
-        final subscriptionExpiry = data['subscriptionExpiry'] as Timestamp?;
-
+        
         if (!isSubscribed) return false;
-        if (subscriptionExpiry == null) return isSubscribed;
+        
+        // Handle subscriptionExpiry - can be Timestamp, String, or null
+        final expiryData = data['subscriptionExpiry'];
+        if (expiryData == null) return isSubscribed;
+        
+        DateTime? expiryDate;
+        if (expiryData is Timestamp) {
+          expiryDate = expiryData.toDate();
+        } else if (expiryData is String) {
+          expiryDate = DateTime.tryParse(expiryData);
+        }
+        
+        if (expiryDate == null) return isSubscribed;
 
         // Check if subscription hasn't expired
-        return subscriptionExpiry.toDate().isAfter(DateTime.now());
+        return expiryDate.isAfter(DateTime.now());
       });
     },
     loading: () => Stream.value(false),

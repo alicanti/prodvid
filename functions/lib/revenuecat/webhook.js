@@ -146,7 +146,7 @@ async function updateSubscriptionStatus(userId, isSubscribed, expirationMs, prod
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     };
     if (expirationMs) {
-        updateData.subscriptionExpiry = new Date(expirationMs).toISOString();
+        updateData.subscriptionExpiry = admin.firestore.Timestamp.fromDate(new Date(expirationMs));
     }
     if (productId) {
         updateData.subscriptionProductId = productId;
@@ -303,6 +303,44 @@ async function handleBillingIssue(event) {
     // TODO: Send push notification to user about billing issue
 }
 /**
+ * Handle PRODUCT_CHANGE event
+ * User upgraded/downgraded subscription (e.g., weekly -> yearly)
+ */
+async function handleProductChange(event) {
+    const userId = getFirebaseUserId(event);
+    if (!userId) {
+        console.log('⚠️ Skipping: No Firebase user ID found');
+        return;
+    }
+    const oldProductId = event.product_id;
+    const newProductId = event.new_product_id;
+    if (!newProductId) {
+        console.log('⚠️ No new_product_id found in PRODUCT_CHANGE event');
+        return;
+    }
+    const oldCredits = PRODUCT_CREDITS[oldProductId] || 0;
+    const newCredits = PRODUCT_CREDITS[newProductId] || 0;
+    console.log(`🔄 Product change for user ${userId}: ${oldProductId} → ${newProductId}`);
+    console.log(`   Credits: ${oldCredits} → ${newCredits}`);
+    // If upgrading to a higher tier, add the difference in credits
+    if (newCredits > oldCredits) {
+        const creditDifference = newCredits - oldCredits;
+        await addCredits(userId, newProductId, creditDifference);
+        console.log(`✅ Added ${creditDifference} bonus credits for upgrade`);
+    }
+    // Update subscription status with new product
+    await updateSubscriptionStatus(userId, true, event.expiration_at_ms, newProductId);
+    // Log the product change
+    await db.collection('subscription_events').add({
+        userId,
+        oldProductId,
+        newProductId,
+        type: 'product_change',
+        creditDifference: newCredits - oldCredits,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+}
+/**
  * RevenueCat Webhook Handler
  */
 exports.revenuecatWebhook = functions.https.onRequest(async (req, res) => {
@@ -356,8 +394,7 @@ exports.revenuecatWebhook = functions.https.onRequest(async (req, res) => {
                 await handleBillingIssue(event);
                 break;
             case 'PRODUCT_CHANGE':
-                console.log(`📝 Product change: ${event.product_id}`);
-                // Handle product upgrades/downgrades if needed
+                await handleProductChange(event);
                 break;
             case 'SUBSCRIPTION_PAUSED':
                 console.log(`⏸️ Subscription paused for user ${event.app_user_id}`);
