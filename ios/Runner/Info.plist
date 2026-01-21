@@ -47,5 +47,9 @@
 	</array>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>This identifier will be used to deliver personalized ads to you.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to save generated videos.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>We need permission to save generated videos to your photo library.</string>
 </dict>
 </plist>

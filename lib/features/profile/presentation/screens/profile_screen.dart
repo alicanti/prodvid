@@ -1,8 +1,14 @@
+import 'dart:io';
+import 'dart:convert';
+
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/services/auth_service.dart';
@@ -29,6 +35,95 @@ class ProfileScreen extends ConsumerWidget {
         duration: Duration(seconds: 2),
       ),
     );
+  }
+
+  Future<void> _openSupportEmail(
+    BuildContext context,
+    String userId,
+    bool isSubscribed,
+  ) async {
+    try {
+      // Get device info
+      final deviceInfo = DeviceInfoPlugin();
+      String osVersion = 'Unknown';
+      String deviceModel = 'Unknown';
+
+      if (Platform.isIOS) {
+        final iosInfo = await deviceInfo.iosInfo;
+        osVersion = 'iOS ${iosInfo.systemVersion}';
+        deviceModel = iosInfo.utsname.machine;
+      } else if (Platform.isAndroid) {
+        final androidInfo = await deviceInfo.androidInfo;
+        osVersion = 'Android ${androidInfo.version.release}';
+        deviceModel = '${androidInfo.manufacturer} ${androidInfo.model}';
+      }
+
+      // Get app version
+      final packageInfo = await PackageInfo.fromPlatform();
+      final appVersion = '${packageInfo.version} (${packageInfo.buildNumber})';
+
+      // Get country from locale
+      final locale = Platform.localeName;
+      final country = locale.split('_').length > 1 ? locale.split('_').last : locale;
+
+      // Get IP address
+      String ipAddress = 'Unknown';
+      try {
+        final response = await http
+            .get(Uri.parse('https://api.ipify.org?format=json'))
+            .timeout(const Duration(seconds: 5));
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body) as Map<String, dynamic>;
+          ipAddress = (data['ip'] as String?) ?? 'Unknown';
+        }
+      } catch (_) {
+        // Ignore IP fetch errors
+      }
+
+      // Build email body
+      final subscriptionStatus = isSubscribed ? 'Active Subscriber' : 'Not Subscribed';
+      final body = '''
+Hello ProdVid Support Team,
+
+[Please describe your issue here]
+
+---
+Device Information:
+• User ID: $userId
+• Device: $deviceModel
+• OS Version: $osVersion
+• App Version: $appVersion
+• Country/Locale: $country
+• IP Address: $ipAddress
+• Subscription Status: $subscriptionStatus
+''';
+
+      final subject = Uri.encodeComponent('ProdVid Support - Userid: $userId');
+      final encodedBody = Uri.encodeComponent(body);
+      final mailtoUri = Uri.parse('mailto:hello@alicantilki.com?subject=$subject&body=$encodedBody');
+
+      if (await canLaunchUrl(mailtoUri)) {
+        await launchUrl(mailtoUri);
+      } else {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Could not open email app'),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -326,7 +421,10 @@ class ProfileScreen extends ConsumerWidget {
                                 iconBgColor: const Color(0xFF222B3D),
                                 title: 'Support',
                                 subtitle: 'Get help & FAQs',
-                                onTap: () {},
+                                onTap: () {
+                                  final isSubscribed = ref.read(userSubscriptionProvider).valueOrNull ?? false;
+                                  _openSupportEmail(context, userId, isSubscribed);
+                                },
                               ),
                               _SettingsItem(
                                 icon: Icons.description_outlined,

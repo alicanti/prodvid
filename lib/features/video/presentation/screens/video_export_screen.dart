@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:gal/gal.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -103,8 +104,8 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
     });
 
     try {
-      // Get download directory
-      final directory = await getApplicationDocumentsDirectory();
+      // Get temporary directory for download
+      final directory = await getTemporaryDirectory();
       final fileName =
           'prodvid_${widget.taskId ?? DateTime.now().millisecondsSinceEpoch}.mp4';
       final filePath = '${directory.path}/$fileName';
@@ -121,6 +122,14 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
           }
         },
       );
+
+      // Save to device gallery using Gal package
+      await Gal.putVideo(filePath, album: 'ProdVid');
+
+      // Clean up temp file
+      try {
+        await File(filePath).delete();
+      } catch (_) {}
 
       if (mounted) {
         setState(() => _isDownloading = false);
@@ -142,9 +151,24 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isDownloading = false);
+        
+        String errorMessage = 'Download failed';
+        if (e is GalException) {
+          switch (e.type) {
+            case GalExceptionType.accessDenied:
+              errorMessage = 'Photo library access denied. Please enable in Settings.';
+              break;
+            case GalExceptionType.notEnoughSpace:
+              errorMessage = 'Not enough storage space';
+              break;
+            default:
+              errorMessage = 'Failed to save to gallery';
+          }
+        }
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Download failed: $e'),
+            content: Text(errorMessage),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
           ),
