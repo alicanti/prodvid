@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+
+import '../core/theme/app_colors.dart';
 
 import '../core/services/auth_service.dart';
 import '../core/services/video_cache_service.dart';
@@ -251,6 +254,13 @@ class ProfileScreenContent extends StatelessWidget {
 class MyVideosScreen extends ConsumerWidget {
   const MyVideosScreen({super.key});
 
+  Future<void> _onRefresh(WidgetRef ref) async {
+    HapticFeedback.mediumImpact();
+    ref.invalidate(userVideosProvider);
+    // Wait for the provider to reload
+    await ref.read(userVideosProvider.future);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final videosAsync = ref.watch(userVideosProvider);
@@ -285,13 +295,11 @@ class MyVideosScreen extends ConsumerWidget {
             child: videosAsync.when(
               data: (videos) {
                 if (videos.isEmpty) {
-                  return _buildEmptyState(context);
+                  return _buildEmptyState(context, ref);
                 }
-                return _buildVideoGrid(context, videos);
+                return _buildVideoGrid(context, ref, videos);
               },
-              loading: () => const Center(
-                child: CircularProgressIndicator(color: Color(0xFF00D9FF)),
-              ),
+              loading: () => _buildSkeletonGrid(),
               error: (error, _) => Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -310,7 +318,10 @@ class MyVideosScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
                     TextButton(
-                      onPressed: () => ref.invalidate(userVideosProvider),
+                      onPressed: () {
+                        HapticFeedback.lightImpact();
+                        ref.invalidate(userVideosProvider);
+                      },
                       child: const Text('Retry'),
                     ),
                   ],
@@ -323,81 +334,7 @@ class MyVideosScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.05),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.video_library_rounded,
-              size: 64,
-              color: Colors.white.withValues(alpha: 0.3),
-            ),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            'No videos yet',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Your generated videos will appear here',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.white.withValues(alpha: 0.5),
-            ),
-          ),
-          const SizedBox(height: 32),
-          GestureDetector(
-            onTap: () => context.go(AppRoutes.templates),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF00D9FF), Color(0xFF00FF88)],
-                ),
-                borderRadius: BorderRadius.circular(25),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF00D9FF).withValues(alpha: 0.4),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.add, color: Colors.white),
-                  SizedBox(width: 8),
-                  Text(
-                    'Create Your First Video',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          // Extra padding for nav bar
-          const SizedBox(height: 120),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildVideoGrid(BuildContext context, List<VideoProject> videos) {
+  Widget _buildSkeletonGrid() {
     return GridView.builder(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 120),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -406,14 +343,195 @@ class MyVideosScreen extends ConsumerWidget {
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
       ),
-      itemCount: videos.length,
+      itemCount: 6,
       itemBuilder: (context, index) {
-        final video = videos[index];
-        return _VideoCard(video: video)
-            .animate()
-            .fadeIn(delay: Duration(milliseconds: 50 * index))
-            .scale(begin: const Offset(0.95, 0.95));
+        return _SkeletonCard()
+            .animate(onPlay: (c) => c.repeat())
+            .shimmer(
+              duration: 1500.ms,
+              color: Colors.white.withValues(alpha: 0.1),
+            );
       },
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context, WidgetRef ref) {
+    return RefreshIndicator(
+      onRefresh: () => _onRefresh(ref),
+      color: const Color(0xFF00D9FF),
+      backgroundColor: AppColors.surfaceCard,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height - 200,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.05),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.video_library_rounded,
+                    size: 64,
+                    color: Colors.white.withValues(alpha: 0.3),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'No videos yet',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Your generated videos will appear here',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.white.withValues(alpha: 0.5),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Pull down to refresh',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.white.withValues(alpha: 0.3),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                GestureDetector(
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    context.go(AppRoutes.templates);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF00D9FF), Color(0xFF00FF88)],
+                      ),
+                      borderRadius: BorderRadius.circular(25),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF00D9FF).withValues(alpha: 0.4),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.add, color: Colors.white),
+                        SizedBox(width: 8),
+                        Text(
+                          'Create Your First Video',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Extra padding for nav bar
+                const SizedBox(height: 120),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVideoGrid(BuildContext context, WidgetRef ref, List<VideoProject> videos) {
+    return RefreshIndicator(
+      onRefresh: () => _onRefresh(ref),
+      color: const Color(0xFF00D9FF),
+      backgroundColor: AppColors.surfaceCard,
+      child: GridView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 120),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 9 / 16,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+        ),
+        itemCount: videos.length,
+        itemBuilder: (context, index) {
+          final video = videos[index];
+          return _VideoCard(video: video)
+              .animate()
+              .fadeIn(delay: Duration(milliseconds: 50 * index))
+              .scale(begin: const Offset(0.95, 0.95));
+        },
+      ),
+    );
+  }
+}
+
+/// Skeleton card for loading state
+class _SkeletonCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          // Video placeholder
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.03),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              ),
+              child: Center(
+                child: Icon(
+                  Icons.play_circle_outline,
+                  size: 48,
+                  color: Colors.white.withValues(alpha: 0.1),
+                ),
+              ),
+            ),
+          ),
+          // Info placeholder
+          Container(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 12,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  height: 10,
+                  width: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.05),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

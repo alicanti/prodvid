@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gal/gal.dart';
 import 'package:go_router/go_router.dart';
@@ -134,6 +135,9 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
       if (mounted) {
         setState(() => _isDownloading = false);
 
+        // Success haptic feedback
+        HapticFeedback.heavyImpact();
+
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -151,6 +155,9 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isDownloading = false);
+        
+        // Error haptic feedback
+        HapticFeedback.heavyImpact();
         
         String errorMessage = 'Download failed';
         if (e is GalException) {
