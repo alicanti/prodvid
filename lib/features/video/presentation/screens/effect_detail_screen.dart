@@ -147,14 +147,6 @@ class _EffectDetailScreenState extends ConsumerState<EffectDetailScreen> {
   Future<void> _generate() async {
     if (!_canGenerate) return;
 
-    // Get credit info for confirmation dialog
-    final credits = ref.read(userCreditsProvider).valueOrNull ?? 0;
-    final requiredCredits = _videoMode == WiroVideoMode.pro ? 210 : 70;
-
-    // Show credit confirmation dialog
-    final confirmed = await _showCreditConfirmationDialog(credits, requiredCredits);
-    if (!confirmed) return;
-
     // Haptic feedback when generation starts
     HapticFeedback.mediumImpact();
 
@@ -171,7 +163,9 @@ class _EffectDetailScreenState extends ConsumerState<EffectDetailScreen> {
       }
       
       // Client-side credit check before API request
+      final credits = ref.read(userCreditsProvider).valueOrNull ?? 0;
       final isSubscribed = ref.read(userSubscriptionProvider).valueOrNull ?? false;
+      final requiredCredits = _videoMode == WiroVideoMode.pro ? 210 : 70;
       
       if (credits < requiredCredits) {
         // Show appropriate paywall
@@ -298,158 +292,6 @@ class _EffectDetailScreenState extends ConsumerState<EffectDetailScreen> {
         _showErrorDialog(e.toString());
       }
     }
-  }
-
-  Future<bool> _showCreditConfirmationDialog(int currentCredits, int requiredCredits) async {
-    HapticFeedback.lightImpact();
-    
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surfaceCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(Icons.bolt, color: AppColors.primary, size: 24),
-            ),
-            const SizedBox(width: 12),
-            const Text('Confirm Generation'),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Cost',
-                        style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
-                      ),
-                      Text(
-                        '$requiredCredits credits',
-                        style: const TextStyle(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Your balance',
-                        style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
-                      ),
-                      Text(
-                        '$currentCredits credits',
-                        style: TextStyle(
-                          color: currentCredits >= requiredCredits 
-                              ? AppColors.success 
-                              : AppColors.error,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (currentCredits >= requiredCredits) ...[
-                    const SizedBox(height: 12),
-                    const Divider(color: Colors.white12),
-                    const SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'After generation',
-                          style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
-                        ),
-                        Text(
-                          '${currentCredits - requiredCredits} credits',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            if (currentCredits < requiredCredits) ...[
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.error.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.warning_amber, color: AppColors.error, size: 20),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Not enough credits. You\'ll be prompted to purchase.',
-                        style: TextStyle(
-                          color: AppColors.error.withValues(alpha: 0.9),
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              HapticFeedback.lightImpact();
-              Navigator.pop(context, false);
-            },
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
-            ),
-          ),
-          FilledButton(
-            onPressed: () {
-              HapticFeedback.mediumImpact();
-              Navigator.pop(context, true);
-            },
-            style: FilledButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            child: const Text('Generate'),
-          ),
-        ],
-      ),
-    );
-    
-    return result ?? false;
   }
 
   void _showErrorDialog(String message) {

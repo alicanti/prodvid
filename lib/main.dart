@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/services/notification_service.dart';
 import 'core/services/revenuecat_service.dart';
 import 'core/services/video_player_manager.dart';
 import 'core/theme/app_theme.dart';
@@ -41,6 +42,10 @@ void main() async {
     FirebaseFirestore.instance,
   );
   await revenueCatService.initialize();
+
+  // Initialize Local Notifications
+  await NotificationService().initialize();
+  await NotificationService().requestPermission();
 
   runApp(const ProviderScope(child: ProdVidApp()));
 }

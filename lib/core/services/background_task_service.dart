@@ -7,6 +7,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
+import 'notification_service.dart';
+
 /// Background task service provider
 final backgroundTaskServiceProvider = Provider<BackgroundTaskService>((ref) {
   return BackgroundTaskService();
@@ -325,6 +327,12 @@ class BackgroundTaskService {
           final output = outputs[0] as Map<String, dynamic>;
           videoUrl = output['url'] as String?;
           debugPrint('✅ Video completed! URL: $videoUrl');
+          
+          // Send local notification
+          NotificationService().showVideoCompletedNotification(
+            videoId: taskId,
+            effectName: 'Your video',
+          );
         }
         shouldUpdateFirestore = true;
         _stopPolling(taskId);

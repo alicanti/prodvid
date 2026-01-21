@@ -83,6 +83,9 @@ dependencies:
   
   # Gallery Saver
   gal: ^2.3.0
+  
+  # Local Notifications
+  flutter_local_notifications: ^18.0.1
 
 dev_dependencies:
   flutter_test:

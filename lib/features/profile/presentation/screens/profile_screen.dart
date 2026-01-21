@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/services/auth_service.dart';
@@ -413,7 +414,7 @@ Device Information:
                                 iconBgColor: const Color(0xFF222B3D),
                                 title: 'Notifications',
                                 subtitle: 'Push preferences',
-                                onTap: () {},
+                                onTap: () => openAppSettings(),
                               ),
                               _SettingsItem(
                                 icon: Icons.support_agent,
