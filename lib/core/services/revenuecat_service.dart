@@ -151,9 +151,10 @@ class RevenueCatService {
           'lastUpdated': FieldValue.serverTimestamp(),
         });
       } else {
-        // Document doesn't exist, create without free credits (users must purchase)
+        // Document doesn't exist, create with new dual-field credit system
         await userRef.set({
-          'credits': 0, // No free credits - users must purchase
+          'subscriptionCredits': 0,
+          'purchasedCredits': 0,
           'isSubscribed': isPro,
           'subscriptionExpiry': isPro
               ? customerInfo
@@ -164,7 +165,7 @@ class RevenueCatService {
           'createdAt': FieldValue.serverTimestamp(),
           'updatedAt': FieldValue.serverTimestamp(),
         });
-        debugPrint('📝 Created new user document with 100 initial credits');
+        debugPrint('📝 Created new user document with dual credit fields');
       }
       debugPrint('✅ Subscription status synced to Firestore: isPro=$isPro');
     } catch (e) {

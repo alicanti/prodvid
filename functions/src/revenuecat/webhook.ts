@@ -105,9 +105,17 @@ function getFirebaseUserId(event: RevenueCatEvent['event']): string | null {
 }
 
 /**
- * Add credits to user account
+ * Check if product is a subscription
  */
-async function addCredits(userId: string, productId: string, amount: number): Promise<void> {
+function isSubscriptionProduct(productId: string): boolean {
+  return productId.includes('weekly') || productId.includes('yearly') || 
+         productId.includes('_sub') || productId.includes('.sub');
+}
+
+/**
+ * Add purchased credits to user account (consumables - never deleted)
+ */
+async function addPurchasedCredits(userId: string, productId: string, amount: number): Promise<void> {
   const userRef = db.collection('users').doc(userId);
   
   await db.runTransaction(async (transaction) => {
@@ -116,13 +124,14 @@ async function addCredits(userId: string, productId: string, amount: number): Pr
     if (!userDoc.exists) {
       // Create user document if doesn't exist
       transaction.set(userRef, {
-        credits: amount,
+        purchasedCredits: amount,
+        subscriptionCredits: 0,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
     } else {
       transaction.update(userRef, {
-        credits: admin.firestore.FieldValue.increment(amount),
+        purchasedCredits: admin.firestore.FieldValue.increment(amount),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
     }
@@ -133,16 +142,70 @@ async function addCredits(userId: string, productId: string, amount: number): Pr
     userId,
     productId,
     amount,
-    type: 'purchase',
+    type: 'credit_pack_purchase',
+    creditType: 'purchased',
     source: 'revenuecat_webhook',
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
   });
   
-  console.log(`✅ Added ${amount} credits to user ${userId} for ${productId}`);
+  console.log(`✅ Added ${amount} purchased credits to user ${userId} for ${productId}`);
 }
 
 /**
- * Reset credits for subscription (on renewal)
+ * Set subscription credits (resets on each subscription purchase/renewal)
+ */
+async function setSubscriptionCredits(userId: string, productId: string, amount: number): Promise<void> {
+  const userRef = db.collection('users').doc(userId);
+  
+  await db.runTransaction(async (transaction) => {
+    const userDoc = await transaction.get(userRef);
+    
+    if (!userDoc.exists) {
+      // Create user document if doesn't exist
+      transaction.set(userRef, {
+        subscriptionCredits: amount,
+        purchasedCredits: 0,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    } else {
+      transaction.update(userRef, {
+        subscriptionCredits: amount,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+  });
+  
+  // Log the transaction
+  await db.collection('credit_transactions').add({
+    userId,
+    productId,
+    amount,
+    type: 'subscription_credits',
+    creditType: 'subscription',
+    source: 'revenuecat_webhook',
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+  
+  console.log(`✅ Set subscription credits to ${amount} for user ${userId} (${productId})`);
+}
+
+/**
+ * Legacy: Add credits to old 'credits' field (for backward compatibility during migration)
+ * @deprecated Use addPurchasedCredits or setSubscriptionCredits instead
+ */
+async function addCredits(userId: string, productId: string, amount: number): Promise<void> {
+  // Determine if this is a subscription or consumable
+  if (isSubscriptionProduct(productId)) {
+    await setSubscriptionCredits(userId, productId, amount);
+  } else {
+    await addPurchasedCredits(userId, productId, amount);
+  }
+}
+
+/**
+ * Reset subscription credits for renewal
+ * Only resets subscriptionCredits, purchasedCredits are preserved
  */
 async function resetCreditsForSubscription(
   userId: string,
@@ -152,7 +215,7 @@ async function resetCreditsForSubscription(
   const userRef = db.collection('users').doc(userId);
   
   await userRef.update({
-    credits: amount,
+    subscriptionCredits: amount,
     lastRenewal: admin.firestore.FieldValue.serverTimestamp(),
     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
   });
@@ -163,11 +226,12 @@ async function resetCreditsForSubscription(
     productId,
     amount,
     type: 'subscription_renewal',
+    creditType: 'subscription',
     source: 'revenuecat_webhook',
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
   });
   
-  console.log(`✅ Reset credits to ${amount} for user ${userId} (renewal: ${productId})`);
+  console.log(`✅ Reset subscription credits to ${amount} for user ${userId} (renewal: ${productId})`);
 }
 
 /**

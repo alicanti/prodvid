@@ -79,51 +79,74 @@ function getCreditCost(videoMode) {
     return videoMode === 'pro' ? CREDITS.PRO : CREDITS.STANDARD;
 }
 /**
- * Initial credits for new users
- */
-const INITIAL_CREDITS = 100;
-/**
- * Check and deduct user credits
- * Creates user with initial credits if not exists
+ * Check and deduct user credits using the new dual-field system
+ * Deducts from subscriptionCredits first, then purchasedCredits
  * Returns balance info, throws error if insufficient credits
  */
 async function checkAndDeductCredits(userId, amount) {
     const userRef = db.collection('users').doc(userId);
     return db.runTransaction(async (transaction) => {
-        var _a;
+        var _a, _b, _c;
         const userDoc = await transaction.get(userRef);
-        let currentCredits;
+        let subscriptionCredits = 0;
+        let purchasedCredits = 0;
         if (!userDoc.exists) {
-            // Create new user with initial credits
-            currentCredits = INITIAL_CREDITS;
+            // Create new user with no credits (users must purchase)
             transaction.set(userRef, {
-                credits: currentCredits,
+                subscriptionCredits: 0,
+                purchasedCredits: 0,
                 createdAt: admin.firestore.FieldValue.serverTimestamp(),
                 updatedAt: admin.firestore.FieldValue.serverTimestamp(),
             });
         }
         else {
             const userData = userDoc.data();
-            currentCredits = (_a = userData.credits) !== null && _a !== void 0 ? _a : 0;
+            // Support both old 'credits' field and new dual fields
+            subscriptionCredits = (_a = userData.subscriptionCredits) !== null && _a !== void 0 ? _a : 0;
+            purchasedCredits = (_b = userData.purchasedCredits) !== null && _b !== void 0 ? _b : 0;
+            // If user has old 'credits' field but no new fields, migrate
+            if (userData.credits !== undefined &&
+                userData.subscriptionCredits === undefined &&
+                userData.purchasedCredits === undefined) {
+                // Treat old credits as purchasedCredits (preserve them)
+                purchasedCredits = (_c = userData.credits) !== null && _c !== void 0 ? _c : 0;
+                subscriptionCredits = 0;
+            }
         }
-        if (currentCredits < amount) {
-            throw new functions.https.HttpsError('resource-exhausted', `Insufficient credits. Need ${amount}, have ${currentCredits}`);
+        const totalCredits = subscriptionCredits + purchasedCredits;
+        if (totalCredits < amount) {
+            throw new functions.https.HttpsError('resource-exhausted', `Insufficient credits. Need ${amount}, have ${totalCredits}`);
         }
-        const newBalance = currentCredits - amount;
+        // Deduct from subscriptionCredits first, then purchasedCredits
+        let remainingDeduction = amount;
+        let newSubscriptionCredits = subscriptionCredits;
+        let newPurchasedCredits = purchasedCredits;
+        if (subscriptionCredits >= remainingDeduction) {
+            newSubscriptionCredits = subscriptionCredits - remainingDeduction;
+            remainingDeduction = 0;
+        }
+        else {
+            remainingDeduction -= subscriptionCredits;
+            newSubscriptionCredits = 0;
+            newPurchasedCredits = purchasedCredits - remainingDeduction;
+        }
+        const newBalance = newSubscriptionCredits + newPurchasedCredits;
         transaction.update(userRef, {
-            credits: newBalance,
+            subscriptionCredits: newSubscriptionCredits,
+            purchasedCredits: newPurchasedCredits,
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
-        return { newBalance, previousBalance: currentCredits };
+        return { newBalance, previousBalance: totalCredits };
     });
 }
 /**
  * Refund credits to user (in case of error)
+ * Refunds go to purchasedCredits since they're permanent
  */
 async function refundCredits(userId, amount) {
     const userRef = db.collection('users').doc(userId);
     await userRef.update({
-        credits: admin.firestore.FieldValue.increment(amount),
+        purchasedCredits: admin.firestore.FieldValue.increment(amount),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 }
@@ -414,11 +437,11 @@ exports.cancelWiroTask = functions
     }
 });
 /**
- * Get user's credit balance
+ * Get user's credit balance (total of subscriptionCredits + purchasedCredits)
  */
 exports.getUserCredits = functions
     .https.onCall(async (data, context) => {
-    var _a, _b;
+    var _a, _b, _c;
     if (!context.auth) {
         throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
     }
@@ -427,13 +450,32 @@ exports.getUserCredits = functions
     if (!userDoc.exists) {
         // Create user document without free credits (users must purchase)
         await db.collection('users').doc(userId).set({
-            credits: 0, // No free credits - users must purchase
+            subscriptionCredits: 0,
+            purchasedCredits: 0,
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
-        return { credits: 0 };
+        return {
+            credits: 0,
+            subscriptionCredits: 0,
+            purchasedCredits: 0,
+        };
     }
-    return { credits: (_b = (_a = userDoc.data()) === null || _a === void 0 ? void 0 : _a.credits) !== null && _b !== void 0 ? _b : 0 };
+    const userData = userDoc.data();
+    const subscriptionCredits = (_a = userData === null || userData === void 0 ? void 0 : userData.subscriptionCredits) !== null && _a !== void 0 ? _a : 0;
+    const purchasedCredits = (_b = userData === null || userData === void 0 ? void 0 : userData.purchasedCredits) !== null && _b !== void 0 ? _b : 0;
+    // Support legacy 'credits' field during migration
+    const legacyCredits = (_c = userData === null || userData === void 0 ? void 0 : userData.credits) !== null && _c !== void 0 ? _c : 0;
+    const hasNewFields = (userData === null || userData === void 0 ? void 0 : userData.subscriptionCredits) !== undefined ||
+        (userData === null || userData === void 0 ? void 0 : userData.purchasedCredits) !== undefined;
+    const totalCredits = hasNewFields
+        ? subscriptionCredits + purchasedCredits
+        : legacyCredits;
+    return {
+        credits: totalCredits,
+        subscriptionCredits: hasNewFields ? subscriptionCredits : 0,
+        purchasedCredits: hasNewFields ? purchasedCredits : legacyCredits,
+    };
 });
 /**
  * Webhook callback for Wiro task completion

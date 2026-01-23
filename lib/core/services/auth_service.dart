@@ -40,6 +40,7 @@ final authServiceProvider = Provider<AuthService>((ref) {
 });
 
 /// User credits provider - watches Firestore for real-time credit updates
+/// Returns total credits (subscriptionCredits + purchasedCredits)
 final userCreditsProvider = StreamProvider<int>((ref) {
   // Watch auth state to rebuild when user changes
   final authState = ref.watch(authStateProvider);
@@ -54,7 +55,25 @@ final userCreditsProvider = StreamProvider<int>((ref) {
           .collection('users')
           .doc(user.uid)
           .snapshots()
-          .map((doc) => (doc.data()?['credits'] as num?)?.toInt() ?? 0);
+          .map((doc) {
+            final data = doc.data();
+            if (data == null) return 0;
+            
+            // New dual-field system
+            final subscriptionCredits = (data['subscriptionCredits'] as num?)?.toInt() ?? 0;
+            final purchasedCredits = (data['purchasedCredits'] as num?)?.toInt() ?? 0;
+            
+            // Check if using new fields
+            final hasNewFields = data.containsKey('subscriptionCredits') || 
+                                 data.containsKey('purchasedCredits');
+            
+            if (hasNewFields) {
+              return subscriptionCredits + purchasedCredits;
+            }
+            
+            // Fallback to legacy 'credits' field
+            return (data['credits'] as num?)?.toInt() ?? 0;
+          });
     },
     loading: () => Stream.value(0),
     error: (_, __) => Stream.value(0),
@@ -249,38 +268,64 @@ class AuthService {
   }
 
   /// Create user document in Firestore with initial credits
+  /// Uses new dual-field system (subscriptionCredits + purchasedCredits)
   Future<void> _createUserDocument(String userId) async {
     final userRef = _firestore.collection('users').doc(userId);
     final userDoc = await userRef.get();
 
     if (!userDoc.exists) {
-      // Create new user document with initial credits
+      // Create new user document with new dual-field system
       await userRef.set({
-        'credits': initialCredits,
+        'subscriptionCredits': 0,
+        'purchasedCredits': 0,
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
-      debugPrint('📝 Created new user document with $initialCredits initial credits');
+      debugPrint('📝 Created new user document with dual credit fields');
     } else {
-      // Document exists but might not have credits (created by RevenueCat sync)
+      // Document exists - migrate if using old 'credits' field
       final data = userDoc.data();
-      if (data != null && !data.containsKey('credits')) {
-        await userRef.update({
-          'credits': initialCredits,
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
-        debugPrint('📝 Added $initialCredits initial credits to existing user document');
+      if (data != null) {
+        final hasNewFields = data.containsKey('subscriptionCredits') || 
+                             data.containsKey('purchasedCredits');
+        
+        if (!hasNewFields) {
+          // Migrate old credits to purchasedCredits (preserve them)
+          final oldCredits = (data['credits'] as num?)?.toInt() ?? 0;
+          await userRef.update({
+            'subscriptionCredits': 0,
+            'purchasedCredits': oldCredits,
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+          debugPrint('📝 Migrated $oldCredits credits to purchasedCredits');
+        }
       }
     }
   }
 
-  /// Get current user's credits
+  /// Get current user's credits (total of subscriptionCredits + purchasedCredits)
   Future<int> getCredits() async {
     final user = _auth.currentUser;
     if (user == null) return 0;
 
     final userDoc = await _firestore.collection('users').doc(user.uid).get();
-    return (userDoc.data()?['credits'] as num?)?.toInt() ?? 0;
+    final data = userDoc.data();
+    if (data == null) return 0;
+    
+    // New dual-field system
+    final subscriptionCredits = (data['subscriptionCredits'] as num?)?.toInt() ?? 0;
+    final purchasedCredits = (data['purchasedCredits'] as num?)?.toInt() ?? 0;
+    
+    // Check if using new fields
+    final hasNewFields = data.containsKey('subscriptionCredits') || 
+                         data.containsKey('purchasedCredits');
+    
+    if (hasNewFields) {
+      return subscriptionCredits + purchasedCredits;
+    }
+    
+    // Fallback to legacy 'credits' field
+    return (data['credits'] as num?)?.toInt() ?? 0;
   }
 
   /// Sign out

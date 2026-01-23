@@ -99,17 +99,41 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
   Future<void> _downloadVideo() async {
     if (widget.videoUrl == null || _isDownloading) return;
 
+    // First, check and request gallery permission
+    final hasAccess = await Gal.hasAccess(toAlbum: true);
+    if (!hasAccess) {
+      final granted = await Gal.requestAccess(toAlbum: true);
+      if (!granted) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Photo library access required to save videos'),
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+              action: SnackBarAction(
+                label: 'Settings',
+                textColor: Colors.white,
+                onPressed: () => Gal.open(),
+              ),
+            ),
+          );
+        }
+        return;
+      }
+    }
+
     setState(() {
       _isDownloading = true;
       _downloadProgress = 0;
     });
 
+    String? filePath;
     try {
       // Get temporary directory for download
       final directory = await getTemporaryDirectory();
       final fileName =
           'prodvid_${widget.taskId ?? DateTime.now().millisecondsSinceEpoch}.mp4';
-      final filePath = '${directory.path}/$fileName';
+      filePath = '${directory.path}/$fileName';
 
       // Download with progress
       await Dio().download(
@@ -124,13 +148,14 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
         },
       );
 
+      // Verify file exists before saving
+      final file = File(filePath);
+      if (!await file.exists()) {
+        throw Exception('Downloaded file not found');
+      }
+
       // Save to device gallery using Gal package
       await Gal.putVideo(filePath, album: 'ProdVid');
-
-      // Clean up temp file
-      try {
-        await File(filePath).delete();
-      } catch (_) {}
 
       if (mounted) {
         setState(() => _isDownloading = false);
@@ -141,17 +166,17 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Video saved to gallery!'),
+            content: const Text('Video saved to gallery! 🎬'),
             backgroundColor: AppColors.success,
             behavior: SnackBarBehavior.floating,
-            action: SnackBarAction(
-              label: 'Share',
-              textColor: Colors.white,
-              onPressed: () => _shareVideo(filePath),
-            ),
           ),
         );
       }
+
+      // Clean up temp file after successful save
+      try {
+        await file.delete();
+      } catch (_) {}
     } catch (e) {
       if (mounted) {
         setState(() => _isDownloading = false);
@@ -169,9 +194,13 @@ class _VideoExportScreenState extends State<VideoExportScreen> {
               errorMessage = 'Not enough storage space';
               break;
             default:
-              errorMessage = 'Failed to save to gallery';
+              errorMessage = 'Failed to save to gallery: ${e.type}';
           }
+        } else {
+          errorMessage = 'Failed to save: $e';
         }
+        
+        debugPrint('Save to gallery error: $e');
         
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
