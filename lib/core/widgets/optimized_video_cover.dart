@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 
-import '../services/video_player_manager.dart';
+import 'looping_video_thumbnail.dart';
 
-/// An optimized video cover widget that:
-/// - Only loads video when visible on screen
-/// - Uses global video player pool with max concurrent limit
-/// - Shows gradient fallback while loading
-/// - Automatically releases when off-screen
-class OptimizedVideoCover extends StatefulWidget {
+/// An optimized video cover widget that wraps LoopingVideoThumbnail
+/// with a consistent API for backward compatibility.
+///
+/// Features:
+/// - Only loads video when visible on screen (30% threshold)
+/// - Queue-based loading (max 5 concurrent)
+/// - Full dispose when off-screen for memory optimization
+/// - Retry mechanism with exponential backoff
+/// - 12 second timeout protection
+/// - Cache support via flutter_cache_manager
+class OptimizedVideoCover extends StatelessWidget {
   const OptimizedVideoCover({
     required this.videoUrl,
     required this.uniqueId,
@@ -19,261 +22,30 @@ class OptimizedVideoCover extends StatefulWidget {
     this.borderRadius = 16,
     this.visibilityThreshold = 0.3,
     this.autoPlay = true,
+    this.showRetryButton = false,
   });
 
   final String videoUrl;
-  final String uniqueId; // Unique ID for visibility detector
+  final String uniqueId; // Used for visibility detector key
   final List<Color>? fallbackGradient;
   final IconData? fallbackIcon;
   final double borderRadius;
   final double visibilityThreshold;
   final bool autoPlay;
-
-  @override
-  State<OptimizedVideoCover> createState() => _OptimizedVideoCoverState();
-}
-
-class _OptimizedVideoCoverState extends State<OptimizedVideoCover> {
-  VideoPlayerController? _controller;
-  bool _isVisible = false;
-  bool _isLoading = false;
-  bool _hasError = false;
-  bool _disposed = false;
-
-  @override
-  void dispose() {
-    _disposed = true;
-    _releaseVideo();
-    super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(OptimizedVideoCover oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.videoUrl != widget.videoUrl) {
-      _releaseVideo();
-      if (_isVisible && !_disposed) {
-        _loadVideo();
-      }
-    }
-  }
-
-  /// Check if the current controller is still valid and not disposed
-  bool get _isControllerValid {
-    if (_disposed) return false;
-    if (_controller == null) return false;
-    
-    // Check if manager still has this controller
-    try {
-      if (!VideoPlayerManager.instance.isControllerValid(widget.videoUrl)) {
-        return false;
-      }
-    } catch (e) {
-      return false;
-    }
-    
-    // Try to access value - if disposed, this will throw
-    try {
-      final value = _controller?.value;
-      return value != null && value.isInitialized;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  void _onVisibilityChanged(VisibilityInfo info) {
-    if (!mounted || _disposed) return;
-
-    final wasVisible = _isVisible;
-    _isVisible = info.visibleFraction >= widget.visibilityThreshold;
-
-    if (_isVisible && !wasVisible) {
-      // Became visible - load video
-      _loadVideo();
-    } else if (!_isVisible && wasVisible) {
-      // Became invisible - release and clear
-      _releaseVideo();
-      if (mounted && !_disposed) {
-        setState(() {});
-      }
-    }
-  }
-
-  /// Safely play the controller if it's still valid
-  void _safePlay() {
-    if (_disposed || !_isControllerValid) {
-      _clearController();
-      return;
-    }
-    
-    try {
-      _controller?.play();
-    } catch (e) {
-      // Controller was disposed, clear reference
-      _clearController();
-    }
-  }
-
-  void _clearController() {
-    _controller = null;
-    if (mounted && !_disposed) {
-      setState(() {});
-    }
-  }
-
-  Future<void> _loadVideo() async {
-    if (!mounted || _disposed) return;
-
-    // If we have a valid controller, just play it
-    if (_isControllerValid) {
-      _safePlay();
-      return;
-    }
-
-    // Controller is gone, need to get a new one
-    if (_controller != null) {
-      _clearController();
-    }
-
-    if (_isLoading) return;
-
-    _isLoading = true;
-
-    try {
-      final controller =
-          await VideoPlayerManager.instance.getController(widget.videoUrl);
-
-      if (!mounted || _disposed) return;
-
-      if (controller != null) {
-        setState(() {
-          _controller = controller;
-          _hasError = false;
-        });
-
-        if (widget.autoPlay && _isVisible && !_disposed) {
-          _safePlay();
-        }
-      } else {
-        setState(() => _hasError = true);
-      }
-    } catch (e) {
-      if (mounted && !_disposed) {
-        setState(() => _hasError = true);
-      }
-    } finally {
-      _isLoading = false;
-    }
-  }
-
-  void _releaseVideo() {
-    if (_controller != null) {
-      VideoPlayerManager.instance.release(widget.videoUrl);
-      _controller = null;
-    }
-  }
-
-  List<Color> get _gradient =>
-      widget.fallbackGradient ??
-      [const Color(0xFF667eea), const Color(0xFF764ba2)];
+  final bool showRetryButton;
 
   @override
   Widget build(BuildContext context) {
-    return VisibilityDetector(
-      key: Key('video_${widget.uniqueId}'),
-      onVisibilityChanged: _onVisibilityChanged,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(widget.borderRadius),
-        child: _buildContent(),
-      ),
-    );
-  }
-
-  Widget _buildContent() {
-    // Check if disposed or controller is not valid
-    if (_disposed || _hasError) {
-      return _buildFallback();
-    }
-    
-    // Get controller reference locally to avoid race conditions
-    final controller = _controller;
-    if (controller == null) {
-      return _buildFallback();
-    }
-    
-    // Safe access to controller value
-    try {
-      final value = controller.value;
-      if (!value.isInitialized) {
-        return _buildFallback();
-      }
-      
-      return Stack(
-        fit: StackFit.expand,
-        children: [
-          // Video
-          FittedBox(
-            fit: BoxFit.cover,
-            child: SizedBox(
-              width: value.size.width,
-              height: value.size.height,
-              child: VideoPlayer(controller),
-            ),
-          ),
-          // Subtle overlay for better text readability
-          DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Colors.black.withValues(alpha: 0.3),
-                ],
-              ),
-            ),
-          ),
-        ],
-      );
-    } catch (e) {
-      // Controller was disposed during build
-      return _buildFallback();
-    }
-  }
-
-  Widget _buildFallback() {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: _gradient,
-        ),
-      ),
-      child: Center(
-        child: _hasError
-            ? Icon(
-                widget.fallbackIcon ?? Icons.play_circle_outline,
-                size: 40,
-                color: Colors.white.withValues(alpha: 0.5),
-              )
-            : _isLoading
-                ? SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        Colors.white.withValues(alpha: 0.5),
-                      ),
-                    ),
-                  )
-                : Icon(
-                    widget.fallbackIcon ?? Icons.play_circle_outline,
-                    size: 40,
-                    color: Colors.white.withValues(alpha: 0.4),
-                  ),
-      ),
+    return LoopingVideoThumbnail(
+      // Use uniqueId to create a more specific key
+      key: ValueKey('cover_$uniqueId'),
+      videoUrl: videoUrl,
+      autoPlay: autoPlay,
+      visibilityThreshold: visibilityThreshold,
+      fallbackGradient: fallbackGradient,
+      fallbackIcon: fallbackIcon,
+      borderRadius: borderRadius,
+      showRetryButton: showRetryButton,
     );
   }
 }
@@ -325,4 +97,3 @@ class StaticEffectCard extends StatelessWidget {
     );
   }
 }
-

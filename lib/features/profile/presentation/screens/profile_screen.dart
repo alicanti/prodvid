@@ -529,7 +529,7 @@ Device Information:
 
                   // Version
                   const Text(
-                    'ProdVid v1.0.4',
+                    'ProdVid v1.0.5',
                     style: TextStyle(fontSize: 12, color: AppColors.slate600),
                   ),
                 ],

@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/services/notification_service.dart';
 import 'core/services/revenuecat_service.dart';
-import 'core/services/video_player_manager.dart';
+import 'core/services/video_loading_queue.dart';
 import 'core/theme/app_theme.dart';
 import 'firebase_options.dart';
 import 'router/app_router.dart';
@@ -68,8 +68,8 @@ class _ProdVidAppState extends ConsumerState<ProdVidApp>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    // Dispose all video players when app is closed
-    VideoPlayerManager.instance.disposeAll();
+    // Clear video loading queue when app is closed
+    VideoLoadingQueue.instance.disposeAll();
     super.dispose();
   }
 
@@ -82,13 +82,13 @@ class _ProdVidAppState extends ConsumerState<ProdVidApp>
       case AppLifecycleState.inactive:
       case AppLifecycleState.hidden:
         // Pause all videos when app goes to background
-        VideoPlayerManager.instance.pauseAll();
+        VideoLoadingQueue.instance.pauseAll();
       case AppLifecycleState.resumed:
         // Videos will resume when they become visible again
         break;
       case AppLifecycleState.detached:
-        // Dispose all videos when app is detached
-        VideoPlayerManager.instance.disposeAll();
+        // Clear all video tracking when app is detached
+        VideoLoadingQueue.instance.disposeAll();
     }
   }
 
