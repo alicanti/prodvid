@@ -578,6 +578,285 @@ enum WiroProductAdsEffect {
     'christmas-presets-winter-chariot',
     'Winter Chariot',
     WiroProductAdsCategory.christmas,
+  ),
+
+  // ==========================================================================
+  // NEW: Valentines & Romance
+  // ==========================================================================
+  productOnLiquidGold(
+    'product-on-liquid-gold',
+    'Liquid Gold',
+    WiroProductAdsCategory.valentinesRomance,
+  ),
+  productOnValentinesGlassGlow(
+    'product-on-valentines-glass-glow',
+    'Valentines Glass Glow',
+    WiroProductAdsCategory.valentinesRomance,
+  ),
+  productOnVelvetHeart(
+    'product-on-velvet-heart',
+    'Velvet Heart',
+    WiroProductAdsCategory.valentinesRomance,
+  ),
+  productOnMartiniHeart(
+    'product-on-martini-heart',
+    'Martini Heart',
+    WiroProductAdsCategory.valentinesRomance,
+  ),
+  productOnSnowfallRomance(
+    'product-on-snowfall-romance',
+    'Snowfall Romance',
+    WiroProductAdsCategory.valentinesRomance,
+  ),
+  productOnLoveRoyale(
+    'product-on-love-royale',
+    'LOVE Royale',
+    WiroProductAdsCategory.valentinesRomance,
+  ),
+  productOnBlushBalloon(
+    'product-on-blush-balloon',
+    'Blush Balloon',
+    WiroProductAdsCategory.valentinesRomance,
+  ),
+
+  // ==========================================================================
+  // NEW: Premium Staging
+  // ==========================================================================
+  productOnWaterNStone(
+    'product-on-water-n-stone',
+    'Water n Stone',
+    WiroProductAdsCategory.premiumStaging,
+  ),
+  productOnZeroGravityStudio(
+    'product-on-zero-gravity-studio',
+    'Zero-gravity Studio',
+    WiroProductAdsCategory.premiumStaging,
+  ),
+  productOnExplosion(
+    'product-on-explosion',
+    'Explosion',
+    WiroProductAdsCategory.premiumStaging,
+  ),
+  productOnFoamyWater(
+    'product-on-foamy-water',
+    'Foamy Water',
+    WiroProductAdsCategory.premiumStaging,
+  ),
+  productOnBeamOfLight(
+    'product-on-beam-of-light',
+    'Beam of Light',
+    WiroProductAdsCategory.premiumStaging,
+  ),
+  productOnFloralAscension(
+    'product-on-floral-ascension',
+    'Floral Ascension',
+    WiroProductAdsCategory.premiumStaging,
+  ),
+  productOnGoldenSuspension(
+    'product-on-golden-suspension',
+    'Golden Suspension',
+    WiroProductAdsCategory.premiumStaging,
+  ),
+  productOnNatureLuxe(
+    'product-on-nature-luxe',
+    'Nature Luxe',
+    WiroProductAdsCategory.premiumStaging,
+  ),
+  productOnPinkWonderland(
+    'product-on-pink-wonderland',
+    'Pink Wonderland',
+    WiroProductAdsCategory.premiumStaging,
+  ),
+  productOnRedPedestalVelvetCurtains(
+    'product-on-red-pedestal-velvet-curtains',
+    'Red Pedestal Velvet Curtains',
+    WiroProductAdsCategory.premiumStaging,
+  ),
+  productOnSteelCableSuspended(
+    'product-on-steel-cable-suspended',
+    'Steel Cable Suspended',
+    WiroProductAdsCategory.premiumStaging,
+  ),
+  productOnSurrealAbstractTextures(
+    'product-on-surreal-abstract-textures',
+    'Surreal Abstract Textures',
+    WiroProductAdsCategory.premiumStaging,
+  ),
+
+  // ==========================================================================
+  // NEW: Bag & Fashion
+  // ==========================================================================
+  productOnBagIceBlockWinter(
+    'product-on-bag-ice-block-winter',
+    'Bag Ice Block Winter',
+    WiroProductAdsCategory.bagFashion,
+  ),
+  productOnBagStoneStructureArchitectural(
+    'product-on-bag-stone-structure-architectural',
+    'Bag Stone Structure Architectural',
+    WiroProductAdsCategory.bagFashion,
+  ),
+  productOnBagModelBentLegStudio(
+    'product-on-bag-model-bent-leg-studio',
+    'Bag Model Bent Leg Studio',
+    WiroProductAdsCategory.bagFashion,
+  ),
+  productOnBagGrassReflectiveSurface(
+    'product-on-bag-grass-reflective-surface',
+    'Bag Grass Reflective Surface',
+    WiroProductAdsCategory.bagFashion,
+  ),
+  productOnBagMultipleHeldSeatedModel(
+    'product-on-bag-multiple-held-seated-model',
+    'Bag Multiple Held Seated Model',
+    WiroProductAdsCategory.bagFashion,
+  ),
+  productOnBagMultipleSymmetricalSeated(
+    'product-on-bag-multiple-symmetrical-seated',
+    'Bag Multiple Symmetrical Seated',
+    WiroProductAdsCategory.bagFashion,
+  ),
+  productOnBagStoneFormationMountains(
+    'product-on-bag-stone-formation-mountains',
+    'Bag Stone Formation Mountains',
+    WiroProductAdsCategory.bagFashion,
+  ),
+
+  // ==========================================================================
+  // NEW: Candle & Lifestyle
+  // ==========================================================================
+  productOnCoffeePouringLifestyle(
+    'product-on-coffee-pouring-lifestyle',
+    'Coffee Pouring Lifestyle',
+    WiroProductAdsCategory.candleLifestyle,
+  ),
+  productOnTulleGlovedHandsCandle(
+    'product-on-tulle-gloved-hands-candle',
+    'Tulle Gloved Hands Candle',
+    WiroProductAdsCategory.candleLifestyle,
+  ),
+  productOnWoodenPedestalCandle(
+    'product-on-wooden-pedestal-candle',
+    'Wooden Pedestal Candle',
+    WiroProductAdsCategory.candleLifestyle,
+  ),
+  productOnFoodElementsPlayful(
+    'product-on-food-elements-playful',
+    'Food Elements Playful',
+    WiroProductAdsCategory.candleLifestyle,
+  ),
+  productOnCandlesFabricMultiple(
+    'product-on-candles-fabric-multiple',
+    'Candles Fabric Multiple',
+    WiroProductAdsCategory.candleLifestyle,
+  ),
+  productOnCitrusFruitsCandle(
+    'product-on-citrus-fruits-candle',
+    'Citrus Fruits Candle',
+    WiroProductAdsCategory.candleLifestyle,
+  ),
+  productOnGreenFoliageBotanical(
+    'product-on-green-foliage-botanical',
+    'Green Foliage Botanical',
+    WiroProductAdsCategory.candleLifestyle,
+  ),
+  productOnCandleMatchLightingIntimate(
+    'product-on-candle-match-lighting-intimate',
+    'Match Lighting Intimate',
+    WiroProductAdsCategory.candleLifestyle,
+  ),
+
+  // ==========================================================================
+  // NEW: Perfume & Beauty
+  // ==========================================================================
+  productOnWaterFloatingPool(
+    'product-on-water-floating-pool',
+    'Water Floating Pool',
+    WiroProductAdsCategory.perfumeBeauty,
+  ),
+  productOnWhiteLedgeFlowers(
+    'product-on-white-ledge-flowers',
+    'White Ledge Flowers',
+    WiroProductAdsCategory.perfumeBeauty,
+  ),
+  productOnModelCloseFacePortrait(
+    'product-on-model-close-face-portrait',
+    'Model Close Face Portrait',
+    WiroProductAdsCategory.perfumeBeauty,
+  ),
+  productOnRopeCoastalWater(
+    'product-on-rope-coastal-water',
+    'Rope Coastal Water',
+    WiroProductAdsCategory.perfumeBeauty,
+  ),
+  productOnPinkCloudsDreamy(
+    'product-on-pink-clouds-dreamy',
+    'Pink Clouds Dreamy',
+    WiroProductAdsCategory.perfumeBeauty,
+  ),
+  productOnPerfumeSnowySkiSlope(
+    'product-on-perfume-snowy-ski-slope',
+    'Perfume Snowy Ski Slope',
+    WiroProductAdsCategory.perfumeBeauty,
+  ),
+  productOnSnowMountainReflection(
+    'product-on-snow-mountain-reflection',
+    'Snow Mountain Reflection',
+    WiroProductAdsCategory.perfumeBeauty,
+  ),
+  productOnPerfumeSkiSlopeSkiers(
+    'product-on-perfume-ski-slope-skiers',
+    'Perfume Ski Slope Skiers',
+    WiroProductAdsCategory.perfumeBeauty,
+  ),
+  productOnGlassOrnamentSphere(
+    'product-on-glass-ornament-sphere',
+    'Glass Ornament Sphere',
+    WiroProductAdsCategory.perfumeBeauty,
+  ),
+  productOnChristmasTreeBranches(
+    'product-on-christmas-tree-branches',
+    'Christmas Tree Branches',
+    WiroProductAdsCategory.perfumeBeauty,
+  ),
+  productOnSnowCandyCanes(
+    'product-on-snow-candy-canes',
+    'Snow Candy Canes',
+    WiroProductAdsCategory.perfumeBeauty,
+  ),
+  productOnWinterFlatlayTopdown(
+    'product-on-winter-flatlay-topdown',
+    'Winter Flatlay Topdown',
+    WiroProductAdsCategory.perfumeBeauty,
+  ),
+
+  // ==========================================================================
+  // NEW: Earrings & Jewelry
+  // ==========================================================================
+  productOnEarringsMartiniGlass(
+    'product-on-earrings-martini-glass',
+    'Earrings Martini Glass',
+    WiroProductAdsCategory.earringsJewelry,
+  ),
+  productOnEaringsTwoHandsSymmetrical(
+    'product-on-earings-two-hands-symmetrical',
+    'Earings Two Hands Symmetrical',
+    WiroProductAdsCategory.earringsJewelry,
+  ),
+  productOnEarringsModelEarProfile(
+    'product-on-earrings-model-ear-profile',
+    'Earrings Model Ear Profile',
+    WiroProductAdsCategory.earringsJewelry,
+  ),
+  productOnEarringsBlondeModelOne(
+    'product-on-earrings-blonde-model-one',
+    'Earrings Blonde Model One',
+    WiroProductAdsCategory.earringsJewelry,
+  ),
+  productOnEarringsBlondeModelTwo(
+    'product-on-earrings-blonde-model-two',
+    'Earrings Blonde Model Two',
+    WiroProductAdsCategory.earringsJewelry,
   );
 
   const WiroProductAdsEffect(this.value, this.label, this.category);
@@ -934,7 +1213,14 @@ enum WiroProductAdsCategory {
   sceneMorphs('Scene Morphs'),
   surrealStaging('Surreal Staging'),
   productOnModel('Product on Model'),
-  christmas('Christmas');
+  christmas('Christmas'),
+  // New categories
+  valentinesRomance('Valentines & Romance'),
+  premiumStaging('Premium Staging'),
+  bagFashion('Bag & Fashion'),
+  candleLifestyle('Candle & Lifestyle'),
+  perfumeBeauty('Perfume & Beauty'),
+  earringsJewelry('Earrings & Jewelry');
 
   const WiroProductAdsCategory(this.label);
 
