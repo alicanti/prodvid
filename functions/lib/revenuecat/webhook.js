@@ -303,7 +303,7 @@ async function handleCancellation(event) {
 }
 /**
  * Handle EXPIRATION event
- * Subscription expired - remove access
+ * Subscription expired - remove access and zero out subscription credits
  */
 async function handleExpiration(event) {
     const userId = getFirebaseUserId(event);
@@ -313,12 +313,30 @@ async function handleExpiration(event) {
     }
     // Update subscription status to inactive
     await updateSubscriptionStatus(userId, false);
+    // Zero out subscription credits - they don't carry over after expiration
+    const userRef = db.collection('users').doc(userId);
+    await userRef.update({
+        subscriptionCredits: 0,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    // Log the credit reset
+    await db.collection('credit_transactions').add({
+        userId,
+        productId: event.product_id,
+        amount: 0,
+        type: 'subscription_expired',
+        creditType: 'subscription',
+        description: 'Subscription credits reset to 0 due to expiration',
+        source: 'revenuecat_webhook',
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
     await db.collection('subscription_events').add({
         userId,
         productId: event.product_id,
         type: 'expiration',
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
+    console.log(`✅ Subscription expired for user ${userId} - subscription credits reset to 0`);
 }
 /**
  * Handle UNCANCELLATION event
